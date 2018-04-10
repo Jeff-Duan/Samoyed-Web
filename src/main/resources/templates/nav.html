@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+    <title th:utext="#{project.name}"></title>
+    <link href="../static/css/element/index.css" rel="stylesheet" th:href="@{/css/element/index.css}">
+    <!-- 自定义css文件 -->
+    <link href="../static/css/common.css" rel="stylesheet" th:href="@{/css/common.css}">
+</head>
+
+<body>
+
+    <div id="nav" th:fragment="nav(activeIndex)" class="nav" v-cloak>
+        <div class="collapse-btn" @click="onClickCollapse">
+            <div class="collapse-btn-icons" :class="isCollapse?'':'rotate90'">
+                <i class="collapse-btn-icon el-icon-minus"></i>
+                <i class="collapse-btn-icon el-icon-minus"></i>
+                <i class="collapse-btn-icon el-icon-minus"></i>
+            </div>
+        </div>
+        <el-menu default-active="home" th:attr="default-active=${activeIndex}" class="el-nav-menu" :collapse="isCollapse">
+
+            <el-menu-item index="home" @click="onClickHome">
+                <i :class="'nav-icon nav-icon-home'+(active=='home'?'-active':'')"></i>
+                <span slot="title" th:text="#{nav.home}"></span>
+            </el-menu-item>
+
+            <el-submenu index="purchase" :show-timeout="0" :hide-timeout="200">
+                <template slot="title">
+                    <i :class="'nav-icon nav-icon-purchase'+(activePurchase?'-active':'')"></i>
+                    <span slot="title" th:text="#{nav.purchase}"></span>
+                </template>
+                <el-menu-item-group>
+                    <el-menu-item index="purchaseApply" @click="onClickPurchaseApply">
+                        <span slot="title" th:text="#{nav.purchaseApply}"></span>
+                    </el-menu-item>
+                    <el-menu-item index="purchaseOrder" @click="onClickPurchaseOrder">
+                        <span slot="title" th:text="#{nav.purchaseOrder}"></span>
+                    </el-menu-item>
+                    <el-menu-item index="purchaseStorage" @click="onClickPurchaseStorage">
+                        <span slot="title" th:text="#{nav.purchaseStorage}"></span>
+                    </el-menu-item>
+                    <el-menu-item index="purchasePay" @click="onClickPurchasePay">
+                        <span slot="title" th:text="#{nav.purchasePay}"></span>
+                    </el-menu-item>
+                    <el-menu-item index="purchaseCancel" @click="onClickPurchaseCancel">
+                        <span slot="title" th:text="#{nav.purchaseCancel}"></span>
+                    </el-menu-item>
+                    <el-menu-item index="purchaseReconciliation" @click="onClickPurchaseReconciliation">
+                        <span slot="title" th:text="#{nav.purchaseReconciliation}"></span>
+                    </el-menu-item>
+                </el-menu-item-group>
+            </el-submenu>
+
+        </el-menu>
+    </div>
+
+    <script src="../static/js/vue.js" th:src="@{/js/vue.js}"></script>
+    <script src="../static/js/element.js" th:src="@{/js/element.js}"></script>
+    <script src="../static/js/jquery-3.3.1.min.js" th:src="@{/js/jquery-3.3.1.min.js}"></script>
+    <script src="../static/js/utils.js" th:src="@{/js/utils.js}"></script>
+    <!-- 定义vue组件 -->
+    <script th:fragment="vue(activeIndex)" th:inline="text">
+        var initialCollapse = loadCache("navCollapse");
+        if (initialCollapse === null) {
+            initialCollapse = true;
+        }
+        var marginHelper = $('.margin-helper');
+        if (!initialCollapse) {
+            marginHelper.addClass('margin-for-nav');
+        }
+        setTimeout(function () {
+            marginHelper.addClass('margin-for-nav-transition');
+        }, 100);
+        new Vue({
+            el: '#nav',
+            data: {
+                isCollapse: initialCollapse,
+                active: '[[${activeIndex}]]',
+            },
+            computed: {
+                //采购模块
+                activePurchase: function () {
+                    switch (this.active) {
+                        case 'purchaseApply':
+                        case 'purchaseOrder':
+                        case 'purchaseStorage':
+                        case 'purchasePay':
+                        case 'purchaseReturn':
+                        case 'purchaseReconciliation':
+                            return true;
+                        default:
+                            return false;
+                    }
+                },
+            },
+            methods: {
+                onClickCollapse: function (e) {
+                    this.isCollapse = !this.isCollapse;
+                    saveCache("navCollapse", this.isCollapse);
+                    document.getElementsByClassName("collapse-btn")[0].blur();
+                    if (this.isCollapse) {
+                        marginHelper.removeClass('margin-for-nav');
+                    } else {
+                        marginHelper.addClass('margin-for-nav');
+                    }
+                },
+                //首页
+                onClickHome: function () {
+                    jumpToURL("/");
+                },
+                //采购模块
+                onClickPurchaseApply: function () {
+                    jumpToURL("/purchase/apply");
+                },
+                onClickPurchaseOrder: function () {
+                    jumpToURL("/purchase/order");
+                },
+                onClickPurchaseStorage: function () {
+                    jumpToURL("/purchase/storage");
+                },
+                onClickPurchasePay: function () {
+                    jumpToURL("/purchase/pay");
+                },
+                onClickPurchaseCancel: function () {
+                    jumpToURL("/purchase/cancel");
+                },
+                onClickPurchaseReconciliation: function () {
+                    jumpToURL("/purchase/reconciliation");
+                },
+
+            },
+        })
+    </script>
+
+</body>
+
+</html>

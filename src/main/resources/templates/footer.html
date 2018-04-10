@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+    <title th:utext="#{project.name}"></title>
+    <link href="../static/css/element/index.css"
+          rel="stylesheet"
+          th:href="@{/css/element/index.css}">
+    <!-- 自定义css文件 -->
+    <link href="../static/css/common.css"
+        rel="stylesheet"
+        th:href="@{/css/common.css}">
+</head>
+<body>
+
+<div id="footer" th:fragment="footer" class="footer" v-cloak>
+    <span th:text="#{footer.textBefore}">有问题发送邮件至</span>
+    <el-button type="text" @click="sendMail" class="footer-txt" th:text="#{footer.emailGroup}">服务支持(cherish-Hui)</el-button>
+</div>
+
+<script src="../static/js/vue.js" th:src="@{/js/vue.js}"></script>
+<script src="../static/js/element.js" th:src="@{/js/element.js}"></script>
+<script src="../static/js/utils.js" th:src="@{/js/utils.js}"></script>
+<!-- 定义vue组件 -->
+<script th:fragment="vue">
+    new Vue({
+        el: '#footer',
+        data: {
+        },
+        methods: {
+            sendMail: function() {
+                jumpToURL('mailto:' + supportMail);
+            },
+        },
+    })
+</script>
+
+</body>
+</html>

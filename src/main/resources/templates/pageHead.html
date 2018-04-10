@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+    <title th:utext="#{project.name}"></title>
+    <link href="../static/css/element/index.css"
+          rel="stylesheet"
+          th:href="@{/css/element/index.css}">
+    <!-- 自定义css文件 -->
+    <link href="../static/css/common.css"
+        rel="stylesheet"
+        th:href="@{/css/common.css}">
+</head>
+<body>
+
+<div id="page-head" th:fragment="pageHead" class="page-head">
+    <div class="page-title" th:text="${pageName}"></div>
+    <div class="page-nav">
+        <a th:text="#{nav.home}" href="/" class="bold normal-color-a"></a>
+        <span th:if="${parentMenu} != null" class="page-nav-sep">&gt;</span>
+        <span th:if="${parentMenu} != null" th:text="${parentMenu}"></span>
+        <span class="page-nav-sep">&gt;</span>
+        <span th:text="${pageName}"></span>
+        <i class="page-icon-back" style="display: none;"></i>
+    </div>
+</div>
+
+<script src="../static/js/vue.js" th:src="@{/js/vue.js}"></script>
+<script src="../static/js/element.js" th:src="@{/js/element.js}"></script>
+<script src="../static/js/utils.js" th:src="@{/js/utils.js}"></script>
+<!-- 定义vue组件 -->
+<script th:fragment="vue">
+</script>
+
+</body>
+</html>
