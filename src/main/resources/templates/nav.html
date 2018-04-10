@@ -56,6 +56,27 @@
                 </el-menu-item-group>
             </el-submenu>
 
+            <el-submenu index="produce" :show-timeout="0" :hide-timeout="200">
+                    <template slot="title">
+                        <i :class="'nav-icon nav-icon-produce'+(activeProduce?'-active':'')"></i>
+                        <span slot="title" th:text="#{nav.produce}"></span>
+                    </template>
+                    <el-menu-item-group>
+                        <el-menu-item index="producePlan" @click="onClickProducePlan">
+                            <span slot="title" th:text="#{nav.producePlan}"></span>
+                        </el-menu-item>
+                        <el-menu-item index="produceWork" @click="onClickProduceWork">
+                            <span slot="title" th:text="#{nav.produceWork}"></span>
+                        </el-menu-item>
+                        <el-menu-item index="produceTransfer" @click="onClickProduceTransfer">
+                            <span slot="title" th:text="#{nav.produceTransfer}"></span>
+                        </el-menu-item>
+                        <el-menu-item index="produceStorage" @click="onClickProduceStorage">
+                            <span slot="title" th:text="#{nav.produceStorage}"></span>
+                        </el-menu-item>
+                    </el-menu-item-group>
+                </el-submenu>
+
         </el-menu>
     </div>
 
@@ -97,8 +118,21 @@
                             return false;
                     }
                 },
+                //生产模块
+                activeProduce: function () {
+                    switch (this.active) {
+                        case 'producePlan':
+                        case 'produceWork':
+                        case 'produceTransfer':
+                        case 'produceStorage':
+                            return true;
+                        default:
+                            return false;
+                    }
+                },
             },
             methods: {
+                //nav样式
                 onClickCollapse: function (e) {
                     this.isCollapse = !this.isCollapse;
                     saveCache("navCollapse", this.isCollapse);
@@ -132,7 +166,19 @@
                 onClickPurchaseReconciliation: function () {
                     jumpToURL("/purchase/reconciliation");
                 },
-
+                //生产模块
+                onClickProducePlan: function () {
+                    jumpToURL("/produce/plan");
+                },
+                onClickProduceWork: function () {
+                    jumpToURL("/produce/work");
+                },
+                onClickProduceTransfer: function () {
+                    jumpToURL("/produce/transfer");
+                },
+                onClickProduceStorage: function () {
+                    jumpToURL("/produce/storage");
+                },
             },
         })
     </script>
