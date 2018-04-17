@@ -1,11 +1,13 @@
 var supportMail = '1191837698@qq.com';
 
-String.prototype.orEnglish = function(en) {
-    var lang = navigator.language || navigator.userLanguage; //常规浏览器语言和IE浏览器
+// 常规浏览器语言和IE浏览器
+String.prototype.orEnglish = function (en) {
+    var lang = navigator.language || navigator.userLanguage;
     lang = lang.substr(0, 2);
     return (lang === 'zh') ? this.toString() : en;
 };
 
+// 跳转页面
 function jumpToURL(URL) {
     window.location.href = URL;
 }
@@ -30,21 +32,7 @@ function loadCache(key) {
     return data ? JSON.parse(data).value : null;
 }
 
-function checkManifestFile(vueComponent, file) {
-    var fileName = file.name;
-    var fileSuffix = fileName.substring(fileName.lastIndexOf('.') + 1);
-    if (fileSuffix != 'xml') {
-        vueComponent.$message.error('请选择xml格式的manifest文件。'.orEnglish('Please select a xml format file.'));
-        return false;
-    }
-    var MAX_SIZE = 3*100*1024; //max manifest file size is 300kb.
-    if (file.size > MAX_SIZE) {
-        vueComponent.$message.error('上传文件的大小不要超过300kb。'.orEnglish('Upload file size should not exceed 300kb.'));
-        return false;
-    }
-    return true;
-}
-
+//
 function getSequence(num) {
     if (isNaN(num)) {
         return num;
@@ -52,7 +40,88 @@ function getSequence(num) {
     return (num == 1) ? '1st' : (num == 2) ? '2nd' : (num == 3) ? '3rd' : (num > 3) ? (num + 1) + 'th' : num;
 }
 
-Array.prototype.expandParams = function() {
+function getSuppliers() {
+    var cacheKey = 'suppliers';
+    var result = loadCache(cacheKey);
+    if (result) {
+        console.log('Find suppliers in cache');
+    } else {
+        $.ajax({
+            url: 'http://localhost:8091/api/basic/supplier/all',
+            type: 'GET',
+            async: false,   // 同步获取数据
+            dataType: "json",
+            success: function (result) {
+                result = result;
+                saveCache(cacheKey, result);
+            },
+        });
+    }
+    return result;
+}
+
+function getPurchaseOrders() {
+    var cacheKey = 'purchaseOrders';
+    var result = loadCache(cacheKey);
+    if (result) {
+        console.log('Find purchaseOrders in cache');
+    } else {
+        $.ajax({
+            url: 'http://localhost:8091/api/purchase/order/all',
+            type: 'GET',
+            async: false,   // 同步获取数据
+            dataType: "json",
+            success: function (result) {
+                result = result;
+                saveCache(cacheKey, result);
+            },
+        });
+    }
+    return result;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function checkManifestFile(vueComponent, file) {
+    var fileName = file.name;
+    var fileSuffix = fileName.substring(fileName.lastIndexOf('.') + 1);
+    if (fileSuffix != 'xml') {
+        vueComponent.$message.error('请选择xml格式的manifest文件。'.orEnglish('Please select a xml format file.'));
+        return false;
+    }
+    var MAX_SIZE = 3 * 100 * 1024; //max manifest file size is 300kb.
+    if (file.size > MAX_SIZE) {
+        vueComponent.$message.error('上传文件的大小不要超过300kb。'.orEnglish('Upload file size should not exceed 300kb.'));
+        return false;
+    }
+    return true;
+}
+
+
+
+Array.prototype.expandParams = function () {
     for (var i = 0; i < this.length; i++) {
         var params = this[i].parameters;
         for (var j = 0; j < params.length; j++) {

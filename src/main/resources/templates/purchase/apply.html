@@ -1,43 +1,417 @@
 <!DOCTYPE html>
-<html lang="zh-CN" xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:th="http://www.thymeleaf.org">
+<html lang="zh-CN" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
     <title th:utext="#{project.name}"></title>
-    <link href="../../static/css/element/index.css"
-          rel="stylesheet"
-          th:href="@{/css/element/index.css}">
+    <link href="../../static/css/element/index.css" rel="stylesheet" th:href="@{/css/element/index.css}">
     <!-- 自定义css文件 -->
-    <link href="../../static/css/common.css"
-          rel="stylesheet"
-          th:href="@{/css/common.css}">
+    <link href="../../static/css/common.css" rel="stylesheet" th:href="@{/css/common.css}">
 </head>
+
 <body>
 
-<div th:replace="~{nav :: nav('purchaseApply')}"></div>
-<div th:replace="~{header :: header}"></div>
-<div class="margin-helper">
-    <div class="corgi-content">
-        <div th:replace="~{pageHead :: pageHead(pageName=#{nav.purchaseApply}, parentMenu=#{nav.purchase})}"></div>
-    </div>
-</div>
-<div th:replace="~{footer :: footer}"></div>
+    <div th:replace="~{nav :: nav('purchaseApply')}"></div>
+    <div th:replace="~{header :: header}"></div>
+    <div class="margin-helper">
+        <div class="samoyed-content">
+            <div th:replace="~{pageHead :: pageHead(pageName=#{nav.purchaseApply}, parentMenu=#{nav.purchase})}"></div>
+            <div id="page-content" class="page-content" v-cloak>
+                <!--基本信息-->
+                <div class="section-title" th:text="#{common.basicInfo}"></div>
+                <el-row class="samoyed-row" type="flex" align="middle">
+                    <el-col :span="2">
+                        <div class="center" th:text="#{common.supplier}"></div>
+                    </el-col>
+                    <el-col :span="4">
+                        <el-select size="medium" th:placeholder="#{common.pleaseSelect}" v-model="supplier" @change="(v)=>onChangeSupplier(v)">
+                            <el-option v-for="item in supplierList" :key="item.supplierId" :label="item.supplierName?item.supplierName:''" :value="item.supplierId">
+                            </el-option>
+                        </el-select>
+                    </el-col>
+                    <el-col :span="2">
+                        <div class="center" th:text="#{common.payAccount}"></div>
+                    </el-col>
+                    <el-col :span="4">
+                        <el-input :disabled="true" v-model='payAccount'>
+                        </el-input>
+                    </el-col>
+                    <el-col :span="2">
+                        <div class="center" th:text="#{common.allPrice}"></div>
+                    </el-col>
+                    <el-col :span="4">
+                        <el-input :disabled="true" type="number" v-model='allPrice'>
+                            <template slot="append" th:text="#{common.rmb}"></template>
+                        </el-input>
+                    </el-col>
+                </el-row>
+                <div class="samoyed-task" v-for="(material, materialIndex) in materials">
+                    <el-row class="samoyed-row" type="flex" align="middle">
+                        <el-col :span="2">
+                            <div class="center" th:text="#{common.name}"></div>
+                        </el-col>
+                        <el-col :span="4">
+                            <el-select size="medium" filterable th:placeholder="#{common.pleaseSelect}" v-model="material.name" @change="(v)=>onChangeMaterialName(v,materialIndex)">
+                                <el-option v-for="item in materialList" :key="item.materialId" :label="item.materialName?item.materialName:''" :value="item.materialId">
+                                </el-option>
+                            </el-select>
+                        </el-col>
+                        <el-col :span="2">
+                            <div class="center" th:text="#{common.price}"></div>
+                        </el-col>
+                        <el-col :span="4">
+                            <el-input :disabled="true" v-model="material.price">
+                                <template slot="append" th:text="#{common.rmb}"></template>
+                            </el-input>
+                        </el-col>
+                        <el-col :span="2">
+                            <div class="center" th:text="#{common.measurement}"></div>
+                        </el-col>
+                        <el-col :span="4">
+                            <el-input :disabled="true" v-model="material.measurement">
+                            </el-input>
+                        </el-col>
+                        <el-col :span="2">
+                            <div class="center" th:text="#{common.number}"></div>
+                        </el-col>
+                        <el-col :span="3">
+                            <el-input type="number" v-model="material.number" @change="(v)=>onChangeMaterialPrice(materialIndex)">
+                            </el-input>
+                        </el-col>
+                        <el-col :span="1" v-if="materials.length>1">
+                            <div class="center">
+                                <i class="el-icon-close btn hover-normal-color" @click="removeMaterial(materialIndex)"></i>
+                            </div>
+                        </el-col>
+                    </el-row>
+                </div>
+                <div class="add-task-btn-wrapper">
+                    <span class="btn normal-color" @click="addMaterial">
+                        <i class="el-icon-circle-plus-outline center"></i>
+                        <span th:text="#{common.add}"></span>
+                    </span>
+                </div>
+                <!--自定义信息-->
+                <div class="section-title" th:text="#{common.customInfo}"></div>
+                <el-row type="flex" align="middle" class="samoyed-row">
+                    <el-col :span="2">
+                        <div class="center" th:text="#{common.payment}"></div>
+                    </el-col>
+                    <el-col :span="4">
+                        <el-select size="medium" th:placeholder="#{common.pleaseSelect}" v-model="payment">
+                            <el-option v-for="item in payMentList" :key="item.value" :label="item.label?item.label:item.value" :value="item.value">
+                            </el-option>
+                        </el-select>
+                    </el-col>
+                    <el-col :span="2">
+                        <div class="center" th:text="#{common.payPrice}"></div>
+                    </el-col>
+                    <el-col :span="4">
+                        <el-input type="number" v-model="payPrice">
+                            <template slot="append" th:text="#{common.rmb}"></template>
+                        </el-input>
+                    </el-col>
+                </el-row>
+                <el-row type="flex" align="middle" class="samoyed-row">
+                    <el-col :span="2">
+                        <div class="center" th:text="#{common.orderDate}"></div>
+                    </el-col>
+                    <el-col :span="5">
+                        <el-date-picker align="left" type="date" format="yyyy 年 MM 月 dd 日" value-format="yyyy-MM-dd" th:placeholder="#{common.selectDate}"
+                            v-model="orderDate">
+                        </el-date-picker>
+                    </el-col>
+                </el-row>
+                <el-row type="flex" align="middle" class="samoyed-row">
+                    <el-col :span="2">
+                        <div class="center" th:text="#{common.payDate}"></div>
+                    </el-col>
+                    <el-col :span="5">
+                        <el-date-picker align="left" type="date" format="yyyy 年 MM 月 dd 日" value-format="yyyy-MM-dd" th:placeholder="#{common.selectDate}"
+                            v-model="payDate">
+                        </el-date-picker>
+                    </el-col>
+                </el-row>
+                <el-row type="flex" align="middle" class="samoyed-row">
+                    <el-col :span="2">
+                        <div class="center" th:text="#{common.arrivalDate}"></div>
+                    </el-col>
+                    <el-col :span="5">
+                        <el-date-picker align="left" type="date" format="yyyy 年 MM 月 dd 日" value-format="yyyy-MM-dd" th:placeholder="#{common.selectDate}"
+                            v-model="arrivalDate">
+                        </el-date-picker>
+                    </el-col>
+                </el-row>
+                <el-row type="flex" align="middle" class="samoyed-row">
+                    <el-col :span="2">
+                        <div class="center" th:text="#{common.deliveryAddress}"></div>
+                    </el-col>
+                    <el-col :span="22">
+                        <el-input th:placeholder="#{common.deliveryAddressPlaceholder}" v-model="deliveryAddress">
+                        </el-input>
+                    </el-col>
+                </el-row>
+                <!--其他设置-->
+                <div class="section-title" th:text="#{common.otherInfo}"></div>
+                <el-row class="samoyed-row" type="flex" align="middle">
+                    <el-col :span="2">
+                        <div class="center" th:text="#{common.remark}"></div>
+                    </el-col>
+                    <el-col :span="22">
+                        <el-input style="width:100%;" type="textarea" :autosize="{ minRows: 4, maxRows: 6}" th:placeholder="#{common.pleaseInput}"
+                            v-model="remark">
+                        </el-input>
+                    </el-col>
+                </el-row>
+                <div class="build-btn-bg"></div>
+                <div class="build-btn-wrapper">
+                    <el-button type="primary" size="medium" class="build-btn" th:text="#{common.go}" @click="onClickSubmit"></el-button>
+                </div>
+            </div>
+        </div>
+        <div th:replace="~{footer :: footer}"></div>
 
-<script src="../../static/js/vue.js" th:src="@{/js/vue.js}"></script>
-<script src="../../static/js/element.js" th:src="@{/js/element.js}"></script>
-<script src="../../static/js/jquery-3.3.1.min.js" th:src="@{/js/jquery-3.3.1.min.js}"></script>
-<script src="../../static/js/utils.js" th:src="@{/js/utils.js}"></script>
-<!-- 引用vue组件相关的js文件 -->
-<div th:replace="~{nav :: vue('purchaseApply')}"></div>
-<div th:replace="~{header :: vue}"></div>
-<div th:replace="~{footer :: vue}"></div>
-<!-- 本页面的js脚本 -->
-<script th:inline="javascript">
+        <script src="../../static/js/vue.js" th:src="@{/js/vue.js}"></script>
+        <script src="../../static/js/element.js" th:src="@{/js/element.js}"></script>
+        <script src="../../static/js/jquery-3.3.1.min.js" th:src="@{/js/jquery-3.3.1.min.js}"></script>
+        <script src="../../static/js/utils.js" th:src="@{/js/utils.js}"></script>
+        <script src="../../static/js/data.js" th:src="@{/js/data.js}"></script>
+        <!-- 引用vue组件相关的js文件 -->
+        <div th:replace="~{nav :: vue('purchaseApply')}"></div>
+        <div th:replace="~{header :: vue}"></div>
+        <div th:replace="~{footer :: vue}"></div>
+        <!-- 本页面的js脚本 -->
+        <script th:inline="javascript">
 
-</script>
+            //原料
+            function Material() {
+                this.name = '';
+                this.price = '';
+                this.measurement = '';
+                this.number = '';
+            }
+
+            new Vue({
+                el: '#page-content',
+                data: {
+                    supplier: '',
+                    payAccount: '',
+                    allPrice: '',
+                    materials: [new Material()],
+                    payment: '',
+                    payPrice: '',
+                    orderDate: '',
+                    payDate: '',
+                    arrivalDate: '',
+                    deliveryAddress: '',
+                    remark: '',
+                    //填充数据
+                    supplierList: getSuppliers(),
+                    materialList: [],
+                    payMentList: samoyedData.payMantList,
+                },
+                created: function () {
+                    //设置全局AJAX配置
+                    $.ajaxSetup({
+                        xhrFields: {
+                            withCredentials: true
+                        },
+                        crossDomain: true,
+                    });
+                },
+                computed: {
+
+                },
+                methods: {
+                    addMaterial: function () {
+                        this.materials.push(new Material());
+                    },
+                    removeMaterial: function (index) {
+                        this.materials.splice(index, 1);
+                    },
+                    //清空总金额
+                    //清空原材料
+                    //填充付款卡号
+                    //填充原材料名称
+                    onChangeSupplier: function (supplier) {
+                        this.allPrice = '';
+                        this.materials.splice(0, this.materials.length);
+                        this.materials.push(new Material());
+                        for (var i = 0; i < this.supplierList.length; i++) {
+                            if (supplier == this.supplierList[i].supplierId) {
+                                this.payAccount = this.supplierList[i].supplierBank;
+                            };
+                            this.materialList = this.supplierList[i].materials;
+                        }
+                    },
+                    //填充原材料单价
+                    //填充原材料计量单位
+                    onChangeMaterialName: function (materialId, materialIndex) {
+                        for (var i = 0; i < this.supplierList.length; i++) {
+                            if (this.supplier == this.supplierList[i].supplierId) {
+                                for (var j = 0; j < this.supplierList[i].materials.length; j++) {
+                                    if (materialId == this.supplierList[i].materials[j].materialId) {
+                                        this.materials[materialIndex].price = this.supplierList[i].materials[j].materialPrice;
+                                        this.materials[materialIndex].measurement = this.supplierList[i].materials[j].unit.unitName;
+                                    }
+                                }
+                            };
+                        }
+                    },
+                    //精确浮点数计算(保留两位小数)  
+                    floatAdd: function (arg1, arg2) {
+                        var r1, r2, m;
+                        try { r1 = arg1.toString().split(".")[1].length; } catch (e) { r1 = 0; }
+                        try { r2 = arg2.toString().split(".")[1].length; } catch (e) { r2 = 0; }
+                        m = Math.pow(10, Math.max(r1, r2));
+                        return (arg1 * m + arg2 * m) / m;
+                    },
+                    //计算总金额
+                    onChangeMaterialPrice: function (materialIndex) {
+                        var allPrice = 0.00;
+                        if (this.materials[materialIndex].price && this.materials[materialIndex].number) {
+                            for (var i = 0; i < this.materials.length; i++) {
+                                allPrice = this.floatAdd(allPrice, this.materials[i].price * this.materials[i].number);
+                            }
+                        }
+                        this.allPrice = allPrice;
+                    },
+                    //提交前验证
+                    checkBeforeSubmit: function () {
+                        var warnings = [];
+                        if (this.supplier == '') {
+                            var msg = '没有指定供应商。';
+                            var english_msg = 'There is no supplier : Please add a supplier.';
+                            warnings.push(msg.orEnglish(english_msg));
+                        }
+                        for (var i = 0; i < this.materials.length; i++) {
+                            if (this.materials[i].name == '') {
+                                var seq = getSequence(i + 1);
+                                var msg = '第' + (i + 1) + '个原材料没有指定品种。';
+                                var english_msg = 'The ' + seq + ' material\'s name doesn\'t select .';
+                                warnings.push(msg.orEnglish(english_msg));
+                            }
+                            if (this.materials[i].number == '') {
+                                var seq = getSequence(i + 1);
+                                var msg = '第' + (i + 1) + '个原材料没有输入数量。';
+                                var english_msg = 'The ' + seq + ' material\'s number doesn\'t input .';
+                                warnings.push(msg.orEnglish(english_msg));
+                            }
+                        }
+                        if (this.payment == '') {
+                            var msg = '没有指定支付方式。';
+                            var english_msg = 'There is no payment : Please add a payment.';
+                            warnings.push(msg.orEnglish(english_msg));
+                        }
+                        if (this.payPrice == '') {
+                            var msg = '没有输入支付金额。';
+                            var english_msg = 'There is no payPrice : Please input a payPrice.';
+                            warnings.push(msg.orEnglish(english_msg));
+                        }
+                        if (this.orderDate == '') {
+                            var msg = '没有指定订单日期。';
+                            var english_msg = 'There is no orderDate : Please add a orderDate.';
+                            warnings.push(msg.orEnglish(english_msg));
+                        }
+                        if (this.payDate == '') {
+                            var msg = '没有指定付款日期。';
+                            var english_msg = 'There is no payDate : Please add a payDate.';
+                            warnings.push(msg.orEnglish(english_msg));
+                        }
+                        if (this.arrivalDate == '') {
+                            var msg = '没有指定到货日期。';
+                            var english_msg = 'There is no arrivalDate : Please add a arrivalDate.';
+                            warnings.push(msg.orEnglish(english_msg));
+                        }
+                        if (this.deliveryAddress == '') {
+                            var msg = '没有指定收获地址。';
+                            var english_msg = 'There is no deliveryAddress : Please input a deliveryAddress.';
+                            warnings.push(msg.orEnglish(english_msg));
+                        }
+                        if (warnings.length) {
+                            this.$notify({
+                                title: '警告'.orEnglish('Notice'),
+                                message: warnings[0],
+                                type: 'warning'
+                            });
+                            return false;
+                        } else {
+                            return true;
+                        }
+                    },
+                    //组装
+                    assemble: function () {
+                        var purchaseOrderDetails = [];
+                        var a;
+                        var b;
+                        var c;
+                        var d;
+                        for (var i = 0; i < this.materials.length; i++) {
+                            a = this.materials[i].name;
+                            b = this.materials[i].price;
+                            c = this.materials[i].measurement;
+                            d = this.materials[i].number;
+                            purchaseOrderDetails.push({detailMaterialId:a,detailMaterialPrice:b,detailUnitName:c,detailMaterialNumber:d,});
+                        }
+                        return {
+                            orderSupplierId: this.supplier,
+                            orderPayBank: this.payAccount,
+                            orderTotalMoney: this.allPrice,
+                            orderPayType: this.payment,
+                            orderPayMoney: this.payPrice,
+                            orderInsertTime: this.orderDate,
+                            orderPayTime: this.payDate,
+                            orderDeliveryTime: this.arrivalDate,
+                            orderDeliveryAddress: this.deliveryAddress,
+                            orderRemark: this.remark,
+
+                            purchaseOrderDetails: purchaseOrderDetails,
+                        }
+                    },
+                    //提交
+                    onClickSubmit: function () {
+                        if (!this.checkBeforeSubmit()) {
+                            console.warn('Check does not pass!');
+                            return;
+                        }
+                        var formData = new FormData();
+                        formData.append('data', JSON.stringify(this.assemble()));
+                        var that = this;
+                        $.ajax({
+                            url: 'http://localhost:8091/api/purchase/apply',
+                            type: 'POST',
+                            cache: false,
+                            processData: false, // 告诉jQuery不要去处理发送的数据
+                            contentType: false, // 告诉jQuery不要去设置Content-Type请求头
+                            data: formData,
+                            dataType: "json",
+                            success: function (result) {
+                                var title;
+                                var content;
+                                var okBtnTxt;
+                                var type;
+                                if (result.status === 'success') {
+                                    title = '采购申请提交成功'.orEnglish('Submitted successfully');
+                                    content = '请耐心等待审核。'.orEnglish('Please wait for audit.');
+                                    okBtnTxt = '确定'.orEnglish('OK');
+                                    type = 'success';
+                                } else {
+                                    title = '采购申请提交失败'.orEnglish('Submitted failed');
+                                    content = '请联系'.orEnglish('Please contact ') + supportMail + '。'.orEnglish('.');
+                                    okBtnTxt = '确定'.orEnglish('OK');
+                                    type = 'error';
+                                }
+                                that.$alert(content, title, { confirmButtonText: okBtnTxt, type: type });
+                            },
+                        });
+                    },
+                }
+            });
+        </script>
 
 </body>
+
 </html>

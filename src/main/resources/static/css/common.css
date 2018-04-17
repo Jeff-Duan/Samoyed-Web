@@ -196,6 +196,12 @@ a:active {
 .nav-icon-produce-active {
     background-image: url(../imgs/produce-active.png);
 }
+.nav-icon-sale {
+    background-image: url(../imgs/qq.png);
+}
+.nav-icon-sale-active {
+    background-image: url(../imgs/produce-active.png);
+}
 
 
 
@@ -308,7 +314,7 @@ a:active {
             justify-content: flex-end;
 }
 
-.corgi-content {
+.samoyed-content {
     width: 1200px;
     margin: 0 auto;
 }
@@ -361,7 +367,7 @@ a:active {
     margin-top: 80px;
 }
 
-.corgi-task+.corgi-task {
+.samoyed-task+.samoyed-task {
     border-top: 1px solid #EBEEF5;
 }
 .add-task-btn-wrapper, .add-change-btn-wrapper {
@@ -372,7 +378,7 @@ a:active {
     margin-bottom: 35px;
 }
 
-.corgi-row {
+.samoyed-row {
     margin: 25px 0;
 }
 
@@ -383,6 +389,16 @@ a:active {
 .el-popover {
     line-height: 25px;
 }
+
+
+
+
+
+
+
+
+
+
 .change-number {
     z-index: 1;
 }

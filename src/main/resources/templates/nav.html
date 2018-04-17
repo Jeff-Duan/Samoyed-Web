@@ -77,6 +77,31 @@
                     </el-menu-item-group>
                 </el-submenu>
 
+                <el-submenu index="sale" :show-timeout="0" :hide-timeout="200">
+                    <template slot="title">
+                        <i :class="'nav-icon nav-icon-sale'+(activeSale?'-active':'')"></i>
+                        <span slot="title" th:text="#{nav.sale}"></span>
+                    </template>
+                    <el-menu-item-group>
+                        <el-menu-item index="saleOrder" @click="onClickSaleOrder">
+                            <span slot="title" th:text="#{nav.saleOrder}"></span>
+                        </el-menu-item>
+                        <el-menu-item index="saleReceivable" @click="onClickSaleReceivable">
+                            <span slot="title" th:text="#{nav.saleReceivable}"></span>
+                        </el-menu-item>
+                        <el-menu-item index="saleIssue" @click="onClickSaleIssue">
+                            <span slot="title" th:text="#{nav.saleIssue}"></span>
+                        </el-menu-item>
+                        <el-menu-item index="saleCancel" @click="onClickSaleCancel">
+                            <span slot="title" th:text="#{nav.saleCancel}"></span>
+                        </el-menu-item>
+                        <el-menu-item index="saleReconciliation" @click="onClickSaleReconciliation">
+                            <span slot="title" th:text="#{nav.saleReconciliation}"></span>
+                        </el-menu-item>
+                    </el-menu-item-group>
+                </el-submenu>
+
+
         </el-menu>
     </div>
 
@@ -130,6 +155,19 @@
                             return false;
                     }
                 },
+                //销售模块
+                activeSale: function () {
+                    switch (this.active) {
+                        case 'saleOrder':
+                        case 'saleReceivable':
+                        case 'saleIssue':
+                        case 'saleCancel':
+                        case 'saleReconciliation':
+                            return true;
+                        default:
+                            return false;
+                    }
+                },
             },
             methods: {
                 //nav样式
@@ -178,6 +216,22 @@
                 },
                 onClickProduceStorage: function () {
                     jumpToURL("/produce/storage");
+                },
+                //销售模块
+                onClickSaleOrder: function () {
+                    jumpToURL("/sale/order");
+                },
+                onClickSaleReceivable: function () {
+                    jumpToURL("/sale/receivable");
+                },
+                onClickSaleIssue: function () {
+                    jumpToURL("/sale/issue");
+                },
+                onClickSaleCancel: function () {
+                    jumpToURL("/sale/cancel");
+                },
+                onClickSaleReconciliation: function () {
+                    jumpToURL("/sale/reconciliation");
                 },
             },
         })

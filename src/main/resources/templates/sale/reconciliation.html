@@ -17,11 +17,11 @@
 </head>
 <body>
 
-<div th:replace="~{nav :: nav('purchasePay')}"></div>
+<div th:replace="~{nav :: nav('saleReconciliation')}"></div>
 <div th:replace="~{header :: header}"></div>
 <div class="margin-helper">
     <div class="samoyed-content">
-        <div th:replace="~{pageHead :: pageHead(pageName=#{nav.purchasePay}, parentMenu=#{nav.purchase})}"></div>
+        <div th:replace="~{pageHead :: pageHead(pageName=#{nav.saleReconciliation}, parentMenu=#{nav.sale})}"></div>
     </div>
 </div>
 <div th:replace="~{footer :: footer}"></div>
@@ -31,7 +31,7 @@
 <script src="../../static/js/jquery-3.3.1.min.js" th:src="@{/js/jquery-3.3.1.min.js}"></script>
 <script src="../../static/js/utils.js" th:src="@{/js/utils.js}"></script>
 <!-- 引用vue组件相关的js文件 -->
-<div th:replace="~{nav :: vue('purchasePay')}"></div>
+<div th:replace="~{nav :: vue('saleReconciliation')}"></div>
 <div th:replace="~{header :: vue}"></div>
 <div th:replace="~{footer :: vue}"></div>
 <!-- 本页面的js脚本 -->

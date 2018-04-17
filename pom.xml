@@ -62,12 +62,6 @@
 			<scope>test</scope>
 		</dependency>
 
-		<!-- session -->
-		<dependency>
-			<groupId>org.springframework.session</groupId>
-			<artifactId>spring-session-core</artifactId>
-		</dependency>
-
 		<!-- log4j -->
 		<dependency>
 			<groupId>log4j</groupId>
@@ -139,44 +133,5 @@
 			</snapshots>
 		</pluginRepository>
 	</pluginRepositories>
-
-	<profiles>
-		<!-- own PC -->
-		<profile>
-			<id>dev</id>
-			<activation>
-				<activeByDefault>true</activeByDefault>
-			</activation>
-			<properties>
-				<profiles.active>dev</profiles.active>
-			</properties>
-		</profile>
-		<!-- staging job -->
-		<profile>
-			<id>staging</id>
-			<activation>
-				<property>
-					<name>env.SPRING_PROFILES_ACTIVE</name>
-					<value>staging</value>
-				</property>
-			</activation>
-			<properties>
-				<profiles.active>staging</profiles.active>
-			</properties>
-		</profile>
-		<!-- production server -->
-		<profile>
-			<id>prod</id>
-			<activation>
-				<property>
-					<name>env.SPRING_PROFILES_ACTIVE</name>
-					<value>prod</value>
-				</property>
-			</activation>
-			<properties>
-				<profiles.active>prod</profiles.active>
-			</properties>
-		</profile>
-	</profiles>
 
 </project>
