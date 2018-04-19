@@ -21,38 +21,9 @@
 <div th:replace="~{header :: header}"></div>
 <div class="margin-helper">
     <div class="samoyed-content">
-        <div class="page-title">MIUI BUILDER 编译平台具体使用请参考<a href="http://wiki.n.miui.com/display/miuiauto/MIUI+Builder"> MIUI BUILDER wiki </a>,下面截取的是部分复杂的功能.</div>
-        <div style="margin-top: 30px;">
-            <div class="section-title">1. 打包稳定版</div>
-            <p style="line-height: 2em;">
-            &nbsp;&nbsp;编译平台默认使用的稳定版版本和每天早上打包相同。为了防止编译出错，在编译稳定版之前最好先确认一下目前的稳定版是哪一个。<br/>
-            &nbsp;&nbsp;在编译平台导航栏中有一页叫做“打包分支信息”，可以在这一页查看。<br/>
-            &nbsp;&nbsp;如果想要打包的稳定版版本和当前版本不一致，请参考下一条强制制定版本的方法。<br/>
-            &nbsp;&nbsp;确认完毕后，选择机型，选择稳定版，切记填写一个自定义build number，也就是版本号。可以参考<a href="http://wiki.n.miui.com/pages/viewpage.action?pageId=2097798">新版稳定版版本号命名规则及信息对照</a><br/>
-            &nbsp;&nbsp;然后把ROOT去掉，用户类型选择default，就可以点击走起了。
-            </p>
-        </div>
-        <div style="margin-top: 30px;">
-            <div class="section-title">2. 强制指定某个稳定版打包</div>
-            <p style="line-height: 2em;">
-            &nbsp;&nbsp;如果有强制制定某个稳定版打包的需求，比如目前稳定版是3x，想打包4x，或者稳定版是4x，想打包3x，需要制定要使用的manifest文件。<br/>
-            &nbsp;&nbsp;查找manifest文件的方法为，进入manifest项目中，checkout到stable分支。然后找合适的版本的文件名，比如cancro v7稳定版1x的文件名为v7-kk-cancro-stable1x.xml<br/>
-            &nbsp;&nbsp;把这个文件名填写到“要使用的manifest文件路径”中即可。
-            </p>
-        </div>
-        <div style="margin-top: 30px;">
-            <div class="section-title">3. 生成卡刷包</div>
-            <p style="line-height: 2em;">
-            &nbsp;&nbsp;卡刷包，即全量OTA包，可以通过勾选“生成卡刷包得到”。如果需要有签名的卡刷包，先勾选生成target file，然后找有签名权限的人签名，再找@刘广鑫帮忙生成。
-            </p>
-        </div>
-        <div style="margin-top: 30px;">
-            <div class="section-title">4. 稳定版cherry pick失败怎么回事</div>
-            <p style="line-height: 2em;">
-            &nbsp;&nbsp;在编译平台上面有一页叫打包分支信息，在上面检查当前稳定版默认打包的版本。有的时候稳定版分支虽然拉了，但是没有切，默认还是用旧版本打包。比如目前默认在stable0x上，如果你的change提交在stable1x上，就会失败。<br/>
-            &nbsp;&nbsp;如果需要打非默认版本的包，参见wiki“强制制定某个稳定版打包”部分。
-            </p>
-        </div>
+        
+        <div class="page-title">Samoyed平台,下面截取的是部分复杂的功能.</div>
+        
     </div>
 </div>
 <div th:replace="~{footer :: footer}"></div>
