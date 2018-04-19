@@ -8,6 +8,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/sale")
 public class SaleController {
 
+    @GetMapping(value = "/apply")
+    public String apply() {
+        return "/sale/apply";
+    }
+
     @GetMapping(value = "/order")
     public String order() {
         return "/sale/order";

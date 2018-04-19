@@ -14,11 +14,12 @@
 
 <body>
 
-    <div th:replace="~{nav :: nav('producePlan')}"></div>
+    <div th:replace="~{nav :: nav('saleApply')}"></div>
     <div th:replace="~{header :: header}"></div>
     <div class="margin-helper">
         <div class="samoyed-content">
-            <div th:replace="~{pageHead :: pageHead(pageName=#{nav.producePlan}, parentMenu=#{nav.produce})}"></div>
+            <div th:replace="~{pageHead :: pageHead(pageName=#{nav.saleApply}, parentMenu=#{nav.sale})}"></div>
+
 
             <div id="page-content" class="page-content" v-cloak>
                 <!--基本信息-->
@@ -161,6 +162,7 @@
 
             </div>
 
+
         </div>
     </div>
     <div th:replace="~{footer :: footer}"></div>
@@ -169,14 +171,12 @@
     <script src="../../static/js/element.js" th:src="@{/js/element.js}"></script>
     <script src="../../static/js/jquery-3.3.1.min.js" th:src="@{/js/jquery-3.3.1.min.js}"></script>
     <script src="../../static/js/utils.js" th:src="@{/js/utils.js}"></script>
-    <script src="../../static/js/data.js" th:src="@{/js/data.js}"></script>
     <!-- 引用vue组件相关的js文件 -->
-    <div th:replace="~{nav :: vue('producePlan')}"></div>
+    <div th:replace="~{nav :: vue('saleApply')}"></div>
     <div th:replace="~{header :: vue}"></div>
     <div th:replace="~{footer :: vue}"></div>
     <!-- 本页面的js脚本 -->
     <script th:inline="javascript">
-
         //原料
         function OrderDetail() {
 

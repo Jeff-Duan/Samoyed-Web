@@ -10,6 +10,24 @@
     <link href="../../static/css/element/index.css" rel="stylesheet" th:href="@{/css/element/index.css}">
     <!-- 自定义css文件 -->
     <link href="../../static/css/common.css" rel="stylesheet" th:href="@{/css/common.css}">
+    <style>
+        /* 引入element-ui表格展开行 */
+
+        .samoyed-table-expand {
+            font-size: 0;
+        }
+
+        .samoyed-table-expand label {
+            width: 90px;
+            color: #99a9bf;
+        }
+
+        .samoyed-table-expand .el-form-item {
+            margin-right: 0;
+            margin-bottom: 0;
+            width: 25%;
+        }
+    </style>
 </head>
 
 <body>
@@ -37,14 +55,155 @@
                 <el-table :data="tableData">
                     <el-table-column type="selection">
                     </el-table-column>
-                    <el-table-column prop="orderNumber" th:label="#{common.orderNumber}">
+                    <el-table-column type="expand">
+                        <template slot-scope="props">
+                            <el-form label-position="left" inline class="samoyed-table-expand">
+                                <el-form-item style="font-size:20px;" th:label="#{common.orderInfo}"></el-form-item>
+                            </el-form>
+                            <el-form label-position="left" inline class="samoyed-table-expand">
+                                <el-form-item th:label="#{common.orderDate}">
+                                    <i class="el-icon-time"></i>
+                                    <span>{{ props.row.orderInsertTime }}</span>
+                                </el-form-item>
+                                <el-form-item th:label="#{common.payDate}">
+                                    <i class="el-icon-time"></i>
+                                    <span>{{ props.row.orderPayTime }}</span>
+                                </el-form-item>
+                                <el-form-item th:label="#{common.arrivalDate}">
+                                    <i class="el-icon-time"></i>
+                                    <span>{{ props.row.orderDeliveryTime }}</span>
+                                </el-form-item>
+                                <el-form-item th:label="#{common.payAccount}">
+                                    <span>{{ props.row.orderPayBank }}</span>
+                                </el-form-item>
+                                <el-form-item th:label="#{common.allPrice}">
+                                    <span>{{ props.row.orderTotalMoney }}&nbsp;RMB</span>
+                                </el-form-item>
+                                <el-form-item th:label="#{common.payment}">
+                                    <span v-if="props.row.orderPayType=='1'" th:text="#{common.directPayMent}"></span>
+                                    <span v-else-if="props.row.orderPayType=='2'" th:text="#{common.cashOnDelivery}"></span>
+                                    <span v-else th:text="#{common.paymentOfDeposit}"></span>
+                                </el-form-item>
+                                <el-form-item th:label="#{common.payPrice}">
+                                    <span>{{ props.row.orderPayMoney }}&nbsp;RMB</span>
+                                </el-form-item>
+                                <el-form-item style="width:100%;" th:label="#{common.deliveryAddress}">
+                                    <span>{{ props.row.orderDeliveryAddress }}</span>
+                                </el-form-item>
+                                <el-form-item style="width:100%;" th:label="#{common.remark}">
+                                    <span>{{ props.row.orderRemark }}</span>
+                                </el-form-item>
+                            </el-form>
+                            <el-form label-position="left" inline class="samoyed-table-expand">
+                                <el-form-item style="font-size:20px;" th:label="#{common.orderDetail}"></el-form-item>
+                            </el-form>
+                            <el-form label-position="left" inline class="samoyed-table-expand" v-for="purchaseOrderDetail in props.row.purchaseOrderDetails">
+                                <el-form-item th:label="#{common.material}">
+                                    <span>{{ purchaseOrderDetail.material.materialName }}</span>
+                                </el-form-item>
+                                <el-form-item th:label="#{common.price}">
+                                    <span>{{ purchaseOrderDetail.detailMaterialPrice }}&nbsp;RMB</span>
+                                </el-form-item>
+                                <el-form-item th:label="#{common.measurement}">
+                                    <span>{{ purchaseOrderDetail.detailUnitName }}</span>
+                                </el-form-item>
+                                <el-form-item th:label="#{common.number}">
+                                    <span>{{ purchaseOrderDetail.detailMaterialNumber }}</span>
+                                </el-form-item>
+                            </el-form>
+                        </template>
                     </el-table-column>
-                    <el-table-column prop="supplier.supplierName" th:label="#{common.supplier}">
+                    <el-table-column sortable prop="orderNumber" th:label="#{common.orderNumber}">
                     </el-table-column>
-                    <el-table-column prop="user.userName" th:label="#{common.purchaseUser}">
+                    <el-table-column sortable th:label="#{common.supplier}">
+                        <template slot-scope="scope">
+                            <el-popover trigger="hover" placement="top">
+                                <p>
+                                    <label th:text="#{common.supplierName}+':'"></label>
+                                    <font>{{ scope.row.supplier.supplierName }}</font>
+                                </p>
+                                <p>
+                                    <label th:text="#{common.supplierAddress}+':'"></label>
+                                    <font>{{ scope.row.supplier.supplierAddress }}</font>
+                                </p>
+                                <p>
+                                    <label th:text="#{common.supplierTel}+':'"></label>
+                                    <font>{{ scope.row.supplier.supplierTel }}</font>
+                                </p>
+                                <p>
+                                    <label th:text="#{common.supplierEmail}+':'"></label>
+                                    <font>{{ scope.row.supplier.supplierEmail }}</font>
+                                </p>
+                                <p>
+                                    <label th:text="#{common.supplierBank}+':'"></label>
+                                    <font>{{ scope.row.supplier.supplierBank }}</font>
+                                </p>
+                                <div slot="reference" class="name-wrapper">
+                                    <el-tag size="medium">{{ scope.row.supplier.supplierName }}</el-tag>
+                                </div>
+                            </el-popover>
+                        </template>
                     </el-table-column>
-
-                    <el-table-column th:label="#{common.status}">
+                    <el-table-column sortable th:label="#{common.purchaseUser}">
+                        <template slot-scope="scope">
+                            <el-popover trigger="hover" placement="top">
+                                <p>
+                                    <label th:text="#{common.userName}+':'"></label>
+                                    <font>{{ scope.row.user.userName }}</font>
+                                </p>
+                                <p>
+                                    <label th:text="#{common.userEnglishName}+':'"></label>
+                                    <font>{{ scope.row.user.userEnglishName }}</font>
+                                </p>
+                                <p>
+                                    <label th:text="#{common.userSex}+':'"></label>
+                                    <font v-if="scope.row.user.userSex=='0'" th:text="#{common.man}"></font>
+                                    <font v-else th:text="#{common.woman}"></font>
+                                </p>
+                                <p>
+                                    <label th:text="#{common.userBirth}+':'"></label>
+                                    <i class="el-icon-time"></i>
+                                    <font>{{ scope.row.user.userBirth }}</font>
+                                </p>
+                                <p>
+                                    <label th:text="#{common.userOrigin}+':'"></label>
+                                    <font>{{ scope.row.user.userOriginProvince }}-{{ scope.row.user.userOriginCity }}-{{ scope.row.user.userOriginArea}}</font>
+                                </p>
+                                <p>
+                                    <label th:text="#{common.userTel}+':'"></label>
+                                    <font>{{ scope.row.user.userTel }}</font>
+                                </p>
+                                <p>
+                                    <label th:text="#{common.userStatus}+':'"></label>
+                                    <font v-if="scope.row.user.userStatus=='0'" th:text="#{common.normalStatus}"></font>
+                                    <font v-else th:text="#{common.QuitStatus}"></font>
+                                </p>
+                                <p>
+                                    <label th:text="#{common.userEntryTime}+':'"></label>
+                                    <i class="el-icon-time"></i>
+                                    <font>{{ scope.row.user.userEntryTime }}</font>
+                                </p>
+                                <p>
+                                    <label th:text="#{common.userQuitTime}+':'"></label>
+                                    <i class="el-icon-time"></i>
+                                    <font v-if="scope.row.user.userQuitTime=='1980-01-01'">-</font>
+                                    <font v-else>{{scope.row.user.userQuitTime}}</font>
+                                </p>
+                                <p>
+                                    <label th:text="#{common.deptName}+':'"></label>
+                                    <font>{{ scope.row.user.dept.deptName }}</font>
+                                </p>
+                                <p>
+                                    <label th:text="#{common.positionName}+':'"></label>
+                                    <font>{{ scope.row.user.position.positionName }}</font>
+                                </p>
+                                <div slot="reference" class="name-wrapper">
+                                    <el-tag size="medium">{{ scope.row.user.userName }}</el-tag>
+                                </div>
+                            </el-popover>
+                        </template>
+                    </el-table-column>
+                    <el-table-column sortable th:label="#{common.status}">
                         <template slot-scope="scope">
                             <span class="normal-color" v-if="scope.row.orderStatusId=='1'" th:text="#{common.toAudit}"></span>
                             <span class="normal-color" v-else-if="scope.row.orderStatusId=='2'" th:text="#{common.toPay}"></span>
@@ -68,6 +227,12 @@
 
                 </el-table>
 
+                <!--<div align="center">
+                    <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="currentPage" :page-sizes="[5, 10, 20, 50]"
+                        :page-size="5" layout="total, sizes, prev, pager, next, jumper" :total="totalCount">
+                    </el-pagination>
+                </div>-->
+
             </div>
         </div>
     </div>
@@ -83,29 +248,110 @@
     <div th:replace="~{footer :: vue}"></div>
     <!-- 本页面的js脚本 -->
     <script th:inline="javascript">
-        new Vue({
+        var vue = new Vue({
             el: '#page-content',
             data: {
                 tableData: [],
+                tableDataStorage: [],
+
+                //搜索条件
+                //criteria: '',
+                //默认每页数据量
+                //pagesize: 10,
+                //当前页码
+                //currentPage: 1,
+                //查询的页码
+                //start: 1,
+                //默认数据总数
+                //totalCount: 0,
             },
             created: function () {
+                //获取所有订单
                 this.tableData = getPurchaseOrders();
+                this.tableDataStorage = getPurchaseOrders();
+
+                //this.totalCount = this.tableData.length;
             },
             methods: {
-                //
+                //切换订单类型
                 handleSelectType: function (index) {
+                    //切换效果
                     if (this.activeIndex !== index) {
                         this.activeIndex = index;
                     }
+                    //切换数据
+                    this.tableData.splice(0, this.tableData.length);
+                    if (index == 'all') {
+                        for (var i = 0; i < this.tableDataStorage.length; i++) {
+                            this.tableData.push(this.tableDataStorage[i]);
+                        }
+                    } else if (index == 'toAudit') {
+                        for (var i = 0; i < this.tableDataStorage.length; i++) {
+                            if (this.tableDataStorage[i].orderStatusId == '1') {
+                                this.tableData.push(this.tableDataStorage[i]);
+                            }
+                        }
+                    } else if (index == 'toPay') {
+                        for (var i = 0; i < this.tableDataStorage.length; i++) {
+                            if (this.tableDataStorage[i].orderStatusId == '2') {
+                                this.tableData.push(this.tableDataStorage[i]);
+                            }
+                        }
+                    } else if (index == 'toDelivery') {
+                        for (var i = 0; i < this.tableDataStorage.length; i++) {
+                            if (this.tableDataStorage[i].orderStatusId == '3') {
+                                this.tableData.push(this.tableDataStorage[i]);
+                            }
+                        }
+                    } else if (index == 'toAcceptance') {
+                        for (var i = 0; i < this.tableDataStorage.length; i++) {
+                            if (this.tableDataStorage[i].orderStatusId == '4') {
+                                this.tableData.push(this.tableDataStorage[i]);
+                            }
+                        }
+                    } else if (index == 'toCancel') {
+                        for (var i = 0; i < this.tableDataStorage.length; i++) {
+                            if (this.tableDataStorage[i].orderStatusId == '5') {
+                                this.tableData.push(this.tableDataStorage[i]);
+                            }
+                        }
+                    } else if (index == 'toStorage') {
+                        for (var i = 0; i < this.tableDataStorage.length; i++) {
+                            if (this.tableDataStorage[i].orderStatusId == '6') {
+                                this.tableData.push(this.tableDataStorage[i]);
+                            }
+                        }
+                    } else {
+                        for (var i = 0; i < this.tableDataStorage.length; i++) {
+                            if (this.tableDataStorage[i].orderStatusId == '7') {
+                                this.tableData.push(this.tableDataStorage[i]);
+                            }
+                        }
+                    }
                 },
+                //每页显示数据量变更
+                /*handleSizeChange(val) {
+                    console.log(`每页 ${val} 条`);
+                    this.pagesize = val;
+                    this.loadData(this.criteria, this.currentPage, this.pagesize);
+                },*/
+                //页码变更
+                /*handleCurrentChange(val) {
+                    console.log(`当前页: ${val}`);
+                    this.currentPage = val;
+                    this.loadData(this.criteria, this.currentPage, this.pagesize);
+                },*/
                 handleEdit(index, row) {
                     console.log(index, row);
                 },
                 handleDelete(index, row) {
                     console.log(index, row);
-                }
+                },
             },
         });
+
+        //载入数据
+        vue.loadData(vue.criteria, vue.currentPage, vue.pagesize);
     </script>
 
 </body>

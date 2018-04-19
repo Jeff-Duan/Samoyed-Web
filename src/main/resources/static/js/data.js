@@ -1,6 +1,6 @@
 var samoyedData = {
 
-    payMantList:[
+    payMentList:[
         {value:'1',label:'立即付款'.orEnglish('Immediate Pay')},
         {value:'2',label:'货到付款'.orEnglish('Arrival Pay')},
         {value:'3',label:'支付定金'.orEnglish('Deposit Pay')},

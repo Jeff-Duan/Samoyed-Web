@@ -57,49 +57,52 @@
             </el-submenu>
 
             <el-submenu index="produce" :show-timeout="0" :hide-timeout="200">
-                    <template slot="title">
-                        <i :class="'nav-icon nav-icon-produce'+(activeProduce?'-active':'')"></i>
-                        <span slot="title" th:text="#{nav.produce}"></span>
-                    </template>
-                    <el-menu-item-group>
-                        <el-menu-item index="producePlan" @click="onClickProducePlan">
-                            <span slot="title" th:text="#{nav.producePlan}"></span>
-                        </el-menu-item>
-                        <el-menu-item index="produceWork" @click="onClickProduceWork">
-                            <span slot="title" th:text="#{nav.produceWork}"></span>
-                        </el-menu-item>
-                        <el-menu-item index="produceTransfer" @click="onClickProduceTransfer">
-                            <span slot="title" th:text="#{nav.produceTransfer}"></span>
-                        </el-menu-item>
-                        <el-menu-item index="produceStorage" @click="onClickProduceStorage">
-                            <span slot="title" th:text="#{nav.produceStorage}"></span>
-                        </el-menu-item>
-                    </el-menu-item-group>
-                </el-submenu>
+                <template slot="title">
+                    <i :class="'nav-icon nav-icon-produce'+(activeProduce?'-active':'')"></i>
+                    <span slot="title" th:text="#{nav.produce}"></span>
+                </template>
+                <el-menu-item-group>
+                    <el-menu-item index="producePlan" @click="onClickProducePlan">
+                        <span slot="title" th:text="#{nav.producePlan}"></span>
+                    </el-menu-item>
+                    <el-menu-item index="produceWork" @click="onClickProduceWork">
+                        <span slot="title" th:text="#{nav.produceWork}"></span>
+                    </el-menu-item>
+                    <el-menu-item index="produceTransfer" @click="onClickProduceTransfer">
+                        <span slot="title" th:text="#{nav.produceTransfer}"></span>
+                    </el-menu-item>
+                    <el-menu-item index="produceStorage" @click="onClickProduceStorage">
+                        <span slot="title" th:text="#{nav.produceStorage}"></span>
+                    </el-menu-item>
+                </el-menu-item-group>
+            </el-submenu>
 
-                <el-submenu index="sale" :show-timeout="0" :hide-timeout="200">
-                    <template slot="title">
-                        <i :class="'nav-icon nav-icon-sale'+(activeSale?'-active':'')"></i>
-                        <span slot="title" th:text="#{nav.sale}"></span>
-                    </template>
-                    <el-menu-item-group>
-                        <el-menu-item index="saleOrder" @click="onClickSaleOrder">
-                            <span slot="title" th:text="#{nav.saleOrder}"></span>
-                        </el-menu-item>
-                        <el-menu-item index="saleReceivable" @click="onClickSaleReceivable">
-                            <span slot="title" th:text="#{nav.saleReceivable}"></span>
-                        </el-menu-item>
-                        <el-menu-item index="saleIssue" @click="onClickSaleIssue">
-                            <span slot="title" th:text="#{nav.saleIssue}"></span>
-                        </el-menu-item>
-                        <el-menu-item index="saleCancel" @click="onClickSaleCancel">
-                            <span slot="title" th:text="#{nav.saleCancel}"></span>
-                        </el-menu-item>
-                        <el-menu-item index="saleReconciliation" @click="onClickSaleReconciliation">
-                            <span slot="title" th:text="#{nav.saleReconciliation}"></span>
-                        </el-menu-item>
-                    </el-menu-item-group>
-                </el-submenu>
+            <el-submenu index="sale" :show-timeout="0" :hide-timeout="200">
+                <template slot="title">
+                    <i :class="'nav-icon nav-icon-sale'+(activeSale?'-active':'')"></i>
+                    <span slot="title" th:text="#{nav.sale}"></span>
+                </template>
+                <el-menu-item-group>
+                    <el-menu-item index="saleApply" @click="onClickSaleApply">
+                        <span slot="title" th:text="#{nav.saleApply}"></span>
+                    </el-menu-item>
+                    <el-menu-item index="saleOrder" @click="onClickSaleOrder">
+                        <span slot="title" th:text="#{nav.saleOrder}"></span>
+                    </el-menu-item>
+                    <el-menu-item index="saleReceivable" @click="onClickSaleReceivable">
+                        <span slot="title" th:text="#{nav.saleReceivable}"></span>
+                    </el-menu-item>
+                    <el-menu-item index="saleIssue" @click="onClickSaleIssue">
+                        <span slot="title" th:text="#{nav.saleIssue}"></span>
+                    </el-menu-item>
+                    <el-menu-item index="saleCancel" @click="onClickSaleCancel">
+                        <span slot="title" th:text="#{nav.saleCancel}"></span>
+                    </el-menu-item>
+                    <el-menu-item index="saleReconciliation" @click="onClickSaleReconciliation">
+                        <span slot="title" th:text="#{nav.saleReconciliation}"></span>
+                    </el-menu-item>
+                </el-menu-item-group>
+            </el-submenu>
 
 
         </el-menu>
@@ -158,6 +161,7 @@
                 //销售模块
                 activeSale: function () {
                     switch (this.active) {
+                        case 'saleApply':
                         case 'saleOrder':
                         case 'saleReceivable':
                         case 'saleIssue':
@@ -218,6 +222,9 @@
                     jumpToURL("/produce/storage");
                 },
                 //销售模块
+                onClickSaleApply: function () {
+                    jumpToURL("/sale/apply");
+                },
                 onClickSaleOrder: function () {
                     jumpToURL("/sale/order");
                 },

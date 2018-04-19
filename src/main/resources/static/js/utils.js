@@ -1,5 +1,13 @@
 var supportMail = '1191837698@qq.com';
 
+//设置全局AJAX配置
+$.ajaxSetup({
+    xhrFields: {
+        withCredentials: true
+    },
+    crossDomain: true,
+});
+
 // 常规浏览器语言和IE浏览器
 String.prototype.orEnglish = function (en) {
     var lang = navigator.language || navigator.userLanguage;
@@ -57,26 +65,25 @@ function getSuppliers() {
             },
         });
     }
+    result = loadCache(cacheKey);
     return result;
 }
 
 function getPurchaseOrders() {
+    var result;
     var cacheKey = 'purchaseOrders';
-    var result = loadCache(cacheKey);
-    if (result) {
-        console.log('Find purchaseOrders in cache');
-    } else {
-        $.ajax({
-            url: 'http://localhost:8091/api/purchase/order/all',
-            type: 'GET',
-            async: false,   // 同步获取数据
-            dataType: "json",
-            success: function (result) {
-                result = result;
-                saveCache(cacheKey, result);
-            },
-        });
-    }
+    sessionStorage.removeItem(cacheKey);
+    $.ajax({
+        url: 'http://localhost:8091/api/purchase/order/all',
+        type: 'GET',
+        async: false,   // 同步获取数据
+        dataType: "json",
+        success: function (result) {
+            result = result;
+            saveCache(cacheKey, result);
+        },
+    });
+    result = loadCache(cacheKey);
     return result;
 }
 

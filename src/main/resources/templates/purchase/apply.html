@@ -26,6 +26,11 @@
                     <el-col :span="2">
                         <div class="center" th:text="#{common.supplier}"></div>
                     </el-col>
+                    <el-col :span="1">
+                        <el-popover class="tips-align" placement="top" width="400" trigger="hover" th:title="#{common.tip}" th:content="#{common.supplierExplain}">
+                            <i slot="reference" class="el-icon-question"></i>
+                        </el-popover>
+                    </el-col>
                     <el-col :span="4">
                         <el-select size="medium" th:placeholder="#{common.pleaseSelect}" v-model="supplier" @change="(v)=>onChangeSupplier(v)">
                             <el-option v-for="item in supplierList" :key="item.supplierId" :label="item.supplierName?item.supplierName:''" :value="item.supplierId">
@@ -51,7 +56,12 @@
                 <div class="samoyed-task" v-for="(material, materialIndex) in materials">
                     <el-row class="samoyed-row" type="flex" align="middle">
                         <el-col :span="2">
-                            <div class="center" th:text="#{common.name}"></div>
+                            <div class="center" th:text="#{common.material}"></div>
+                        </el-col>
+                        <el-col :span="1">
+                            <el-popover class="tips-align" placement="top" width="400" trigger="hover" th:title="#{common.tip}" th:content="#{common.materialExplain}">
+                                <i slot="reference" class="el-icon-question"></i>
+                            </el-popover>
                         </el-col>
                         <el-col :span="4">
                             <el-select size="medium" filterable th:placeholder="#{common.pleaseSelect}" v-model="material.name" @change="(v)=>onChangeMaterialName(v,materialIndex)">
@@ -100,6 +110,27 @@
                     <el-col :span="2">
                         <div class="center" th:text="#{common.payment}"></div>
                     </el-col>
+                    <el-col :span="1">
+                        <el-popover class="tips-align" placement="right" width="600" trigger="hover">
+                            <i slot="reference" class="el-icon-question"></i>
+                            <div class="el-popover__title" th:text="#{common.tip}"></div>
+                            <p>
+                                <span th:text="#{common.directPayMent}"></span>
+                                <br />
+                                <span th:text="#{common.directPayMentExplain}"></span>
+                            </p>
+                            <p>
+                                <span th:text="#{common.cashOnDelivery}"></span>
+                                <br />
+                                <span th:text="#{common.cashOnDeliveryExplain}"></span>
+                            </p>
+                            <p>
+                                <span th:text="#{common.paymentOfDeposit}"></span>
+                                <br />
+                                <span th:text="#{common.paymentOfDepositExplain}"></span>
+                            </p>
+                        </el-popover>
+                    </el-col>
                     <el-col :span="4">
                         <el-select size="medium" th:placeholder="#{common.pleaseSelect}" v-model="payment">
                             <el-option v-for="item in payMentList" :key="item.value" :label="item.label?item.label:item.value" :value="item.value">
@@ -119,6 +150,11 @@
                     <el-col :span="2">
                         <div class="center" th:text="#{common.orderDate}"></div>
                     </el-col>
+                    <el-col :span="1">
+                        <el-popover class="tips-align" placement="top" width="400" trigger="hover" th:title="#{common.tip}" th:content="#{common.orderDateExplain}">
+                            <i slot="reference" class="el-icon-question"></i>
+                        </el-popover>
+                    </el-col>
                     <el-col :span="5">
                         <el-date-picker align="left" type="date" format="yyyy 年 MM 月 dd 日" value-format="yyyy-MM-dd" th:placeholder="#{common.selectDate}"
                             v-model="orderDate">
@@ -128,6 +164,11 @@
                 <el-row type="flex" align="middle" class="samoyed-row">
                     <el-col :span="2">
                         <div class="center" th:text="#{common.payDate}"></div>
+                    </el-col>
+                    <el-col :span="1">
+                        <el-popover class="tips-align" placement="top" width="400" trigger="hover" th:title="#{common.tip}" th:content="#{common.payDateExplain}">
+                            <i slot="reference" class="el-icon-question"></i>
+                        </el-popover>
                     </el-col>
                     <el-col :span="5">
                         <el-date-picker align="left" type="date" format="yyyy 年 MM 月 dd 日" value-format="yyyy-MM-dd" th:placeholder="#{common.selectDate}"
@@ -139,6 +180,11 @@
                     <el-col :span="2">
                         <div class="center" th:text="#{common.arrivalDate}"></div>
                     </el-col>
+                    <el-col :span="1">
+                        <el-popover class="tips-align" placement="top" width="400" trigger="hover" th:title="#{common.tip}" th:content="#{common.arrivalDateExplain}">
+                            <i slot="reference" class="el-icon-question"></i>
+                        </el-popover>
+                    </el-col>
                     <el-col :span="5">
                         <el-date-picker align="left" type="date" format="yyyy 年 MM 月 dd 日" value-format="yyyy-MM-dd" th:placeholder="#{common.selectDate}"
                             v-model="arrivalDate">
@@ -149,6 +195,12 @@
                     <el-col :span="2">
                         <div class="center" th:text="#{common.deliveryAddress}"></div>
                     </el-col>
+                    <el-col :span="1">
+                        <el-popover class="tips-align" placement="top" width="400" trigger="hover" th:title="#{common.tip}" th:content="#{common.deliveryAddressExplain}">
+                            <i slot="reference" class="el-icon-question"></i>
+                        </el-popover>
+                    </el-col>
+                    
                     <el-col :span="22">
                         <el-input th:placeholder="#{common.deliveryAddressPlaceholder}" v-model="deliveryAddress">
                         </el-input>
@@ -160,7 +212,12 @@
                     <el-col :span="2">
                         <div class="center" th:text="#{common.remark}"></div>
                     </el-col>
-                    <el-col :span="22">
+                    <el-col :span="1">
+                        <el-popover class="tips-align" placement="top" width="400" trigger="hover" th:title="#{common.tip}" th:content="#{common.remarkExplain}">
+                            <i slot="reference" class="el-icon-question"></i>
+                        </el-popover>
+                    </el-col>
+                    <el-col :span="20">
                         <el-input style="width:100%;" type="textarea" :autosize="{ minRows: 4, maxRows: 6}" th:placeholder="#{common.pleaseInput}"
                             v-model="remark">
                         </el-input>
@@ -211,16 +268,10 @@
                     //填充数据
                     supplierList: getSuppliers(),
                     materialList: [],
-                    payMentList: samoyedData.payMantList,
+                    payMentList: samoyedData.payMentList,
                 },
                 created: function () {
-                    //设置全局AJAX配置
-                    $.ajaxSetup({
-                        xhrFields: {
-                            withCredentials: true
-                        },
-                        crossDomain: true,
-                    });
+
                 },
                 computed: {
 
@@ -354,7 +405,7 @@
                             b = this.materials[i].price;
                             c = this.materials[i].measurement;
                             d = this.materials[i].number;
-                            purchaseOrderDetails.push({detailMaterialId:a,detailMaterialPrice:b,detailUnitName:c,detailMaterialNumber:d,});
+                            purchaseOrderDetails.push({ detailMaterialId: a, detailMaterialPrice: b, detailUnitName: c, detailMaterialNumber: d, });
                         }
                         return {
                             orderSupplierId: this.supplier,
