@@ -31,8 +31,8 @@
                             <i slot="reference" class="el-icon-question"></i>
                         </el-popover>
                     </el-col>
-                    <el-col :span="4">
-                        <el-select size="medium" th:placeholder="#{common.pleaseSelect}" v-model="supplier" @change="(v)=>onChangeSupplier(v)">
+                    <el-col :span="6">
+                        <el-select class="full-length" size="medium" th:placeholder="#{common.pleaseSelect}" v-model="supplier" @change="(v)=>onChangeSupplier(v)">
                             <el-option v-for="item in supplierList" :key="item.supplierId" :label="item.supplierName?item.supplierName:''" :value="item.supplierId">
                             </el-option>
                         </el-select>
@@ -40,7 +40,7 @@
                     <el-col :span="2">
                         <div class="center" th:text="#{common.payAccount}"></div>
                     </el-col>
-                    <el-col :span="4">
+                    <el-col :span="6">
                         <el-input :disabled="true" v-model='payAccount'>
                         </el-input>
                     </el-col>
@@ -63,8 +63,8 @@
                                 <i slot="reference" class="el-icon-question"></i>
                             </el-popover>
                         </el-col>
-                        <el-col :span="4">
-                            <el-select size="medium" filterable th:placeholder="#{common.pleaseSelect}" v-model="material.name" @change="(v)=>onChangeMaterialName(v,materialIndex)">
+                        <el-col :span="6">
+                            <el-select class="full-length" size="medium" filterable th:placeholder="#{common.pleaseSelect}" v-model="material.name" @change="(v)=>onChangeMaterialName(v,materialIndex)">
                                 <el-option v-for="item in materialList" :key="item.materialId" :label="item.materialName?item.materialName:''" :value="item.materialId">
                                 </el-option>
                             </el-select>
@@ -73,22 +73,22 @@
                             <div class="center" th:text="#{common.price}"></div>
                         </el-col>
                         <el-col :span="4">
-                            <el-input :disabled="true" v-model="material.price">
+                            <el-input :disabled="true" type="number" v-model="material.price">
                                 <template slot="append" th:text="#{common.rmb}"></template>
                             </el-input>
                         </el-col>
                         <el-col :span="2">
                             <div class="center" th:text="#{common.measurement}"></div>
                         </el-col>
-                        <el-col :span="4">
+                        <el-col :span="2">
                             <el-input :disabled="true" v-model="material.measurement">
                             </el-input>
                         </el-col>
                         <el-col :span="2">
                             <div class="center" th:text="#{common.number}"></div>
                         </el-col>
-                        <el-col :span="3">
-                            <el-input type="number" v-model="material.number" @change="(v)=>onChangeMaterialPrice(materialIndex)">
+                        <el-col :span="2">
+                            <el-input type="number" v-model="material.number" @change="onChangeMaterialNumber()">
                             </el-input>
                         </el-col>
                         <el-col :span="1" v-if="materials.length>1">
@@ -131,8 +131,8 @@
                             </p>
                         </el-popover>
                     </el-col>
-                    <el-col :span="4">
-                        <el-select size="medium" th:placeholder="#{common.pleaseSelect}" v-model="payment">
+                    <el-col :span="6">
+                        <el-select class="full-length" size="medium" th:placeholder="#{common.pleaseSelect}" v-model="payment" @change="onChangePayMent()">
                             <el-option v-for="item in payMentList" :key="item.value" :label="item.label?item.label:item.value" :value="item.value">
                             </el-option>
                         </el-select>
@@ -141,7 +141,7 @@
                         <div class="center" th:text="#{common.payPrice}"></div>
                     </el-col>
                     <el-col :span="4">
-                        <el-input type="number" v-model="payPrice">
+                        <el-input type="number" :disabled="true" v-model="payPrice">
                             <template slot="append" th:text="#{common.rmb}"></template>
                         </el-input>
                     </el-col>
@@ -200,8 +200,7 @@
                             <i slot="reference" class="el-icon-question"></i>
                         </el-popover>
                     </el-col>
-                    
-                    <el-col :span="22">
+                    <el-col :span="20">
                         <el-input th:placeholder="#{common.deliveryAddressPlaceholder}" v-model="deliveryAddress">
                         </el-input>
                     </el-col>
@@ -282,53 +281,99 @@
                     },
                     removeMaterial: function (index) {
                         this.materials.splice(index, 1);
+                        this.allPriceCount();
+                        this.payPriceCount();
                     },
-                    //清空总金额
-                    //清空原材料
-                    //填充付款卡号
-                    //填充原材料名称
-                    onChangeSupplier: function (supplier) {
+                    //改变供应商
+                    onChangeSupplier: function (supplierId) {
                         this.allPrice = '';
                         this.materials.splice(0, this.materials.length);
                         this.materials.push(new Material());
                         for (var i = 0; i < this.supplierList.length; i++) {
-                            if (supplier == this.supplierList[i].supplierId) {
+                            if (supplierId == this.supplierList[i].supplierId) {
                                 this.payAccount = this.supplierList[i].supplierBank;
                             };
                             this.materialList = this.supplierList[i].materials;
                         }
                     },
-                    //填充原材料单价
-                    //填充原材料计量单位
+                    //改变原材料名称
                     onChangeMaterialName: function (materialId, materialIndex) {
+                        this.materials[materialIndex].number = '';
+                        this.allPriceCount();
+                        this.payPriceCount();
                         for (var i = 0; i < this.supplierList.length; i++) {
                             if (this.supplier == this.supplierList[i].supplierId) {
                                 for (var j = 0; j < this.supplierList[i].materials.length; j++) {
                                     if (materialId == this.supplierList[i].materials[j].materialId) {
                                         this.materials[materialIndex].price = this.supplierList[i].materials[j].materialPrice;
                                         this.materials[materialIndex].measurement = this.supplierList[i].materials[j].unit.unitName;
-                                    }
-                                }
+                                    };
+                                };
                             };
+                        };
+                    },
+                    //改变原材料数量
+                    onChangeMaterialNumber: function () {
+                        this.allPriceCount();
+                        this.payPriceCount();
+                    },
+                    //改变支付类型
+                    onChangePayMent: function () {
+                        this.payPriceCount();
+                    },
+                    //乘法(保留两位小数)
+                    floatMul: function (arg1, arg2) {
+                        var m = 0, s1 = arg1.toString(), s2 = arg2.toString();
+                        try { m += s1.split(".")[1].length } catch (e) { };
+                        try { m += s2.split(".")[1].length } catch (e) { };
+                        return Number(s1.replace(".", "")) * Number(s2.replace(".", "")) / Math.pow(10, m);
+                    },
+                    //除法(保留两位小数)
+                    floatDiv: function (arg1, arg2) {
+                        var t1 = 0, t2 = 0, r1, r2;
+                        try { t1 = arg1.toString().split(".")[1].length } catch (e) { };
+                        try { t2 = arg2.toString().split(".")[1].length } catch (e) { };
+                        with (Math) {
+                            r1 = Number(arg1.toString().replace(".", ""));
+                            r2 = Number(arg2.toString().replace(".", ""));
+                            return (r1 / r2) * pow(10, t2 - t1);
                         }
                     },
-                    //精确浮点数计算(保留两位小数)  
+                    //加法(保留两位小数)
                     floatAdd: function (arg1, arg2) {
                         var r1, r2, m;
-                        try { r1 = arg1.toString().split(".")[1].length; } catch (e) { r1 = 0; }
-                        try { r2 = arg2.toString().split(".")[1].length; } catch (e) { r2 = 0; }
-                        m = Math.pow(10, Math.max(r1, r2));
-                        return (arg1 * m + arg2 * m) / m;
+                        try { r1 = arg1.toString().split(".")[1].length } catch (e) { r1 = 0 }
+                        try { r2 = arg2.toString().split(".")[1].length } catch (e) { r2 = 0 }
+                        m = Math.pow(10, Math.max(r1, r2))
+                        return (arg1 * m + arg2 * m) / m
                     },
                     //计算总金额
-                    onChangeMaterialPrice: function (materialIndex) {
+                    allPriceCount: function () {
                         var allPrice = 0.00;
-                        if (this.materials[materialIndex].price && this.materials[materialIndex].number) {
-                            for (var i = 0; i < this.materials.length; i++) {
-                                allPrice = this.floatAdd(allPrice, this.materials[i].price * this.materials[i].number);
+                        for (var i = 0; i < this.materials.length; i++) {
+                            if (this.materials[i].price && this.materials[i].number) {
+                                allPrice = this.floatAdd(allPrice, this.floatMul(this.materials[i].price, this.materials[i].number));
+                            };
+                        };
+                        this.allPrice = allPrice.toFixed(2);
+                    },
+                    //计算支付金额
+                    payPriceCount: function () {
+                        var payPrice = new Number(0.00);
+                        if (this.payment && this.allPrice) {
+                            if (this.payment == 1) {
+                                payPrice = this.floatAdd(0.00, this.allPrice);
+                            } else if (this.payment == 2) {
+                                payPrice = new Number(0.00);
+                            } else if (this.payment == 3) {
+                                payPrice = this.floatDiv(this.allPrice, 5);
+                            } else {
+                                payPrice = new Number(0.00);;
                             }
+                        } else {
+                            payPrice = new Number(0.00);;
                         }
-                        this.allPrice = allPrice;
+                        this.payPrice = payPrice.toFixed(2);
                     },
                     //提交前验证
                     checkBeforeSubmit: function () {
@@ -352,14 +397,20 @@
                                 warnings.push(msg.orEnglish(english_msg));
                             }
                         }
+                        for (var i = 0; i < this.materials.length; i++) {
+                            for (var j = 0; j < this.materials.length; j++) {
+                                if (i !== j && this.materials[i].name === this.materials[j].name) {
+                                    var i_seq = getSequence(i + 1);
+                                    var j_seq = getSequence(j + 1);
+                                    var msg = '第' + (i + 1) + '和' + '第' + (j + 1) + '原材料重复。';
+                                    var english_msg = 'The ' + i_seq + 'and' + j_seq + ' material repeat.';
+                                    warnings.push(msg.orEnglish(english_msg));
+                                }
+                            }
+                        }
                         if (this.payment == '') {
                             var msg = '没有指定支付方式。';
                             var english_msg = 'There is no payment : Please add a payment.';
-                            warnings.push(msg.orEnglish(english_msg));
-                        }
-                        if (this.payPrice == '') {
-                            var msg = '没有输入支付金额。';
-                            var english_msg = 'There is no payPrice : Please input a payPrice.';
                             warnings.push(msg.orEnglish(english_msg));
                         }
                         if (this.orderDate == '') {

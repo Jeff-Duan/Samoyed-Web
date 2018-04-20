@@ -52,10 +52,31 @@ function getSuppliers() {
     var cacheKey = 'suppliers';
     var result = loadCache(cacheKey);
     if (result) {
-        console.log('Find suppliers in cache');
+        console.log('Find suppliers in cache.');
     } else {
         $.ajax({
             url: 'http://localhost:8091/api/basic/supplier/all',
+            type: 'GET',
+            async: false,   // 同步获取数据
+            dataType: "json",
+            success: function (result) {
+                result = result;
+                saveCache(cacheKey, result);
+            },
+        });
+    }
+    result = loadCache(cacheKey);
+    return result;
+}
+
+function getProduces() {
+    var cacheKey = 'produces';
+    var result = loadCache(cacheKey);
+    if (result) {
+        console.log('Find produces in cache.');
+    } else {
+        $.ajax({
+            url: 'http://localhost:8091/api/basic/produce/all',
             type: 'GET',
             async: false,   // 同步获取数据
             dataType: "json",

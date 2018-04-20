@@ -19,8 +19,6 @@
     <div class="margin-helper">
         <div class="samoyed-content">
             <div th:replace="~{pageHead :: pageHead(pageName=#{nav.saleApply}, parentMenu=#{nav.sale})}"></div>
-
-
             <div id="page-content" class="page-content" v-cloak>
                 <!--基本信息-->
                 <div class="section-title" th:text="#{common.basicInfo}"></div>
@@ -34,62 +32,57 @@
                                 <i slot="reference" class="el-icon-question"></i>
                             </el-popover>
                         </el-col>
-                        <el-col :span="8">
-                            <el-select class="full-length" size="medium" filterable th:placeholder="#{common.pleaseSelect}">
-                                <el-option>
+                        <el-col :span="4">
+                            <el-select class="full-length" size="medium" filterable th:placeholder="#{common.pleaseSelect}" v-model="orderDetail.produceId"
+                                @change="onChangeProduce(orderDetailIndex)">
+                                <el-option v-for="item in produceList" :key="item.produceId" :label="item.produceName?item.produceName:''" :value="item.produceId">
                                 </el-option>
                             </el-select>
+                        </el-col>
+                    </el-row>
+                    <el-row class="samoyed-row" type="flex" align="middle">
+                        <el-col :span="2">
+                            <div class="center" th:text="#{common.type}"></div>
+                        </el-col>
+                        <el-col :span="1">
+                            <el-popover class="tips-align" placement="top" width="400" trigger="hover" th:title="#{common.tip}" th:content="#{common.typeExplain}">
+                                <i slot="reference" class="el-icon-question"></i>
+                            </el-popover>
+                        </el-col>
+                        <el-col :span="4">
+                            <el-select class="full-length" size="medium" filterable th:placeholder="#{common.pleaseSelect}" v-model="orderDetail.produceTypeId"
+                                @change="onChangeProduceType(orderDetailIndex)">
+                                <el-option v-for="item in produceTypeList" :key="item.value" :label="item.label?item.label:item.value" :value="item.value">
+                                </el-option>
+                            </el-select>
+                        </el-col>
+                        <el-col :span="2">
+                            <div class="center" th:text="#{common.price}"></div>
+                        </el-col>
+                        <el-col :span="4">
+                            <el-input :disabled="true" type="number" v-model="orderDetail.producePrice">
+                                <template slot="append" th:text="#{common.rmb}"></template>
+                            </el-input>
                         </el-col>
                         <el-col :span="2">
                             <div class="center" th:text="#{common.measurement}"></div>
                         </el-col>
-                        <el-col :span="4">
-                            <el-select class="full-length" size="medium" th:placeholder="#{common.pleaseSelect}">
-                                <el-option>
-                                </el-option>
-                            </el-select>
+                        <el-col :span="3">
+                            <input type="hidden" v-model="orderDetail.produceUnitId" />
+                            <el-input :disabled="true" v-model="orderDetail.produceUnitName">
+                            </el-input>
                         </el-col>
                         <el-col :span="2">
-                            <div class="center" th:text="#{common.yield}"></div>
+                            <div class="center" th:text="#{common.salesVolume}"></div>
                         </el-col>
-                        <el-col :span="4">
-                            <el-input class="full-length" type="number">
+                        <el-col :span="3">
+                            <el-input class="full-length" type="number" v-model="orderDetail.produceNumber" @change="onChangeProduceNumber()">
                             </el-input>
                         </el-col>
                         <el-col :span="1" v-if="orderDetails.length>1">
                             <div class="center">
                                 <i class="el-icon-close btn hover-normal-color" @click="removeOrderDetail(orderDetailIndex)"></i>
                             </div>
-                        </el-col>
-                    </el-row>
-                    <el-row class="samoyed-row" type="flex" align="middle">
-                        <el-col :span="2">
-                            <div class="center" th:text="#{common.material}"></div>
-                        </el-col>
-                        <el-col :span="1">
-                            <el-popover class="tips-align" placement="top" width="400" trigger="hover" th:title="#{common.tip}" th:content="#{common.materialExplain}">
-                                <i slot="reference" class="el-icon-question"></i>
-                            </el-popover>
-                        </el-col>
-                        <el-col :span="8">
-                            <el-input :disabled="true">
-                            </el-input>
-                        </el-col>
-                        <el-col :span="2">
-                            <div class="center" th:text="#{common.measurement}"></div>
-                        </el-col>
-                        <el-col :span="4">
-                            <el-select class="full-length" size="medium" th:placeholder="#{common.pleaseSelect}">
-                                <el-option>
-                                </el-option>
-                            </el-select>
-                        </el-col>
-                        <el-col :span="2">
-                            <div class="center" th:text="#{common.requirement}"></div>
-                        </el-col>
-                        <el-col :span="4">
-                            <el-input type="number">
-                            </el-input>
                         </el-col>
                     </el-row>
                 </div>
@@ -103,6 +96,29 @@
                 <div class="section-title" th:text="#{common.customInfo}"></div>
                 <el-row type="flex" align="middle" class="samoyed-row">
                     <el-col :span="2">
+                        <div class="center" th:text="#{common.allPrice}"></div>
+                    </el-col>
+                    <el-col :span="1">
+                        <el-popover class="tips-align" placement="top" width="400" trigger="hover" th:title="#{common.tip}" th:content="#{common.allPriceExplain}">
+                            <i slot="reference" class="el-icon-question"></i>
+                        </el-popover>
+                    </el-col>
+                    <el-col :span="4">
+                        <el-input type="number" :disabled="true" v-model="allPrice">
+                            <template slot="append" th:text="#{common.rmb}"></template>
+                        </el-input>
+                    </el-col>
+                    <el-col :span="2">
+                        <div class="center" th:text="#{common.deposit}"></div>
+                    </el-col>
+                    <el-col :span="4">
+                        <el-input type="number" :disabled="true" v-model="deposit">
+                            <template slot="append" th:text="#{common.rmb}"></template>
+                        </el-input>
+                    </el-col>
+                </el-row>
+                <el-row type="flex" align="middle" class="samoyed-row">
+                    <el-col :span="2">
                         <div class="center" th:text="#{common.orderDate}"></div>
                     </el-col>
                     <el-col :span="1">
@@ -111,36 +127,53 @@
                         </el-popover>
                     </el-col>
                     <el-col :span="5">
-                        <el-date-picker align="left" type="date" format="yyyy 年 MM 月 dd 日" value-format="yyyy-MM-dd" th:placeholder="#{common.selectDate}">
+                        <el-date-picker align="left" type="date" format="yyyy 年 MM 月 dd 日" value-format="yyyy-MM-dd" th:placeholder="#{common.selectDate}"
+                            v-model="orderDate">
                         </el-date-picker>
                     </el-col>
                 </el-row>
                 <el-row type="flex" align="middle" class="samoyed-row">
                     <el-col :span="2">
-                        <div class="center" th:text="#{common.produceStartDate}"></div>
+                        <div class="center" th:text="#{common.receivableDate}"></div>
                     </el-col>
                     <el-col :span="1">
-                        <el-popover class="tips-align" placement="top" width="400" trigger="hover" th:title="#{common.tip}" th:content="#{common.produceStartDateExplain}">
+                        <el-popover class="tips-align" placement="top" width="400" trigger="hover" th:title="#{common.tip}" th:content="#{common.receivableDateExplain}">
                             <i slot="reference" class="el-icon-question"></i>
                         </el-popover>
                     </el-col>
                     <el-col :span="5">
-                        <el-date-picker align="left" type="date" format="yyyy 年 MM 月 dd 日" value-format="yyyy-MM-dd" th:placeholder="#{common.selectDate}">
+                        <el-date-picker align="left" type="date" format="yyyy 年 MM 月 dd 日" value-format="yyyy-MM-dd" th:placeholder="#{common.selectDate}"
+                            v-model="receivableDate">
                         </el-date-picker>
                     </el-col>
                 </el-row>
                 <el-row type="flex" align="middle" class="samoyed-row">
                     <el-col :span="2">
-                        <div class="center" th:text="#{common.produceEndDate}"></div>
+                        <div class="center" th:text="#{common.sendDate}"></div>
                     </el-col>
                     <el-col :span="1">
-                        <el-popover class="tips-align" placement="top" width="400" trigger="hover" th:title="#{common.tip}" th:content="#{common.produceEndDateExplain}">
+                        <el-popover class="tips-align" placement="top" width="400" trigger="hover" th:title="#{common.tip}" th:content="#{common.sendDateExplain}">
                             <i slot="reference" class="el-icon-question"></i>
                         </el-popover>
                     </el-col>
                     <el-col :span="5">
-                        <el-date-picker align="left" type="date" format="yyyy 年 MM 月 dd 日" value-format="yyyy-MM-dd" th:placeholder="#{common.selectDate}">
+                        <el-date-picker align="left" type="date" format="yyyy 年 MM 月 dd 日" value-format="yyyy-MM-dd" th:placeholder="#{common.selectDate}"
+                            v-model="sendDate">
                         </el-date-picker>
+                    </el-col>
+                </el-row>
+                <el-row type="flex" align="middle" class="samoyed-row">
+                    <el-col :span="2">
+                        <div class="center" th:text="#{common.deliveryAddress}"></div>
+                    </el-col>
+                    <el-col :span="1">
+                        <el-popover class="tips-align" placement="top" width="400" trigger="hover" th:title="#{common.tip}" th:content="#{common.deliveryAddressExplain}">
+                            <i slot="reference" class="el-icon-question"></i>
+                        </el-popover>
+                    </el-col>
+                    <el-col :span="20">
+                        <el-input th:placeholder="#{common.deliveryAddressPlaceholder}" v-model="deliveryAddress">
+                        </el-input>
                     </el-col>
                 </el-row>
                 <!--其他设置-->
@@ -155,14 +188,16 @@
                         </el-popover>
                     </el-col>
                     <el-col :span="20">
-                        <el-input style="width:100%;" type="textarea" :autosize="{ minRows: 4, maxRows: 6}" th:placeholder="#{common.pleaseInput}">
+                        <el-input style="width:100%;" type="textarea" :autosize="{ minRows: 4, maxRows: 6}" th:placeholder="#{common.pleaseInput}"
+                            v-model="remark">
                         </el-input>
                     </el-col>
                 </el-row>
-
+                <div class="build-btn-bg"></div>
+                <div class="build-btn-wrapper">
+                    <el-button type="primary" size="medium" class="build-btn" th:text="#{common.go}" @click="onClickSubmit"></el-button>
+                </div>
             </div>
-
-
         </div>
     </div>
     <div th:replace="~{footer :: footer}"></div>
@@ -171,24 +206,38 @@
     <script src="../../static/js/element.js" th:src="@{/js/element.js}"></script>
     <script src="../../static/js/jquery-3.3.1.min.js" th:src="@{/js/jquery-3.3.1.min.js}"></script>
     <script src="../../static/js/utils.js" th:src="@{/js/utils.js}"></script>
+    <script src="../../static/js/data.js" th:src="@{/js/data.js}"></script>
     <!-- 引用vue组件相关的js文件 -->
     <div th:replace="~{nav :: vue('saleApply')}"></div>
     <div th:replace="~{header :: vue}"></div>
     <div th:replace="~{footer :: vue}"></div>
     <!-- 本页面的js脚本 -->
     <script th:inline="javascript">
-        //原料
-        function OrderDetail() {
 
+        //订单明细
+        function OrderDetail() {
+            this.produceId = '';
+            this.produceTypeId = '';
+            this.producePrice = '';
+            this.produceUnitId = '';
+            this.produceUnitName = '';
+            this.produceNumber = '';
         }
 
         new Vue({
             el: '#page-content',
             data: {
-
                 orderDetails: [new OrderDetail()],
+                allPrice: '',
+                deposit: '',
+                orderDate: '',
+                receivableDate: '',
+                sendDate: '',
+                deliveryAddress: '',
+                remark: '',
                 //填充数据
-
+                produceList: getProduces(),
+                produceTypeList: samoyedData.produceTypeList,
             },
             created: function () {
 
@@ -202,25 +251,216 @@
                 },
                 removeOrderDetail: function (index) {
                     this.orderDetails.splice(index, 1);
+                    this.allPriceCount();
+                    this.depositCount();
                 },
-                //清空总金额
-                //清空原材料
-                //填充付款卡号
-                //填充原材料名称
-
-                //填充原材料单价
-                //填充原材料计量单位
-
-                //精确浮点数计算(保留两位小数)  
-
+                //改变产品
+                onChangeProduce: function (orderDetailIndex) {
+                    this.orderDetails[orderDetailIndex].produceTypeId = '';
+                    this.orderDetails[orderDetailIndex].producePrice = '';
+                    this.orderDetails[orderDetailIndex].produceUnitId = '';
+                    this.orderDetails[orderDetailIndex].produceUnitName = '';
+                    this.orderDetails[orderDetailIndex].produceNumber = '';
+                    this.addPriceAndUnit(orderDetailIndex);
+                    this.allPriceCount();
+                    this.depositCount();
+                },
+                //改变产品类型
+                onChangeProduceType: function (orderDetailIndex) {
+                    this.orderDetails[orderDetailIndex].produceNumber = '';
+                    this.addPriceAndUnit(orderDetailIndex);
+                    this.allPriceCount();
+                    this.depositCount();
+                },
+                //改变销售量
+                onChangeProduceNumber: function () {
+                    this.allPriceCount();
+                    this.depositCount();
+                },
+                //根据产品和产品类别填充单价和计量单位
+                addPriceAndUnit: function (orderDetailIndex) {
+                    if (this.orderDetails[orderDetailIndex].produceId && this.orderDetails[orderDetailIndex].produceTypeId) {
+                        for (var i = 0; i < this.produceList.length; i++) {
+                            for (var j = 0; j < this.produceList[i].produceTypes.length; j++) {
+                                if (this.orderDetails[orderDetailIndex].produceId == this.produceList[i].produceId && this.orderDetails[orderDetailIndex].produceTypeId == this.produceList[i].produceTypes[j].produceTypeId) {
+                                    this.orderDetails[orderDetailIndex].producePrice = this.produceList[i].produceTypes[j].producePrice;
+                                    this.orderDetails[orderDetailIndex].produceUnitId = this.produceList[i].produceTypes[j].unit.unitId;
+                                    this.orderDetails[orderDetailIndex].produceUnitName = this.produceList[i].produceTypes[j].unit.unitName;
+                                };
+                            }
+                        }
+                    }
+                },
+                //乘法(保留两位小数)
+                floatMul: function (arg1, arg2) {
+                    var m = 0, s1 = arg1.toString(), s2 = arg2.toString();
+                    try { m += s1.split(".")[1].length } catch (e) { };
+                    try { m += s2.split(".")[1].length } catch (e) { };
+                    return Number(s1.replace(".", "")) * Number(s2.replace(".", "")) / Math.pow(10, m);
+                },
+                //除法(保留两位小数)
+                floatDiv: function (arg1, arg2) {
+                    var t1 = 0, t2 = 0, r1, r2;
+                    try { t1 = arg1.toString().split(".")[1].length } catch (e) { };
+                    try { t2 = arg2.toString().split(".")[1].length } catch (e) { };
+                    with (Math) {
+                        r1 = Number(arg1.toString().replace(".", ""));
+                        r2 = Number(arg2.toString().replace(".", ""));
+                        return (r1 / r2) * pow(10, t2 - t1);
+                    }
+                },
+                //加法(保留两位小数)
+                floatAdd: function (arg1, arg2) {
+                    var r1, r2, m;
+                    try { r1 = arg1.toString().split(".")[1].length } catch (e) { r1 = 0 }
+                    try { r2 = arg2.toString().split(".")[1].length } catch (e) { r2 = 0 }
+                    m = Math.pow(10, Math.max(r1, r2))
+                    return (arg1 * m + arg2 * m) / m
+                },
                 //计算总金额
-
+                allPriceCount: function () {
+                    var allPrice = new Number(0.00);
+                    for (var i = 0; i < this.orderDetails.length; i++) {
+                        if (this.orderDetails[i].producePrice && this.orderDetails[i].produceNumber) {
+                            allPrice = this.floatAdd(allPrice, this.floatMul(this.orderDetails[i].producePrice, this.orderDetails[i].produceNumber));
+                        };
+                    };
+                    this.allPrice = allPrice.toFixed(2);
+                },
+                //计算定金金额
+                depositCount: function () {
+                    var deposit = new Number(0.00);
+                    deposit = this.floatDiv(this.allPrice, 5);
+                    this.deposit = deposit.toFixed(2);
+                },
                 //提交前验证
-
+                checkBeforeSubmit: function () {
+                    var warnings = [];
+                    for (var i = 0; i < this.orderDetails.length; i++) {
+                        if (this.orderDetails[i].produceId == '') {
+                            var seq = getSequence(i + 1);
+                            var msg = '第' + (i + 1) + '个销售订单明细没有指定销售产品。';
+                            var english_msg = 'The ' + seq + ' sale order detail doesn\'t select produce.';
+                            warnings.push(msg.orEnglish(english_msg));
+                        }
+                        if (this.orderDetails[i].produceTypeId == '') {
+                            var seq = getSequence(i + 1);
+                            var msg = '第' + (i + 1) + '个销售订单明细没有指定销售产品的类别。';
+                            var english_msg = 'The ' + seq + '  sale order detail doesn\'t select produce\'s type.';
+                            warnings.push(msg.orEnglish(english_msg));
+                        }
+                        if (this.orderDetails[i].produceNumber == '') {
+                            var seq = getSequence(i + 1);
+                            var msg = '第' + (i + 1) + '个销售订单明细没有指定销售产品的销售量。';
+                            var english_msg = 'The ' + seq + '  sale order detail doesn\'t select produce\'s salesVolume.';
+                            warnings.push(msg.orEnglish(english_msg));
+                        }
+                        for (var j = 0; j < this.orderDetails.length; j++) {
+                            if (i !== j && this.orderDetails[i].produceId === this.orderDetails[j].produceId && this.orderDetails[i].produceTypeId === this.orderDetails[j].produceTypeId) {
+                                var i_seq = getSequence(i + 1);
+                                var j_seq = getSequence(j + 1);
+                                var msg = '第' + (i + 1) + '个和第' + (j + 1) + '个销售订单明细中产品以及产品类别重复。';
+                                var english_msg = 'The ' + i_seq + 'and' + j_seq + ' sale order detail repeat.';
+                                warnings.push(msg.orEnglish(english_msg));
+                            }
+                        }
+                    }
+                    if (this.orderDate == '') {
+                        var msg = '没有指定订单日期。';
+                        var english_msg = 'There is no orderDate : Please add a orderDate.';
+                        warnings.push(msg.orEnglish(english_msg));
+                    }
+                    if (this.receivableDate == '') {
+                        var msg = '没有指定收款日期。';
+                        var english_msg = 'There is no receivableDate : Please add a receivableDate.';
+                        warnings.push(msg.orEnglish(english_msg));
+                    }
+                    if (this.sendDate == '') {
+                        var msg = '没有指定发货日期。';
+                        var english_msg = 'There is no sendDate : Please add a sendDate.';
+                        warnings.push(msg.orEnglish(english_msg));
+                    }
+                    if (this.deliveryAddress == '') {
+                        var msg = '没有指定收获地址。';
+                        var english_msg = 'There is no deliveryAddress : Please input a deliveryAddress.';
+                        warnings.push(msg.orEnglish(english_msg));
+                    }
+                    if (warnings.length) {
+                        this.$notify({
+                            title: '警告'.orEnglish('Notice'),
+                            message: warnings[0],
+                            type: 'warning'
+                        });
+                        return false;
+                    } else {
+                        return true;
+                    }
+                },
                 //组装
-
+                assemble: function () {
+                    var saleOrderDetails = [];
+                    var a;
+                    var b;
+                    var c;
+                    var d;
+                    var e;
+                    for (var i = 0; i < this.orderDetails.length; i++) {
+                        a = this.orderDetails[i].produceId;
+                        b = this.orderDetails[i].produceTypeId;
+                        c = this.orderDetails[i].producePrice;
+                        d = this.orderDetails[i].produceUnitId;
+                        e = this.orderDetails[i].produceNumber;
+                        saleOrderDetails.push({ detailProduceId: a, detailProduceTypeId: b, detailProducePrice: c, detailProduceUnitId: d, detailProduceNumber: e });
+                    }
+                    return {
+                        orderInsertTime: this.orderDate,
+                        orderReceivableTime: this.receivableDate,
+                        orderSendTime: this.sendDate,
+                        orderDeliveryAddress: this.deliveryAddress,
+                        orderTotalMoney:this.allPrice,
+                        orderDepositMoney:this.deposit,
+                        orderRemark: this.remark,
+                        
+                        saleOrderDetails: saleOrderDetails,
+                    }
+                },
                 //提交
-
+                onClickSubmit: function () {
+                    if (!this.checkBeforeSubmit()) {
+                        console.warn('Check does not pass!');
+                        return;
+                    }
+                    var formData = new FormData();
+                    formData.append('data', JSON.stringify(this.assemble()));
+                    var that = this;
+                    $.ajax({
+                        url: 'http://localhost:8091/api/sale/apply',
+                        type: 'POST',
+                        cache: false,
+                        processData: false, // 告诉jQuery不要去处理发送的数据
+                        contentType: false, // 告诉jQuery不要去设置Content-Type请求头
+                        data: formData,
+                        dataType: "json",
+                        success: function (result) {
+                            var title;
+                            var content;
+                            var okBtnTxt;
+                            var type;
+                            if (result.status === 'success') {
+                                title = '销售申请提交成功'.orEnglish('Submitted successfully');
+                                content = '请耐心等待审核。'.orEnglish('Please wait for audit.');
+                                okBtnTxt = '确定'.orEnglish('OK');
+                                type = 'success';
+                            } else {
+                                title = '销售申请提交失败'.orEnglish('Submitted failed');
+                                content = '请联系'.orEnglish('Please contact ') + supportMail + '。'.orEnglish('.');
+                                okBtnTxt = '确定'.orEnglish('OK');
+                                type = 'error';
+                            }
+                            that.$alert(content, title, { confirmButtonText: okBtnTxt, type: type });
+                        },
+                    });
+                },
 
             }
         });

@@ -19,7 +19,6 @@
     <div class="margin-helper">
         <div class="samoyed-content">
             <div th:replace="~{pageHead :: pageHead(pageName=#{nav.producePlan}, parentMenu=#{nav.produce})}"></div>
-
             <div id="page-content" class="page-content" v-cloak>
                 <!--基本信息-->
                 <div class="section-title" th:text="#{common.basicInfo}"></div>
@@ -34,8 +33,9 @@
                             </el-popover>
                         </el-col>
                         <el-col :span="8">
-                            <el-select class="full-length" size="medium" filterable th:placeholder="#{common.pleaseSelect}">
-                                <el-option>
+                            <el-select class="full-length" size="medium" filterable th:placeholder="#{common.pleaseSelect}" v-model="orderDetail.produceId"
+                                @change="(v)=>onChangeProduce(v,orderDetailIndex)">
+                                <el-option v-for="item in produceList" :key="item.produceId" :label="item.produceName?item.produceName:''" :value="item.produceId">
                                 </el-option>
                             </el-select>
                         </el-col>
@@ -43,8 +43,8 @@
                             <div class="center" th:text="#{common.measurement}"></div>
                         </el-col>
                         <el-col :span="4">
-                            <el-select class="full-length" size="medium" th:placeholder="#{common.pleaseSelect}">
-                                <el-option>
+                            <el-select class="full-length" size="medium" th:placeholder="#{common.pleaseSelect}" v-model="orderDetail.produceMeasurement">
+                                <el-option v-for="item in measurementList" :key="item.value" :label="item.label?item.label:item.value" :value="item.value">
                                 </el-option>
                             </el-select>
                         </el-col>
@@ -52,7 +52,7 @@
                             <div class="center" th:text="#{common.yield}"></div>
                         </el-col>
                         <el-col :span="4">
-                            <el-input class="full-length" type="number">
+                            <el-input class="full-length" type="number" v-model="orderDetail.produceYield">
                             </el-input>
                         </el-col>
                         <el-col :span="1" v-if="orderDetails.length>1">
@@ -71,15 +71,16 @@
                             </el-popover>
                         </el-col>
                         <el-col :span="8">
-                            <el-input :disabled="true">
+                            <input type="hidden" v-model="orderDetail.materialId" />
+                            <el-input :disabled="true" v-model="orderDetail.materialName">
                             </el-input>
                         </el-col>
                         <el-col :span="2">
                             <div class="center" th:text="#{common.measurement}"></div>
                         </el-col>
                         <el-col :span="4">
-                            <el-select class="full-length" size="medium" th:placeholder="#{common.pleaseSelect}">
-                                <el-option>
+                            <el-select class="full-length" size="medium" th:placeholder="#{common.pleaseSelect}" v-model="orderDetail.materialMeasurement">
+                                <el-option v-for="item in measurementList" :key="item.value" :label="item.label?item.label:item.value" :value="item.value">
                                 </el-option>
                             </el-select>
                         </el-col>
@@ -87,7 +88,7 @@
                             <div class="center" th:text="#{common.requirement}"></div>
                         </el-col>
                         <el-col :span="4">
-                            <el-input type="number">
+                            <el-input type="number" v-model="orderDetail.materialRequirement">
                             </el-input>
                         </el-col>
                     </el-row>
@@ -110,7 +111,8 @@
                         </el-popover>
                     </el-col>
                     <el-col :span="5">
-                        <el-date-picker align="left" type="date" format="yyyy 年 MM 月 dd 日" value-format="yyyy-MM-dd" th:placeholder="#{common.selectDate}">
+                        <el-date-picker align="left" type="date" format="yyyy 年 MM 月 dd 日" value-format="yyyy-MM-dd" th:placeholder="#{common.selectDate}"
+                            v-model="orderDate">
                         </el-date-picker>
                     </el-col>
                 </el-row>
@@ -124,7 +126,8 @@
                         </el-popover>
                     </el-col>
                     <el-col :span="5">
-                        <el-date-picker align="left" type="date" format="yyyy 年 MM 月 dd 日" value-format="yyyy-MM-dd" th:placeholder="#{common.selectDate}">
+                        <el-date-picker align="left" type="date" format="yyyy 年 MM 月 dd 日" value-format="yyyy-MM-dd" th:placeholder="#{common.selectDate}"
+                            v-model="produceStartDate">
                         </el-date-picker>
                     </el-col>
                 </el-row>
@@ -138,7 +141,8 @@
                         </el-popover>
                     </el-col>
                     <el-col :span="5">
-                        <el-date-picker align="left" type="date" format="yyyy 年 MM 月 dd 日" value-format="yyyy-MM-dd" th:placeholder="#{common.selectDate}">
+                        <el-date-picker align="left" type="date" format="yyyy 年 MM 月 dd 日" value-format="yyyy-MM-dd" th:placeholder="#{common.selectDate}"
+                            v-model="produceEndDate">
                         </el-date-picker>
                     </el-col>
                 </el-row>
@@ -154,10 +158,15 @@
                         </el-popover>
                     </el-col>
                     <el-col :span="20">
-                        <el-input style="width:100%;" type="textarea" :autosize="{ minRows: 4, maxRows: 6}" th:placeholder="#{common.pleaseInput}">
+                        <el-input style="width:100%;" type="textarea" :autosize="{ minRows: 4, maxRows: 6}" th:placeholder="#{common.pleaseInput}"
+                            v-model="remark">
                         </el-input>
                     </el-col>
                 </el-row>
+                <div class="build-btn-bg"></div>
+                <div class="build-btn-wrapper">
+                    <el-button type="primary" size="medium" class="build-btn" th:text="#{common.go}" @click="onClickSubmit"></el-button>
+                </div>
 
             </div>
 
@@ -177,18 +186,28 @@
     <!-- 本页面的js脚本 -->
     <script th:inline="javascript">
 
-        //原料
+        //订单明细
         function OrderDetail() {
-
+            this.produceId = '';
+            this.produceMeasurement = '';
+            this.produceYield = '';
+            this.materialId = '';
+            this.materialName = '';
+            this.materialMeasurement = '';
+            this.materialRequirement = '';
         }
 
         new Vue({
             el: '#page-content',
             data: {
-
                 orderDetails: [new OrderDetail()],
+                orderDate: '',
+                produceStartDate: '',
+                produceEndDate: '',
+                remark: '',
                 //填充数据
-
+                produceList: getProduces(),
+                measurementList: samoyedData.measurementList,
             },
             created: function () {
 
@@ -203,25 +222,149 @@
                 removeOrderDetail: function (index) {
                     this.orderDetails.splice(index, 1);
                 },
-                //清空总金额
-                //清空原材料
-                //填充付款卡号
-                //填充原材料名称
-
-                //填充原材料单价
-                //填充原材料计量单位
-
-                //精确浮点数计算(保留两位小数)  
-
-                //计算总金额
-
+                //改变产品
+                onChangeProduce: function (produceId, orderDetailIndex) {
+                    for (var i = 0; i < this.produceList.length; i++) {
+                        if (produceId == this.produceList[i].produceId) {
+                            this.orderDetails[orderDetailIndex].materialId = this.produceList[i].material.materialId;
+                            this.orderDetails[orderDetailIndex].materialName = this.produceList[i].material.materialName;
+                        };
+                    }
+                },
                 //提交前验证
-
+                checkBeforeSubmit: function () {
+                    var warnings = [];
+                    for (var i = 0; i < this.orderDetails.length; i++) {
+                        if (this.orderDetails[i].produceId == '') {
+                            var seq = getSequence(i + 1);
+                            var msg = '第' + (i + 1) + '个生产计划明细没有指定生产产品。';
+                            var english_msg = 'The ' + seq + ' produce plan detail doesn\'t select produce.';
+                            warnings.push(msg.orEnglish(english_msg));
+                        }
+                        if (this.orderDetails[i].produceMeasurement == '') {
+                            var seq = getSequence(i + 1);
+                            var msg = '第' + (i + 1) + '个生产计划明细没有指定产品的计量单位。';
+                            var english_msg = 'The ' + seq + ' produce plan detail doesn\'t select produce\'s measurement.';
+                            warnings.push(msg.orEnglish(english_msg));
+                        }
+                        if (this.orderDetails[i].produceYield == '') {
+                            var seq = getSequence(i + 1);
+                            var msg = '第' + (i + 1) + '个生产计划明细没有指定产品的产量。';
+                            var english_msg = 'The ' + seq + ' produce plan detail doesn\'t select produce\'s yield.';
+                            warnings.push(msg.orEnglish(english_msg));
+                        }
+                        if (this.orderDetails[i].materialMeasurement == '') {
+                            var seq = getSequence(i + 1);
+                            var msg = '第' + (i + 1) + '个个生产计划明细没有指定原材料的计量单位。';
+                            var english_msg = 'The ' + seq + ' produce plan detail doesn\'t select material\'s measurement.';
+                            warnings.push(msg.orEnglish(english_msg));
+                        }
+                        if (this.orderDetails[i].materialRequirement == '') {
+                            var seq = getSequence(i + 1);
+                            var msg = '第' + (i + 1) + '个生产计划明细没有指定原材料的需求量。';
+                            var english_msg = 'The ' + seq + ' produce plan detail doesn\'t select material\'s requirement.';
+                            warnings.push(msg.orEnglish(english_msg));
+                        }
+                        for (var j = 0; j < this.orderDetails.length; j++) {
+                            if (i !== j && this.orderDetails[i].produceId === this.orderDetails[j].produceId) {
+                                var i_seq = getSequence(i + 1);
+                                var j_seq = getSequence(j + 1);
+                                var msg = '第' + (i + 1) + '个和第' + (j + 1) + '个生产计划明细中产品重复。';
+                                var english_msg = 'The ' + i_seq + 'and' + j_seq + ' produce repeat.';
+                                warnings.push(msg.orEnglish(english_msg));
+                            }
+                        }
+                    }
+                    if (this.orderDate == '') {
+                        var msg = '没有指定订单日期。';
+                        var english_msg = 'There is no orderDate : Please add a orderDate.';
+                        warnings.push(msg.orEnglish(english_msg));
+                    }
+                    if (this.produceStartDate == '') {
+                        var msg = '没有指定生产开始日期。';
+                        var english_msg = 'There is no produceStartDate : Please add a produceStartDate.';
+                        warnings.push(msg.orEnglish(english_msg));
+                    }
+                    if (this.produceEndDate == '') {
+                        var msg = '没有指定生产结束日期。';
+                        var english_msg = 'There is no produceEndDate : Please add a produceEndDate.';
+                        warnings.push(msg.orEnglish(english_msg));
+                    }
+                    if (warnings.length) {
+                        this.$notify({
+                            title: '警告'.orEnglish('Notice'),
+                            message: warnings[0],
+                            type: 'warning'
+                        });
+                        return false;
+                    } else {
+                        return true;
+                    }
+                },
                 //组装
-
+                assemble: function () {
+                    var produceOrderDetails = [];
+                    var a;
+                    var b;
+                    var c;
+                    var d;
+                    var e;
+                    var f;
+                    for (var i = 0; i < this.orderDetails.length; i++) {
+                        a = this.orderDetails[i].produceId;
+                        b = this.orderDetails[i].produceMeasurement;
+                        c = this.orderDetails[i].produceYield;
+                        d = this.orderDetails[i].materialId;
+                        e = this.orderDetails[i].materialMeasurement;
+                        f = this.orderDetails[i].materialRequirement;
+                        produceOrderDetails.push({ detailProduceId: a, detailProduceUnitId: b, detailProduceNumber: c, detailMaterialId: d, detailMaterialUnitId: e, detailMaterialNumber: f });
+                    }
+                    return {
+                        orderInsertTime: this.orderDate,
+                        orderStartTime: this.produceStartDate,
+                        orderEndTime: this.produceEndDate,
+                        orderRemark: this.remark,
+                        
+                        produceOrderDetails: produceOrderDetails,
+                    }
+                },
                 //提交
-
-
+                onClickSubmit: function () {
+                    if (!this.checkBeforeSubmit()) {
+                        console.warn('Check does not pass!');
+                        return;
+                    }
+                    var formData = new FormData();
+                    formData.append('data', JSON.stringify(this.assemble()));
+                    var that = this;
+                    $.ajax({
+                        url: 'http://localhost:8091/api/produce/plan',
+                        type: 'POST',
+                        cache: false,
+                        processData: false, // 告诉jQuery不要去处理发送的数据
+                        contentType: false, // 告诉jQuery不要去设置Content-Type请求头
+                        data: formData,
+                        dataType: "json",
+                        success: function (result) {
+                            var title;
+                            var content;
+                            var okBtnTxt;
+                            var type;
+                            if (result.status === 'success') {
+                                title = '生产计划提交成功'.orEnglish('Submitted successfully');
+                                content = '请耐心等待审核。'.orEnglish('Please wait for audit.');
+                                okBtnTxt = '确定'.orEnglish('OK');
+                                type = 'success';
+                            } else {
+                                title = '生产计划提交失败'.orEnglish('Submitted failed');
+                                content = '请联系'.orEnglish('Please contact ') + supportMail + '。'.orEnglish('.');
+                                okBtnTxt = '确定'.orEnglish('OK');
+                                type = 'error';
+                            }
+                            that.$alert(content, title, { confirmButtonText: okBtnTxt, type: type });
+                        },
+                    });
+                },
             }
         });
     </script>
