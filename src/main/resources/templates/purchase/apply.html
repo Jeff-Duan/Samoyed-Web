@@ -81,6 +81,7 @@
                             <div class="center" th:text="#{common.measurement}"></div>
                         </el-col>
                         <el-col :span="2">
+                            <input type="hidden" v-model="material.unitId" />
                             <el-input :disabled="true" v-model="material.measurement">
                             </el-input>
                         </el-col>
@@ -246,6 +247,7 @@
             function Material() {
                 this.name = '';
                 this.price = '';
+                this.unitId = '',
                 this.measurement = '';
                 this.number = '';
             }
@@ -306,6 +308,7 @@
                                 for (var j = 0; j < this.supplierList[i].materials.length; j++) {
                                     if (materialId == this.supplierList[i].materials[j].materialId) {
                                         this.materials[materialIndex].price = this.supplierList[i].materials[j].materialPrice;
+                                        this.materials[materialIndex].unitId = this.supplierList[i].materials[j].unit.unitId;
                                         this.materials[materialIndex].measurement = this.supplierList[i].materials[j].unit.unitName;
                                     };
                                 };
@@ -454,9 +457,9 @@
                         for (var i = 0; i < this.materials.length; i++) {
                             a = this.materials[i].name;
                             b = this.materials[i].price;
-                            c = this.materials[i].measurement;
+                            c = this.materials[i].unitId;
                             d = this.materials[i].number;
-                            purchaseOrderDetails.push({ detailMaterialId: a, detailMaterialPrice: b, detailUnitName: c, detailMaterialNumber: d, });
+                            purchaseOrderDetails.push({ detailMaterialId: a, detailMaterialPrice: b, detailUnitId: c, detailMaterialNumber: d, });
                         }
                         return {
                             orderSupplierId: this.supplier,

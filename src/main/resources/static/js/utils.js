@@ -1,6 +1,7 @@
+//服务支持邮箱
 var supportMail = '1191837698@qq.com';
 
-//设置全局AJAX配置
+//设置全局AJAX配置（跨域支持,携带cookie）
 $.ajaxSetup({
     xhrFields: {
         withCredentials: true
@@ -20,7 +21,7 @@ function jumpToURL(URL) {
     window.location.href = URL;
 }
 
-// 这个接口用来保存永久数据
+// 这个接口用来保存永久数据(localStorage)
 function saveData(key, value) {
     localStorage.setItem(key, JSON.stringify({ value: value }));
 }
@@ -30,7 +31,7 @@ function loadData(key) {
     return data ? JSON.parse(data).value : null;
 }
 
-// 这个接口用来保存临时数据，浏览器关闭时会清空
+// 这个接口用来保存临时数据，浏览器关闭时会清空(sessionStorage)
 function saveCache(key, value) {
     sessionStorage.setItem(key, JSON.stringify({ value: value }));
 }
@@ -40,7 +41,7 @@ function loadCache(key) {
     return data ? JSON.parse(data).value : null;
 }
 
-//
+//翻译数字
 function getSequence(num) {
     if (isNaN(num)) {
         return num;
@@ -48,6 +49,7 @@ function getSequence(num) {
     return (num == 1) ? '1st' : (num == 2) ? '2nd' : (num == 3) ? '3rd' : (num > 3) ? (num + 1) + 'th' : num;
 }
 
+//获取所有供应商
 function getSuppliers() {
     var cacheKey = 'suppliers';
     var result = loadCache(cacheKey);
@@ -69,6 +71,7 @@ function getSuppliers() {
     return result;
 }
 
+//获取所有产品
 function getProduces() {
     var cacheKey = 'produces';
     var result = loadCache(cacheKey);
@@ -90,13 +93,19 @@ function getProduces() {
     return result;
 }
 
-function getPurchaseOrders() {
+//获取所有采购订单(分页获取)
+function getPurchaseOrders(statusId, pageNum, pageSize) {
+    var statusId = statusId;
+    var pageNum = pageNum;
+    var pageSize = pageSize;
     var result;
     var cacheKey = 'purchaseOrders';
     sessionStorage.removeItem(cacheKey);
     $.ajax({
-        url: 'http://localhost:8091/api/purchase/order/all',
+        url: 'http://localhost:8091/api/purchase/order/all?statusId=' + statusId + '&pageNum=' + pageNum + '&pageSize=' + pageSize,
+        data: {},
         type: 'GET',
+        cache: false,    //关闭缓存
         async: false,   // 同步获取数据
         dataType: "json",
         success: function (result) {
