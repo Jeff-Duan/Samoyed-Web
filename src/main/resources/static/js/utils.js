@@ -117,6 +117,54 @@ function getPurchaseOrders(statusId, pageNum, pageSize) {
     return result;
 }
 
+//获取所有生产订单(分页获取)
+function getProduceOrders(statusId, pageNum, pageSize) {
+    var statusId = statusId;
+    var pageNum = pageNum;
+    var pageSize = pageSize;
+    var result;
+    var cacheKey = 'produceOrders';
+    sessionStorage.removeItem(cacheKey);
+    $.ajax({
+        url: 'http://localhost:8091/api/produce/order/all?statusId=' + statusId + '&pageNum=' + pageNum + '&pageSize=' + pageSize,
+        data: {},
+        type: 'GET',
+        cache: false,    //关闭缓存
+        async: false,   // 同步获取数据
+        dataType: "json",
+        success: function (result) {
+            result = result;
+            saveCache(cacheKey, result);
+        },
+    });
+    result = loadCache(cacheKey);
+    return result;
+}
+
+//获取所有销售订单(分页获取)
+function getSaleOrders(statusId, pageNum, pageSize) {
+    var statusId = statusId;
+    var pageNum = pageNum;
+    var pageSize = pageSize;
+    var result;
+    var cacheKey = 'saleOrders';
+    sessionStorage.removeItem(cacheKey);
+    $.ajax({
+        url: 'http://localhost:8091/api/sale/order/all?statusId=' + statusId + '&pageNum=' + pageNum + '&pageSize=' + pageSize,
+        data: {},
+        type: 'GET',
+        cache: false,    //关闭缓存
+        async: false,   // 同步获取数据
+        dataType: "json",
+        success: function (result) {
+            result = result;
+            saveCache(cacheKey, result);
+        },
+    });
+    result = loadCache(cacheKey);
+    return result;
+}
+
 
 
 

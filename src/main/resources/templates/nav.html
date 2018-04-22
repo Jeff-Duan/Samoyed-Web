@@ -41,15 +41,6 @@
                     <el-menu-item index="purchaseOrder" @click="onClickPurchaseOrder">
                         <span slot="title" th:text="#{nav.purchaseOrder}"></span>
                     </el-menu-item>
-                    <el-menu-item index="purchaseStorage" @click="onClickPurchaseStorage">
-                        <span slot="title" th:text="#{nav.purchaseStorage}"></span>
-                    </el-menu-item>
-                    <el-menu-item index="purchasePay" @click="onClickPurchasePay">
-                        <span slot="title" th:text="#{nav.purchasePay}"></span>
-                    </el-menu-item>
-                    <el-menu-item index="purchaseCancel" @click="onClickPurchaseCancel">
-                        <span slot="title" th:text="#{nav.purchaseCancel}"></span>
-                    </el-menu-item>
                     <el-menu-item index="purchaseReconciliation" @click="onClickPurchaseReconciliation">
                         <span slot="title" th:text="#{nav.purchaseReconciliation}"></span>
                     </el-menu-item>
@@ -68,12 +59,6 @@
                     <el-menu-item index="produceWork" @click="onClickProduceWork">
                         <span slot="title" th:text="#{nav.produceWork}"></span>
                     </el-menu-item>
-                    <el-menu-item index="produceTransfer" @click="onClickProduceTransfer">
-                        <span slot="title" th:text="#{nav.produceTransfer}"></span>
-                    </el-menu-item>
-                    <el-menu-item index="produceStorage" @click="onClickProduceStorage">
-                        <span slot="title" th:text="#{nav.produceStorage}"></span>
-                    </el-menu-item>
                 </el-menu-item-group>
             </el-submenu>
 
@@ -89,19 +74,24 @@
                     <el-menu-item index="saleOrder" @click="onClickSaleOrder">
                         <span slot="title" th:text="#{nav.saleOrder}"></span>
                     </el-menu-item>
-                    <el-menu-item index="saleReceivable" @click="onClickSaleReceivable">
-                        <span slot="title" th:text="#{nav.saleReceivable}"></span>
-                    </el-menu-item>
-                    <el-menu-item index="saleIssue" @click="onClickSaleIssue">
-                        <span slot="title" th:text="#{nav.saleIssue}"></span>
-                    </el-menu-item>
-                    <el-menu-item index="saleCancel" @click="onClickSaleCancel">
-                        <span slot="title" th:text="#{nav.saleCancel}"></span>
-                    </el-menu-item>
                     <el-menu-item index="saleReconciliation" @click="onClickSaleReconciliation">
                         <span slot="title" th:text="#{nav.saleReconciliation}"></span>
                     </el-menu-item>
                 </el-menu-item-group>
+            </el-submenu>
+
+            <el-submenu index="finance" :show-timeout="0" :hide-timeout="200">
+                <template slot="title">
+                    <i :class="'nav-icon nav-icon-finance'+(activeFinance?'-active':'')"></i>
+                    <span slot="title" th:text="#{nav.finance}"></span>
+                </template>
+            </el-submenu>
+
+            <el-submenu index="finance" :show-timeout="0" :hide-timeout="200">
+                <template slot="title">
+                    <i :class="'nav-icon nav-icon-warehouse'+(activeWarehouse?'-active':'')"></i>
+                    <span slot="title" th:text="#{nav.warehouse}"></span>
+                </template>
             </el-submenu>
 
 
@@ -137,9 +127,6 @@
                     switch (this.active) {
                         case 'purchaseApply':
                         case 'purchaseOrder':
-                        case 'purchaseStorage':
-                        case 'purchasePay':
-                        case 'purchaseReturn':
                         case 'purchaseReconciliation':
                             return true;
                         default:
@@ -151,8 +138,6 @@
                     switch (this.active) {
                         case 'producePlan':
                         case 'produceWork':
-                        case 'produceTransfer':
-                        case 'produceStorage':
                             return true;
                         default:
                             return false;
@@ -163,9 +148,6 @@
                     switch (this.active) {
                         case 'saleApply':
                         case 'saleOrder':
-                        case 'saleReceivable':
-                        case 'saleIssue':
-                        case 'saleCancel':
                         case 'saleReconciliation':
                             return true;
                         default:
@@ -196,15 +178,6 @@
                 onClickPurchaseOrder: function () {
                     jumpToURL("/purchase/order");
                 },
-                onClickPurchaseStorage: function () {
-                    jumpToURL("/purchase/storage");
-                },
-                onClickPurchasePay: function () {
-                    jumpToURL("/purchase/pay");
-                },
-                onClickPurchaseCancel: function () {
-                    jumpToURL("/purchase/cancel");
-                },
                 onClickPurchaseReconciliation: function () {
                     jumpToURL("/purchase/reconciliation");
                 },
@@ -215,27 +188,12 @@
                 onClickProduceWork: function () {
                     jumpToURL("/produce/work");
                 },
-                onClickProduceTransfer: function () {
-                    jumpToURL("/produce/transfer");
-                },
-                onClickProduceStorage: function () {
-                    jumpToURL("/produce/storage");
-                },
                 //销售模块
                 onClickSaleApply: function () {
                     jumpToURL("/sale/apply");
                 },
                 onClickSaleOrder: function () {
                     jumpToURL("/sale/order");
-                },
-                onClickSaleReceivable: function () {
-                    jumpToURL("/sale/receivable");
-                },
-                onClickSaleIssue: function () {
-                    jumpToURL("/sale/issue");
-                },
-                onClickSaleCancel: function () {
-                    jumpToURL("/sale/cancel");
                 },
                 onClickSaleReconciliation: function () {
                     jumpToURL("/sale/reconciliation");

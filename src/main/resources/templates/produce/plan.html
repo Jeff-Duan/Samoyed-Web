@@ -303,7 +303,7 @@
                 },
                 //组装
                 assemble: function () {
-                    var produceOrderDetails = [];
+                    var produceOrderPlanDetails = [];
                     var a;
                     var b;
                     var c;
@@ -317,7 +317,7 @@
                         d = this.orderDetails[i].materialId;
                         e = this.orderDetails[i].materialMeasurement;
                         f = this.orderDetails[i].materialRequirement;
-                        produceOrderDetails.push({ detailProduceId: a, detailProduceUnitId: b, detailProduceNumber: c, detailMaterialId: d, detailMaterialUnitId: e, detailMaterialNumber: f });
+                        produceOrderPlanDetails.push({ detailProduceId: a, detailProduceUnitId: b, detailProduceNumber: c, detailMaterialId: d, detailMaterialUnitId: e, detailMaterialNumber: f });
                     }
                     return {
                         orderInsertTime: this.orderDate,
@@ -325,7 +325,7 @@
                         orderEndTime: this.produceEndDate,
                         orderRemark: this.remark,
                         
-                        produceOrderDetails: produceOrderDetails,
+                        produceOrderPlanDetails: produceOrderPlanDetails,
                     }
                 },
                 //提交

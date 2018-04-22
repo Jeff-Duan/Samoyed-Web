@@ -18,21 +18,6 @@ public class PurchaseController {
         return "/purchase/order";
     }
 
-    @GetMapping(value = "/storage")
-    public String storage() {
-        return "/purchase/storage";
-    }
-
-    @GetMapping(value = "/pay")
-    public String pay() {
-        return "/purchase/pay";
-    }
-
-    @GetMapping(value = "/cancel")
-    public String cancel() {
-        return "/purchase/cancel";
-    }
-
     @GetMapping(value = "/reconciliation")
     public String reconciliation() {
         return "/purchase/reconciliation";

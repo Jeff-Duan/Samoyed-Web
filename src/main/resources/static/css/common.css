@@ -197,10 +197,22 @@ a:active {
     background-image: url(../imgs/produce-active.png);
 }
 .nav-icon-sale {
-    background-image: url(../imgs/qq.png);
+    background-image: url(../imgs/sale.png);
 }
 .nav-icon-sale-active {
-    background-image: url(../imgs/produce-active.png);
+    background-image: url(../imgs/sale-active.png);
+}
+.nav-icon-finance {
+    background-image: url(../imgs/finance.png);
+}
+.nav-icon-finance-active {
+    background-image: url(../imgs/finance-active.png);
+}
+.nav-icon-warehouse {
+    background-image: url(../imgs/warehouse.png);
+}
+.nav-icon-warehouse-active {
+    background-image: url(../imgs/warehouse-active.png);
 }
 
 

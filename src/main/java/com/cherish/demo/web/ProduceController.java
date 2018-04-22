@@ -18,14 +18,4 @@ public class ProduceController {
         return "/produce/work";
     }
 
-    @GetMapping(value = "/transfer")
-    public String transfer() {
-        return "/produce/transfer";
-    }
-
-    @GetMapping(value = "/storage")
-    public String storage() {
-        return "/produce/storage";
-    }
-
 }

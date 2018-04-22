@@ -1,43 +1,286 @@
 <!DOCTYPE html>
-<html lang="zh-CN" xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:th="http://www.thymeleaf.org">
+<html lang="zh-CN" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
     <title th:utext="#{project.name}"></title>
-    <link href="../../static/css/element/index.css"
-          rel="stylesheet"
-          th:href="@{/css/element/index.css}">
+    <link href="../../static/css/element/index.css" rel="stylesheet" th:href="@{/css/element/index.css}">
     <!-- 自定义css文件 -->
-    <link href="../../static/css/common.css"
-          rel="stylesheet"
-          th:href="@{/css/common.css}">
+    <link href="../../static/css/common.css" rel="stylesheet" th:href="@{/css/common.css}">
+    <style>
+        /* 引入element-ui表格展开行 */
+
+        .samoyed-table-expand {
+            font-size: 0;
+        }
+
+        .samoyed-table-expand label {
+            width: 100px;
+            color: #99a9bf;
+        }
+
+        .samoyed-table-expand .el-form-item {
+            margin-right: 0;
+            margin-bottom: 0;
+            width: 20%;
+        }
+    </style>
 </head>
+
 <body>
 
-<div th:replace="~{nav :: nav('saleOrder')}"></div>
-<div th:replace="~{header :: header}"></div>
-<div class="margin-helper">
-    <div class="samoyed-content">
-        <div th:replace="~{pageHead :: pageHead(pageName=#{nav.saleOrder}, parentMenu=#{nav.sale})}"></div>
+    <div th:replace="~{nav :: nav('saleOrder')}"></div>
+    <div th:replace="~{header :: header}"></div>
+    <div class="margin-helper">
+        <div class="samoyed-content">
+            <div th:replace="~{pageHead :: pageHead(pageName=#{nav.saleOrder}, parentMenu=#{nav.sale})}"></div>
+            <div id="page-content" class="page-content" v-cloak>
+                <div class="type-menu">
+                    <el-menu :default-active="activeIndex" mode="horizontal" @select="handleSelectType">
+                        <el-menu-item index="0" th:text="#{common.all}"></el-menu-item>
+                        <el-menu-item index="1" th:text="#{common.toAudit}"></el-menu-item>
+                        <el-menu-item index="2" th:text="#{common.isPayDeposit}"></el-menu-item>
+                        <el-menu-item index="3" th:text="#{common.toSend}"></el-menu-item>
+                        <el-menu-item index="4" th:text="#{common.isPayFinal}"></el-menu-item>
+                        <el-menu-item index="5" th:text="#{common.toReturn}"></el-menu-item>
+                        <el-menu-item index="6" th:text="#{common.isSuccess}"></el-menu-item>
+                    </el-menu>
+                </div>
+                <el-table :data="tableData">
+                    <el-table-column type="selection">
+                    </el-table-column>
+                    <el-table-column type="expand">
+                        <template slot-scope="props">
+                            <el-form label-position="left" inline class="samoyed-table-expand">
+                                <el-form-item th:label="#{common.orderInfo}"></el-form-item>
+                            </el-form>
+                            <el-form label-position="left" inline class="samoyed-table-expand">
+                                <el-form-item th:label="#{common.orderDate}">
+                                    <i class="el-icon-time"></i>
+                                    <span>{{ props.row.orderInsertTime }}</span>
+                                </el-form-item>
+                                <el-form-item th:label="#{common.receivableDate}">
+                                    <i class="el-icon-time"></i>
+                                    <span>{{ props.row.orderReceivableTime }}</span>
+                                </el-form-item>
+                                <el-form-item th:label="#{common.sendDate}">
+                                    <i class="el-icon-time"></i>
+                                    <span>{{ props.row.orderSendTime }}</span>
+                                </el-form-item>
+                                <el-form-item th:label="#{common.allPrice}">
+                                    <span>{{ props.row.orderTotalMoney }}&nbsp;RMB</span>
+                                </el-form-item>
+                                <el-form-item th:label="#{common.deposit}">
+                                    <span>{{ props.row.orderDepositMoney }}&nbsp;RMB</span>
+                                </el-form-item>
+                                <el-form-item style="width:100%;" th:label="#{common.deliveryAddress}">
+                                    <span>{{ props.row.orderDeliveryAddress }}</span>
+                                </el-form-item>
+                                <el-form-item style="width:100%;" th:label="#{common.remark}">
+                                    <span>{{ props.row.orderRemark }}</span>
+                                </el-form-item>
+                            </el-form>
+                            <el-form label-position="left" inline class="samoyed-table-expand">
+                                <el-form-item th:label="#{common.orderDetail}"></el-form-item>
+                            </el-form>
+                            <el-form label-position="left" inline class="samoyed-table-expand" v-for="saleOrderDetail in props.row.saleOrderDetails"
+                                :key="saleOrderDetail.detailId">
+                                <el-form-item th:label="#{common.produce}">
+                                    <span>{{ saleOrderDetail.produce.produceName }}</span>
+                                </el-form-item>
+                                <el-form-item th:label="#{common.type}">
+                                    <span>{{ saleOrderDetail.produceType.produceTypeName }}</span>
+                                </el-form-item>
+                                <el-form-item th:label="#{common.price}">
+                                    <span>{{ saleOrderDetail.detailProducePrice }}&nbsp;RMB</span>
+                                </el-form-item>
+                                <el-form-item th:label="#{common.measurement}">
+                                    <span>{{ saleOrderDetail.unit.unitName }}</span>
+                                </el-form-item>
+                                <el-form-item th:label="#{common.number}">
+                                    <span>{{ saleOrderDetail.detailProduceNumber }}</span>
+                                </el-form-item>
+                            </el-form>
+                        </template>
+                    </el-table-column>
+                    <el-table-column sortable prop="orderNumber" th:label="#{common.orderNumber}">
+                    </el-table-column>
+                    <el-table-column sortable th:label="#{common.createUser}">
+                        <template slot-scope="scope">
+                            <el-popover trigger="hover" placement="top">
+                                <p>
+                                    <label th:text="#{common.userName}+':'"></label>
+                                    <font>{{ scope.row.user.userName }}</font>
+                                </p>
+                                <p>
+                                    <label th:text="#{common.userEnglishName}+':'"></label>
+                                    <font>{{ scope.row.user.userEnglishName }}</font>
+                                </p>
+                                <p>
+                                    <label th:text="#{common.userSex}+':'"></label>
+                                    <font v-if="scope.row.user.userSex=='0'" th:text="#{common.man}"></font>
+                                    <font v-else th:text="#{common.woman}"></font>
+                                </p>
+                                <p>
+                                    <label th:text="#{common.userBirth}+':'"></label>
+                                    <i class="el-icon-time"></i>
+                                    <font>{{ scope.row.user.userBirth }}</font>
+                                </p>
+                                <p>
+                                    <label th:text="#{common.userOrigin}+':'"></label>
+                                    <font>{{ scope.row.user.userOriginProvince }}-{{ scope.row.user.userOriginCity }}-{{ scope.row.user.userOriginArea}}</font>
+                                </p>
+                                <p>
+                                    <label th:text="#{common.userTel}+':'"></label>
+                                    <font>{{ scope.row.user.userTel }}</font>
+                                </p>
+                                <p>
+                                    <label th:text="#{common.userStatus}+':'"></label>
+                                    <font v-if="scope.row.user.userStatus=='0'" th:text="#{common.normalStatus}"></font>
+                                    <font v-else th:text="#{common.QuitStatus}"></font>
+                                </p>
+                                <p>
+                                    <label th:text="#{common.userEntryTime}+':'"></label>
+                                    <i class="el-icon-time"></i>
+                                    <font>{{ scope.row.user.userEntryTime }}</font>
+                                </p>
+                                <p>
+                                    <label th:text="#{common.userQuitTime}+':'"></label>
+                                    <i class="el-icon-time"></i>
+                                    <font v-if="scope.row.user.userQuitTime=='1980-01-01'">-</font>
+                                    <font v-else>{{scope.row.user.userQuitTime}}</font>
+                                </p>
+                                <p>
+                                    <label th:text="#{common.deptName}+':'"></label>
+                                    <font>{{ scope.row.user.dept.deptName }}</font>
+                                </p>
+                                <p>
+                                    <label th:text="#{common.positionName}+':'"></label>
+                                    <font>{{ scope.row.user.position.positionName }}</font>
+                                </p>
+                                <div slot="reference" class="name-wrapper">
+                                    <el-tag size="medium">{{ scope.row.user.userName }}</el-tag>
+                                </div>
+                            </el-popover>
+                        </template>
+                    </el-table-column>
+                    <el-table-column sortable th:label="#{common.status}">
+                        <template slot-scope="scope">
+                            <span class="normal-color" v-if="scope.row.orderStatusId=='1'" th:text="#{common.toAudit}"></span>
+                            <span class="normal-color" v-else-if="scope.row.orderStatusId=='2'" th:text="#{common.isPayDeposit}"></span>
+                            <span class="normal-color" v-else-if="scope.row.orderStatusId=='3'" th:text="#{common.toSend}"></span>
+                            <span class="normal-color" v-else-if="scope.row.orderStatusId=='4'" th:text="#{common.isPayFinal}"></span>
+                            <span class="normal-color" v-else-if="scope.row.orderStatusId=='5'" th:text="#{common.toReturn}"></span>
+                            <span class="normal-color" v-else-if="scope.row.orderStatusId=='6'" th:text="#{common.isSuccess}"></span>
+                            <span class="normal-color" v-else th:text="#{common.notStatus}"></span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column th:label="#{common.operation}">
+                        <template slot-scope="scope">
+                            <el-button size="mini" th:text="#{common.edit}" @click="handleEdit(scope.$index, scope.row)"></el-button>
+                            <el-button size="mini" type="danger" th:text="#{common.delete}" @click="handleDelete(scope.$index, scope.row)"></el-button>
+                            <el-button size="mini" type="primary" th:text="#{common.audit}" @click="handleAudit(scope.$index, scope.row)"></el-button>
+                        </template>
+                    </el-table-column>
+                </el-table>
+                <el-row class="samoyed-row" type="flex" align="middle">
+                    <el-col :span="10">
+                        <span class="normal-color" th:text="#{common.batchOperation}+'&nbsp;-&nbsp;'"></span>
+                        <el-button size="mini" type="danger" th:text="#{common.delete}" @click="handlebatchdelete()"></el-button>
+                        <el-button size="mini" type="primary" th:text="#{common.audit}" @click="handlebatchAudit()"></el-button>
+                    </el-col>
+                    <el-col :span="14" style="text-align:right;">
+                        <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="currentPage" :page-sizes="[10, 20, 30,40, 50]"
+                            :page-size="5" layout="total, sizes, prev, pager, next, jumper" :total="totalCount">
+                        </el-pagination>
+                    </el-col>
+                </el-row>
+            </div>
+        </div>
     </div>
-</div>
-<div th:replace="~{footer :: footer}"></div>
+    <div th:replace="~{footer :: footer}"></div>
 
-<script src="../../static/js/vue.js" th:src="@{/js/vue.js}"></script>
-<script src="../../static/js/element.js" th:src="@{/js/element.js}"></script>
-<script src="../../static/js/jquery-3.3.1.min.js" th:src="@{/js/jquery-3.3.1.min.js}"></script>
-<script src="../../static/js/utils.js" th:src="@{/js/utils.js}"></script>
-<!-- 引用vue组件相关的js文件 -->
-<div th:replace="~{nav :: vue('saleOrder')}"></div>
-<div th:replace="~{header :: vue}"></div>
-<div th:replace="~{footer :: vue}"></div>
-<!-- 本页面的js脚本 -->
-<script th:inline="javascript">
+    <script src="../../static/js/vue.js" th:src="@{/js/vue.js}"></script>
+    <script src="../../static/js/element.js" th:src="@{/js/element.js}"></script>
+    <script src="../../static/js/jquery-3.3.1.min.js" th:src="@{/js/jquery-3.3.1.min.js}"></script>
+    <script src="../../static/js/utils.js" th:src="@{/js/utils.js}"></script>
+    <script src="../../static/js/data.js" th:src="@{/js/data.js}"></script>
+    <!-- 引用vue组件相关的js文件 -->
+    <div th:replace="~{nav :: vue('saleOrder')}"></div>
+    <div th:replace="~{header :: vue}"></div>
+    <div th:replace="~{footer :: vue}"></div>
+    <!-- 本页面的js脚本 -->
+    <script th:inline="javascript">
+        new Vue({
+            el: '#page-content',
+            data: {
+                //结果集对象
+                data: {},
+                //查询条件
+                activeIndex: '0',
+                //数据源
+                tableData: [],
+                //每页数据量
+                pagesize: 10,
+                //当前页码
+                currentPage: 1,
+                //查询的页码
+                start: 1,
+                //数据总数
+                totalCount: 0,
+            },
+            created: function () {
+                this.loadData();
+            },
+            methods: {
+                //加载数据
+                loadData: function () {
+                    this.data = getSaleOrders(this.activeIndex, this.currentPage, this.pagesize);
+                    this.tableData = this.data.list;
+                    this.totalCount = this.data.total;
+                },
+                //切换订单类型
+                handleSelectType: function (index) {
+                    //切换效果
+                    if (this.activeIndex !== index) {
+                        this.activeIndex = index;
+                    }
+                    //重新加载数据
+                    this.loadData();
+                },
+                //每页显示数据量变更
+                handleSizeChange(val) {
+                    this.pagesize = val;
+                    this.loadData();
+                },
+                //页码变更
+                handleCurrentChange(val) {
+                    this.currentPage = val;
+                    this.loadData();
+                },
 
-</script>
+                handleEdit(index, row) {
+                    console.log(index, row);
+                },
+                handleAudit(index, row) {
+                    console.log(index, row);
+                },
+                handleDelete(index, row) {
+                    console.log(index, row);
+                },
+                handlebatchAudit: function () {
+
+                },
+                handlebatchdelete: function () {
+
+                },
+            },
+        });
+    </script>
 
 </body>
+
 </html>
