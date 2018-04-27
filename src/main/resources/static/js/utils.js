@@ -19,6 +19,10 @@ String.prototype.orEnglish = function (en) {
 // 跳转页面
 function jumpToURL(URL) {
     window.location.href = URL;
+    //$("#jump").attr("action", URL);
+    //$("#jump").submit();
+    //$('#jump').attr('href',URL);  
+    //$('a#toMain>p').trigger('click') ;
 }
 
 // 这个接口用来保存永久数据(localStorage)
@@ -151,6 +155,121 @@ function getSaleOrders(statusId, pageNum, pageSize) {
     sessionStorage.removeItem(cacheKey);
     $.ajax({
         url: 'http://localhost:8091/api/sale/order/all?statusId=' + statusId + '&pageNum=' + pageNum + '&pageSize=' + pageSize,
+        data: {},
+        type: 'GET',
+        cache: false,    //关闭缓存
+        async: false,   // 同步获取数据
+        dataType: "json",
+        success: function (result) {
+            result = result;
+            saveCache(cacheKey, result);
+        },
+    });
+    result = loadCache(cacheKey);
+    return result;
+}
+
+//获取待付款订单-采购订单(分页获取)
+function getToPayOrders(pageNum, pageSize) {
+    var pageNum = pageNum;
+    var pageSize = pageSize;
+    var result;
+    var cacheKey = 'toPayOrders';
+    sessionStorage.removeItem(cacheKey);
+    $.ajax({
+        url: 'http://localhost:8091/api/purchase/order/toPay?pageNum=' + pageNum + '&pageSize=' + pageSize,
+        data: {},
+        type: 'GET',
+        cache: false,    //关闭缓存
+        async: false,   // 同步获取数据
+        dataType: "json",
+        success: function (result) {
+            result = result;
+            saveCache(cacheKey, result);
+        },
+    });
+    result = loadCache(cacheKey);
+    return result;
+}
+
+//获取已付款订单-采购订单(分页获取)
+function getAlreadyPayOrders(pageNum, pageSize) {
+    var pageNum = pageNum;
+    var pageSize = pageSize;
+    var result;
+    var cacheKey = 'alreadyPayOrders';
+    sessionStorage.removeItem(cacheKey);
+    $.ajax({
+        url: 'http://localhost:8091/api/purchase/order/alreadyPay?pageNum=' + pageNum + '&pageSize=' + pageSize,
+        data: {},
+        type: 'GET',
+        cache: false,    //关闭缓存
+        async: false,   // 同步获取数据
+        dataType: "json",
+        success: function (result) {
+            result = result;
+            saveCache(cacheKey, result);
+        },
+    });
+    result = loadCache(cacheKey);
+    return result;
+}
+
+//获取待收款(定金)订单-销售订单(分页获取)
+function getIsPayDepositOrders(pageNum, pageSize) {
+    var pageNum = pageNum;
+    var pageSize = pageSize;
+    var result;
+    var cacheKey = 'isPayDepositOrders';
+    sessionStorage.removeItem(cacheKey);
+    $.ajax({
+        url: 'http://localhost:8091/api/sale/order/isPayDeposit?pageNum=' + pageNum + '&pageSize=' + pageSize,
+        data: {},
+        type: 'GET',
+        cache: false,    //关闭缓存
+        async: false,   // 同步获取数据
+        dataType: "json",
+        success: function (result) {
+            result = result;
+            saveCache(cacheKey, result);
+        },
+    });
+    result = loadCache(cacheKey);
+    return result;
+}
+
+//获取待收款(尾款)订单-销售订单(分页获取)
+function getIsPayFinalOrders(pageNum, pageSize) {
+    var pageNum = pageNum;
+    var pageSize = pageSize;
+    var result;
+    var cacheKey = 'isPayFinalOrders';
+    sessionStorage.removeItem(cacheKey);
+    $.ajax({
+        url: 'http://localhost:8091/api/sale/order/isPayFinal?pageNum=' + pageNum + '&pageSize=' + pageSize,
+        data: {},
+        type: 'GET',
+        cache: false,    //关闭缓存
+        async: false,   // 同步获取数据
+        dataType: "json",
+        success: function (result) {
+            result = result;
+            saveCache(cacheKey, result);
+        },
+    });
+    result = loadCache(cacheKey);
+    return result;
+}
+
+//获取已完成订单-销售订单(分页获取)
+function getIsSuccessOrders(pageNum, pageSize) {
+    var pageNum = pageNum;
+    var pageSize = pageSize;
+    var result;
+    var cacheKey = 'isSuccessOrders';
+    sessionStorage.removeItem(cacheKey);
+    $.ajax({
+        url: 'http://localhost:8091/api/sale/order/isSuccess?pageNum=' + pageNum + '&pageSize=' + pageSize,
         data: {},
         type: 'GET',
         cache: false,    //关闭缓存

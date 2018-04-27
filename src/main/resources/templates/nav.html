@@ -79,24 +79,43 @@
                     </el-menu-item>
                 </el-menu-item-group>
             </el-submenu>
-
             <el-submenu index="finance" :show-timeout="0" :hide-timeout="200">
                 <template slot="title">
                     <i :class="'nav-icon nav-icon-finance'+(activeFinance?'-active':'')"></i>
                     <span slot="title" th:text="#{nav.finance}"></span>
                 </template>
+                <el-menu-item-group>
+                    <el-menu-item index="financePay" @click="onClickFinancePay">
+                        <span slot="title" th:text="#{nav.financePay}"></span>
+                    </el-menu-item>
+                    <el-menu-item index="financeReceivable" @click="onClickFinanceReceivable">
+                        <span slot="title" th:text="#{nav.financeReceivable}"></span>
+                    </el-menu-item>
+                    <el-menu-item index="financeReconciliation" @click="onClickFinanceReconciliation">
+                        <span slot="title" th:text="#{nav.financeReconciliation}"></span>
+                    </el-menu-item>
+                </el-menu-item-group>
             </el-submenu>
-
-            <el-submenu index="finance" :show-timeout="0" :hide-timeout="200">
+            <el-submenu index="warehouse" :show-timeout="0" :hide-timeout="200">
                 <template slot="title">
                     <i :class="'nav-icon nav-icon-warehouse'+(activeWarehouse?'-active':'')"></i>
                     <span slot="title" th:text="#{nav.warehouse}"></span>
                 </template>
+                <el-menu-item-group>
+                    <el-menu-item index="warehouseStorage" @click="onClickWarehouseStorage">
+                        <span slot="title" th:text="#{nav.warehouseStorage}"></span>
+                    </el-menu-item>
+                    <el-menu-item index="warehouseIssue" @click="onClickWarehouseIssue">
+                        <span slot="title" th:text="#{nav.warehouseIssue}"></span>
+                    </el-menu-item>
+                    <el-menu-item index="warehouseDetail" @click="onClickWarehouseDetail">
+                        <span slot="title" th:text="#{nav.warehouseDetail}"></span>
+                    </el-menu-item>
+                </el-menu-item-group>
             </el-submenu>
-
-
         </el-menu>
     </div>
+    <a id="jump"><p></p></a>
 
     <script src="../static/js/vue.js" th:src="@{/js/vue.js}"></script>
     <script src="../static/js/element.js" th:src="@{/js/element.js}"></script>
@@ -154,6 +173,28 @@
                             return false;
                     }
                 },
+                //财务模块
+                activeFinance: function () {
+                    switch (this.active) {
+                        case 'financePay':
+                        case 'financeReceivable':
+                        case 'financeReconciliation':
+                            return true;
+                        default:
+                            return false;
+                    }
+                },
+                //仓储模块
+                activeWarehouse: function () {
+                    switch (this.active) {
+                        case 'warehouseStorage':
+                        case 'warehouseIssue':
+                        case 'warehouseDetail':
+                            return true;
+                        default:
+                            return false;
+                    }
+                },
             },
             methods: {
                 //nav样式
@@ -197,6 +238,26 @@
                 },
                 onClickSaleReconciliation: function () {
                     jumpToURL("/sale/reconciliation");
+                },
+                //财务模块
+                onClickFinancePay: function () {
+                    jumpToURL("/finance/pay");
+                },
+                onClickFinanceReceivable: function () {
+                    jumpToURL("/finance/receivable");
+                },
+                onClickFinanceReconciliation: function () {
+                    jumpToURL("/finance/reconciliation");
+                },
+                //仓储模块
+                onClickWarehouseStorage: function () {
+                    jumpToURL("/warehouse/storage");
+                },
+                onClickWarehouseIssue: function () {
+                    jumpToURL("/warehouse/issue");
+                },
+                onClickWarehouseDetail: function () {
+                    jumpToURL("/warehouse/detail");
                 },
             },
         })
