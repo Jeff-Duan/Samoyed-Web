@@ -26,13 +26,9 @@ public class SSOFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain) throws IOException, ServletException {
-
         //获取请求和响应
         HttpServletRequest httpServletRequest = (HttpServletRequest) servletRequest;
         HttpServletResponse httpServletResponse = (HttpServletResponse) servletResponse;
-
-        logger.info("Jsession:"+httpServletRequest.getRequestedSessionId());
-
         //获取全局会话
         HttpSession session = httpServletRequest.getSession();
         //获取全局会话中的User

@@ -1,58 +1,64 @@
 <!DOCTYPE html>
-<html lang="zh-CN" xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:th="http://www.thymeleaf.org">
+<html lang="zh-CN" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
     <title th:utext="#{project.name}"></title>
-    <link href="../static/css/element/index.css"
-          rel="stylesheet"
-          th:href="@{/css/element/index.css}">
+    <link href="../static/css/element/index.css" rel="stylesheet" th:href="@{/css/element/index.css}">
     <!-- 自定义css文件 -->
-    <link href="../static/css/common.css"
-          rel="stylesheet"
-          th:href="@{/css/common.css}">
+    <link href="../static/css/common.css" rel="stylesheet" th:href="@{/css/common.css}">
 </head>
+
 <body>
 
-<div id="header" th:fragment="header" class="header" v-cloak>
-    <el-dropdown @command="onClickMenu" class="header-dropdown" placement="bottom-end"
-                 trigger="click" :show-timeout="0" :hide-timeout="0">
-        <div class="el-dropdown-link header-dropdown-btn">
-            <span class="user-icon normal-color" th:text="x">用</span>
-            <span th:text="xxx">用户名</span>
-            <i class="el-icon-caret-bottom el-icon--right header-opt-icon"></i>
-        </div>
-        <el-dropdown-menu slot="dropdown" class="header-dropdown-content">
-            <el-dropdown-item th:text="#{header.settings}">设置</el-dropdown-item>
-            <el-dropdown-item th:text="#{header.logOut}" command="logout">退出</el-dropdown-item>
-        </el-dropdown-menu>
-    </el-dropdown>
-</div>
+    <div id="header" th:fragment="header" class="header" v-cloak>
+        <el-dropdown @command="onClickMenu" class="header-dropdown" placement="bottom-end" trigger="click" :show-timeout="0" :hide-timeout="0">
+            <div class="el-dropdown-link header-dropdown-btn">
+                <span class="user-icon normal-color">{{ firstName }}</span>
+                <span>{{ userName }}</span>
+                <i class="el-icon-caret-bottom el-icon--right header-opt-icon"></i>
+            </div>
+            <el-dropdown-menu slot="dropdown" class="header-dropdown-content">
+                <el-dropdown-item th:text="#{header.settings}"></el-dropdown-item>
+                <el-dropdown-item th:text="#{header.logOut}" command="logout"></el-dropdown-item>
+            </el-dropdown-menu>
+        </el-dropdown>
+    </div>
 
-<script src="../static/js/vue.js" th:src="@{/js/vue.js}"></script>
-<script src="../static/js/element.js" th:src="@{/js/element.js}"></script>
-<script src="../static/js/utils.js" th:src="@{/js/utils.js}"></script>
-<!-- 定义vue组件 -->
-<script th:fragment="vue">
-    new Vue({
-        el: '#header',
-        data: {
-        },
-        methods: {
-            onClickMenu: function(command) {
-                switch (command) {
-                    case 'logout':
-                        break;
-                    default:
-                        console.error('Menu command not found!');
-                }
+    <script src="../static/js/vue.js" th:src="@{/js/vue.js}"></script>
+    <script src="../static/js/element.js" th:src="@{/js/element.js}"></script>
+    <script src="../static/js/utils.js" th:src="@{/js/utils.js}"></script>
+    <script src="../../static/js/data.js" th:src="@{/js/data.js}"></script>
+    <!-- 定义vue组件 -->
+    <script th:fragment="vue">
+        new Vue({
+            el: '#header',
+            data: {
+                firstName: '用',
+                userName: '用户名',
+                user: getUserInfo(),
             },
-        },
-    })
-</script>
+            created: function () {
+                this.firstName=this.user.userName.slice(0,1);
+                this.userName=this.user.userName;
+            },
+            methods: {
+                onClickMenu: function (command) {
+                    switch (command) {
+                        case 'logout':
+                            jumpToURL(ssoLogout);
+                            break;
+                        default:
+                            console.error('Menu command not found!');
+                    }
+                },
+            },
+        })
+    </script>
 
 </body>
+
 </html>

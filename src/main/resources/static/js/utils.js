@@ -1,6 +1,9 @@
 //服务支持邮箱
 var supportMail = '1191837698@qq.com';
 
+//SSO注销地址
+var ssoLogout = 'http://localhost:8888/sso/logout?callBackUrl=http://localhost:8090/';
+
 //设置全局AJAX配置（跨域支持,携带cookie）
 $.ajaxSetup({
     xhrFields: {
@@ -19,10 +22,6 @@ String.prototype.orEnglish = function (en) {
 // 跳转页面
 function jumpToURL(URL) {
     window.location.href = URL;
-    //$("#jump").attr("action", URL);
-    //$("#jump").submit();
-    //$('#jump').attr('href',URL);  
-    //$('a#toMain>p').trigger('click') ;
 }
 
 // 这个接口用来保存永久数据(localStorage)
@@ -51,6 +50,28 @@ function getSequence(num) {
         return num;
     }
     return (num == 1) ? '1st' : (num == 2) ? '2nd' : (num == 3) ? '3rd' : (num > 3) ? (num + 1) + 'th' : num;
+}
+
+//获取用户信息
+function getUserInfo() {
+    var cacheKey = 'user';
+    var result = loadCache(cacheKey);
+    if (result) {
+        console.log('Find user in cache.');
+    } else {
+        $.ajax({
+            url: 'http://localhost:8091/api/user/info',
+            type: 'GET',
+            async: false,   // 同步获取数据
+            dataType: "json",
+            success: function (result) {
+                result = result;
+                saveCache(cacheKey, result);
+            },
+        });
+    }
+    result = loadCache(cacheKey);
+    return result;
 }
 
 //获取所有供应商
