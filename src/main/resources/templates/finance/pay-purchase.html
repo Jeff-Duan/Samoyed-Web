@@ -32,11 +32,11 @@
 
 <body>
 
-    <div th:replace="~{nav :: nav('financePay')}"></div>
+    <div th:replace="~{nav :: nav('financePay-purchase')}"></div>
     <div th:replace="~{header :: header}"></div>
     <div class="margin-helper">
         <div class="samoyed-content">
-            <div th:replace="~{pageHead :: pageHead(pageName=#{nav.financePay}, parentMenu=#{nav.finance})}"></div>
+            <div th:replace="~{pageHead :: pageHead(pageName=#{nav.financePay-purchase}, parentMenu=#{nav.finance})}"></div>
             <div id="page-content" class="page-content" v-cloak>
                 <div class="type-menu">
                     <el-menu :default-active="activeIndex" mode="horizontal" @select="handleSelectType">
@@ -213,6 +213,7 @@
                             <span class="normal-color" v-else-if="scope.row.orderStatusId=='5'" th:text="#{common.toCancel}"></span>
                             <span class="normal-color" v-else-if="scope.row.orderStatusId=='6'" th:text="#{common.toStorage}"></span>
                             <span class="normal-color" v-else-if="scope.row.orderStatusId=='7'" th:text="#{common.isStorage}"></span>
+                            <span class="normal-color" v-else-if="scope.row.orderStatusId=='8'" th:text="#{common.isReturn}"></span>
                             <span class="normal-color" v-else th:text="#{common.notStatus}"></span>
                         </template>
                     </el-table-column>
@@ -240,7 +241,7 @@
     <script src="../../static/js/jquery-3.3.1.min.js" th:src="@{/js/jquery-3.3.1.min.js}"></script>
     <script src="../../static/js/utils.js" th:src="@{/js/utils.js}"></script>
     <!-- 引用vue组件相关的js文件 -->
-    <div th:replace="~{nav :: vue('financePay')}"></div>
+    <div th:replace="~{nav :: vue('financePay-purchase')}"></div>
     <div th:replace="~{header :: vue}"></div>
     <div th:replace="~{footer :: vue}"></div>
     <!-- 本页面的js脚本 -->
@@ -262,17 +263,27 @@
                 start: 1,
                 //数据总数
                 totalCount: 0,
+                //当前用户
+                user: getUserInfo(),
             },
             created: function () {
                 this.loadData();
             },
             methods: {
+                //减法(保留两位小数)
+                floatReduce: function (arg1, arg2) {
+                    var r1, r2, m;
+                    try { r1 = arg1.toString().split(".")[1].length } catch (e) { r1 = 0 }
+                    try { r2 = arg2.toString().split(".")[1].length } catch (e) { r2 = 0 }
+                    m = Math.pow(10, Math.max(r1, r2))
+                    return (arg1 * m - arg2 * m) / m
+                },
                 //加载数据
                 loadData: function () {
                     if (this.activeIndex == '1') {
                         this.data = getToPayOrders(this.currentPage, this.pagesize);
                     } else {
-                        this.data = getAlreadyPayOrders(this.currentPage, this.pagesize);
+                        this.data = getAlreadyToPayOrders(this.currentPage, this.pagesize);
                     }
                     this.tableData = this.data.list;
                     this.totalCount = this.data.total;
@@ -296,9 +307,96 @@
                     this.currentPage = val;
                     this.loadData();
                 },
-
+                //付款
                 handlePay(index, row) {
-                    console.log(index, row);
+                    var warnings = [];
+                    //判断用户部门
+                    if (this.user.dept.deptId !== 1 && this.user.dept.deptId !== 5) {
+                        var msg = '订单付款仅由财务部门成员操作。';
+                        var english_msg = 'Purchase orders are payed only by members of the procurement department.';
+                        warnings.push(msg.orEnglish(english_msg));
+                    }
+                    //判断订单状态
+                    if (this.tableData[index].orderStatusId !== 2) {
+                        var msg = '仅有采购订单(待付款)需要付款。';
+                        var english_msg = 'Only purchase orders (to be payed) need to be payed.';
+                        warnings.push(msg.orEnglish(english_msg));
+                    }
+                    if (warnings.length) {
+                        this.$notify({
+                            title: '警告'.orEnglish('Notice'),
+                            message: warnings[0],
+                            type: 'warning'
+                        });
+                    } else {
+                        var payType;
+                        var payPrice;
+                        //直接付款
+                        if (this.tableData[index].orderPayType == 1) {
+                            payType = '直接付款';
+                            payPrice = this.tableData[index].orderPayMoney;
+                        }
+                        //货到付款
+                        if (this.tableData[index].orderPayType == 2) {
+                            payType = '货到付款';
+                            payPrice = this.tableData[index].orderTotalMoney;
+                        }
+                        //支付定金
+                        if (this.tableData[index].orderPayType == 3 && this.tableData[index].orderIsPayMoney == 0.00) {
+                            payType = '支付定金';
+                            payPrice = this.tableData[index].orderPayMoney;
+                        }
+                        //支付尾款
+                        if (this.tableData[index].orderPayType == 3 && this.tableData[index].orderIsPayMoney !== 0.00) {
+                            payType = '支付尾款';
+                            payPrice = this.floatReduce(this.tableData[index].orderTotalMoney, this.tableData[index].orderPayMoney);
+                        }
+                        this.$confirm(payType + '-RMB ' + payPrice + ', 是否确定付款?', '付款提示', {
+                            confirmButtonText: '确定',
+                            cancelButtonText: '取消',
+                            type: 'warning'
+                        }).then(() => {
+                            //获取订单号
+                            var orderNumber = this.tableData[index].orderNumber;
+                            var formData = new FormData();
+                            formData.append('orderNumber', orderNumber);
+                            var that = this;
+                            $.ajax({
+                                url: 'http://localhost:8091/api/finance/purchasePay',
+                                type: 'POST',
+                                cache: false,
+                                processData: false, // 告诉jQuery不要去处理发送的数据
+                                contentType: false, // 告诉jQuery不要去设置Content-Type请求头
+                                data: formData,
+                                dataType: "json",
+                                success: function (result) {
+                                    var title;
+                                    var content;
+                                    var okBtnTxt;
+                                    var type;
+                                    if (result.status === 'success') {
+                                        title = '付款成功'.orEnglish('Pay successfully');
+                                        content = '进入其他流程。'.orEnglish('Entering other processes.');
+                                        okBtnTxt = '确定'.orEnglish('OK');
+                                        type = 'success';
+                                    } else {
+                                        title = '付款失败'.orEnglish('Pay failed');
+                                        content = '请联系'.orEnglish('Please contact ') + supportMail + '。'.orEnglish('.');
+                                        okBtnTxt = '确定'.orEnglish('OK');
+                                        type = 'error';
+                                    }
+                                    that.$alert(content, title, { confirmButtonText: okBtnTxt, type: type });
+                                    //重新加载数据
+                                    that.loadData();
+                                },
+                            });
+                        }).catch(() => {
+                            this.$message({
+                                type: 'info',
+                                message: '已取消付款'
+                            });
+                        });
+                    }
                 },
             },
         });

@@ -8,14 +8,24 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/finance")
 public class FinanceController {
 
-    @GetMapping(value = "/pay")
-    public String pay() {
-        return "/finance/pay";
+    @GetMapping(value = "/pay-purchase")
+    public String payPurchase() {
+        return "/finance/pay-purchase";
     }
 
-    @GetMapping(value = "/receivable")
-    public String receivable() {
-        return "/finance/receivable";
+    @GetMapping(value = "/receivable-purchase")
+    public String receivablePurchase() {
+        return "/finance/receivable-purchase";
+    }
+
+     @GetMapping(value = "/pay-sale")
+    public String paySale() {
+        return "/finance/pay-sale";
+    }
+
+    @GetMapping(value = "/receivable-sale")
+    public String receivableSale() {
+        return "/finance/receivable-sale";
     }
 
     @GetMapping(value = "/reconciliation")

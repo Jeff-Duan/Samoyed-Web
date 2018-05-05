@@ -29,7 +29,7 @@
                 <span slot="title" th:text="#{nav.home}"></span>
             </el-menu-item>
 
-            <el-submenu index="purchase" :show-timeout="0" :hide-timeout="200">
+            <el-submenu index="purchase" :show-timeout="0" :hide-timeout="200" v-if="user.dept.deptId ==1 || user.dept.deptId ==2">
                 <template slot="title">
                     <i :class="'nav-icon nav-icon-purchase'+(activePurchase?'-active':'')"></i>
                     <span slot="title" th:text="#{nav.purchase}"></span>
@@ -47,7 +47,7 @@
                 </el-menu-item-group>
             </el-submenu>
 
-            <el-submenu index="produce" :show-timeout="0" :hide-timeout="200">
+            <el-submenu index="produce" :show-timeout="0" :hide-timeout="200" v-if="user.dept.deptId ==1 || user.dept.deptId ==3">
                 <template slot="title">
                     <i :class="'nav-icon nav-icon-produce'+(activeProduce?'-active':'')"></i>
                     <span slot="title" th:text="#{nav.produce}"></span>
@@ -62,7 +62,7 @@
                 </el-menu-item-group>
             </el-submenu>
 
-            <el-submenu index="sale" :show-timeout="0" :hide-timeout="200">
+            <el-submenu index="sale" :show-timeout="0" :hide-timeout="200" v-if="user.dept.deptId ==1 || user.dept.deptId ==4">
                 <template slot="title">
                     <i :class="'nav-icon nav-icon-sale'+(activeSale?'-active':'')"></i>
                     <span slot="title" th:text="#{nav.sale}"></span>
@@ -79,34 +79,48 @@
                     </el-menu-item>
                 </el-menu-item-group>
             </el-submenu>
-            <el-submenu index="finance" :show-timeout="0" :hide-timeout="200">
+
+            <el-submenu index="finance" :show-timeout="0" :hide-timeout="200" v-if="user.dept.deptId ==1 || user.dept.deptId ==5">
                 <template slot="title">
                     <i :class="'nav-icon nav-icon-finance'+(activeFinance?'-active':'')"></i>
                     <span slot="title" th:text="#{nav.finance}"></span>
                 </template>
                 <el-menu-item-group>
-                    <el-menu-item index="financePay" @click="onClickFinancePay">
-                        <span slot="title" th:text="#{nav.financePay}"></span>
+                    <el-menu-item index="financePay-purchase" @click="onClickFinancePayPurchase">
+                        <span slot="title" th:text="#{nav.financePay-purchase}"></span>
                     </el-menu-item>
-                    <el-menu-item index="financeReceivable" @click="onClickFinanceReceivable">
-                        <span slot="title" th:text="#{nav.financeReceivable}"></span>
+                    <el-menu-item index="financeReceivable-purchase" @click="onClickFinanceReceivablePurchase">
+                        <span slot="title" th:text="#{nav.financeReceivable-purchase}"></span>
+                    </el-menu-item>
+                    <el-menu-item index="financePay-sale" @click="onClickFinancePaySale">
+                        <span slot="title" th:text="#{nav.financePay-sale}"></span>
+                    </el-menu-item>
+                    <el-menu-item index="financeReceivable-sale" @click="onClickFinanceReceivableSale">
+                        <span slot="title" th:text="#{nav.financeReceivable-sale}"></span>
                     </el-menu-item>
                     <el-menu-item index="financeReconciliation" @click="onClickFinanceReconciliation">
                         <span slot="title" th:text="#{nav.financeReconciliation}"></span>
                     </el-menu-item>
                 </el-menu-item-group>
             </el-submenu>
-            <el-submenu index="warehouse" :show-timeout="0" :hide-timeout="200">
+
+            <el-submenu index="warehouse" :show-timeout="0" :hide-timeout="200" v-if="user.dept.deptId ==1 || user.dept.deptId ==6">
                 <template slot="title">
                     <i :class="'nav-icon nav-icon-warehouse'+(activeWarehouse?'-active':'')"></i>
                     <span slot="title" th:text="#{nav.warehouse}"></span>
                 </template>
                 <el-menu-item-group>
-                    <el-menu-item index="warehouseStorage" @click="onClickWarehouseStorage">
-                        <span slot="title" th:text="#{nav.warehouseStorage}"></span>
+                    <el-menu-item index="warehouseStorage-purchase" @click="onClickWarehouseStoragePurchase">
+                        <span slot="title" th:text="#{nav.warehouseStorage-purchase}"></span>
                     </el-menu-item>
-                    <el-menu-item index="warehouseIssue" @click="onClickWarehouseIssue">
-                        <span slot="title" th:text="#{nav.warehouseIssue}"></span>
+                    <el-menu-item index="warehouseStorage-produce" @click="onClickWarehouseStorageProduce">
+                        <span slot="title" th:text="#{nav.warehouseStorage-produce}"></span>
+                    </el-menu-item>
+                    <el-menu-item index="warehouseIssue-produce" @click="onClickWarehouseIssueProduce">
+                        <span slot="title" th:text="#{nav.warehouseIssue-produce}"></span>
+                    </el-menu-item>
+                    <el-menu-item index="warehouseIssue-sale" @click="onClickWarehouseIssueSale">
+                        <span slot="title" th:text="#{nav.warehouseIssue-sale}"></span>
                     </el-menu-item>
                     <el-menu-item index="warehouseDetail" @click="onClickWarehouseDetail">
                         <span slot="title" th:text="#{nav.warehouseDetail}"></span>
@@ -115,7 +129,9 @@
             </el-submenu>
         </el-menu>
     </div>
-    <a id="jump"><p></p></a>
+    <a id="jump">
+        <p></p>
+    </a>
 
     <script src="../static/js/vue.js" th:src="@{/js/vue.js}"></script>
     <script src="../static/js/element.js" th:src="@{/js/element.js}"></script>
@@ -140,6 +156,8 @@
             data: {
                 isCollapse: initialCollapse,
                 active: '[[${activeIndex}]]',
+                //当前用户
+                user: getUserInfo(),
             },
             computed: {
                 //采购模块
@@ -177,8 +195,10 @@
                 //财务模块
                 activeFinance: function () {
                     switch (this.active) {
-                        case 'financePay':
-                        case 'financeReceivable':
+                        case 'financePay-purchase':
+                        case 'financeReceivable-purchase':
+                        case 'financePay-sale':
+                        case 'financeReceivable-sale':
                         case 'financeReconciliation':
                             return true;
                         default:
@@ -188,8 +208,10 @@
                 //仓储模块
                 activeWarehouse: function () {
                     switch (this.active) {
-                        case 'warehouseStorage':
-                        case 'warehouseIssue':
+                        case 'warehouseStorage-purchase':
+                        case 'warehouseStorage-produce':
+                        case 'warehouseIssue-produce':
+                        case 'warehouseIssue-sale':
                         case 'warehouseDetail':
                             return true;
                         default:
@@ -241,21 +263,33 @@
                     jumpToURL("/sale/reconciliation");
                 },
                 //财务模块
-                onClickFinancePay: function () {
-                    jumpToURL("/finance/pay");
+                onClickFinancePayPurchase: function () {
+                    jumpToURL("/finance/pay-purchase");
                 },
-                onClickFinanceReceivable: function () {
-                    jumpToURL("/finance/receivable");
+                onClickFinanceReceivablePurchase: function () {
+                    jumpToURL("/finance/receivable-purchase");
+                },
+                onClickFinancePaySale: function () {
+                    jumpToURL("/finance/pay-sale");
+                },
+                onClickFinanceReceivableSale: function () {
+                    jumpToURL("/finance/receivable-sale");
                 },
                 onClickFinanceReconciliation: function () {
                     jumpToURL("/finance/reconciliation");
                 },
                 //仓储模块
-                onClickWarehouseStorage: function () {
-                    jumpToURL("/warehouse/storage");
+                onClickWarehouseStoragePurchase: function () {
+                    jumpToURL("/warehouse/storage-purchase");
                 },
-                onClickWarehouseIssue: function () {
-                    jumpToURL("/warehouse/issue");
+                onClickWarehouseStorageProduce: function () {
+                    jumpToURL("/warehouse/storage-produce");
+                },
+                onClickWarehouseIssueProduce: function () {
+                    jumpToURL("/warehouse/issue-produce");
+                },
+                onClickWarehouseIssueSale: function () {
+                    jumpToURL("/warehouse/issue-sale");
                 },
                 onClickWarehouseDetail: function () {
                     jumpToURL("/warehouse/detail");

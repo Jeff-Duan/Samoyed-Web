@@ -32,28 +32,19 @@
 
 <body>
 
-    <div th:replace="~{nav :: nav('purchaseOrder')}"></div>
+    <div th:replace="~{nav :: nav('financeReceivable-purchase')}"></div>
     <div th:replace="~{header :: header}"></div>
     <div class="margin-helper">
         <div class="samoyed-content">
-            <div th:replace="~{pageHead :: pageHead(pageName=#{nav.purchaseOrder}, parentMenu=#{nav.purchase})}"></div>
+            <div th:replace="~{pageHead :: pageHead(pageName=#{nav.financePay-purchase}, parentMenu=#{nav.finance})}"></div>
             <div id="page-content" class="page-content" v-cloak>
                 <div class="type-menu">
                     <el-menu :default-active="activeIndex" mode="horizontal" @select="handleSelectType">
-                        <el-menu-item index="0" th:text="#{common.all}"></el-menu-item>
-                        <el-menu-item index="1" th:text="#{common.toAudit}"></el-menu-item>
-                        <el-menu-item index="2" th:text="#{common.toPay}"></el-menu-item>
-                        <el-menu-item index="3" th:text="#{common.toDelivery}"></el-menu-item>
-                        <el-menu-item index="4" th:text="#{common.toAcceptance}"></el-menu-item>
-                        <el-menu-item index="5" th:text="#{common.toCancel}"></el-menu-item>
-                        <el-menu-item index="6" th:text="#{common.toStorage}"></el-menu-item>
-                        <el-menu-item index="7" th:text="#{common.isStorage}"></el-menu-item>
-                        <el-menu-item index="8" th:text="#{common.isReturn}"></el-menu-item>
+                        <el-menu-item index="1" th:text="#{common.isPay}"></el-menu-item>
+                        <el-menu-item index="2" th:text="#{common.alreadyIsPay}"></el-menu-item>
                     </el-menu>
                 </div>
-                <el-table :data="tableData" @selection-change="handleSelectionChange">
-                    <el-table-column type="selection">
-                    </el-table-column>
+                <el-table :data="tableData">
                     <el-table-column type="expand">
                         <template slot-scope="props">
                             <el-form label-position="left" inline class="samoyed-table-expand">
@@ -113,9 +104,9 @@
                             </el-form>
                         </template>
                     </el-table-column>
-                    <el-table-column sortable prop="orderNumber" th:label="#{common.orderNumber}">
+                    <el-table-column sortable width="170" prop="orderNumber" th:label="#{common.orderNumber}">
                     </el-table-column>
-                    <el-table-column sortable th:label="#{common.supplier}">
+                    <el-table-column sortable width="170" th:label="#{common.supplier}">
                         <template slot-scope="scope">
                             <el-popover trigger="hover" placement="top">
                                 <p>
@@ -144,7 +135,7 @@
                             </el-popover>
                         </template>
                     </el-table-column>
-                    <el-table-column sortable th:label="#{common.createUser}">
+                    <el-table-column sortable width="170" th:label="#{common.createUser}">
                         <template slot-scope="scope">
                             <el-popover trigger="hover" placement="top">
                                 <p>
@@ -167,7 +158,8 @@
                                 </p>
                                 <p>
                                     <label th:text="#{common.userOrigin}+':'"></label>
-                                    <font>{{ scope.row.user.userOriginProvince }}-{{ scope.row.user.userOriginCity }}-{{ scope.row.user.userOriginArea}}</font>
+                                    <font>{{ scope.row.user.userOriginProvince }}-{{ scope.row.user.userOriginCity }}-{{ scope.row.user.userOriginArea}}
+                                    </font>
                                 </p>
                                 <p>
                                     <label th:text="#{common.userTel}+':'"></label>
@@ -203,7 +195,17 @@
                             </el-popover>
                         </template>
                     </el-table-column>
-                    <el-table-column sortable th:label="#{common.status}">
+                    <el-table-column sortable width="170" th:label="#{common.isPayPrice}">
+                        <template slot-scope="scope">
+                            <span class="normal-color"> {{scope.row.orderIsPayMoney}}&nbsp;RMB </span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column sortable width="170" th:label="#{common.toPayPrice}">
+                        <template slot-scope="scope">
+                            <span class="normal-color"> {{scope.row.orderToPayMoney}}&nbsp;RMB </span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column sortable width="170" th:label="#{common.status}">
                         <template slot-scope="scope">
                             <span class="normal-color" v-if="scope.row.orderStatusId=='1'" th:text="#{common.toAudit}"></span>
                             <span class="normal-color" v-else-if="scope.row.orderStatusId=='2'" th:text="#{common.toPay}"></span>
@@ -218,19 +220,13 @@
                     </el-table-column>
                     <el-table-column th:label="#{common.operation}">
                         <template slot-scope="scope">
-                            <el-button size="mini" th:text="#{common.edit}" @click="handleEdit(scope.$index, scope.row)"></el-button>
-                            <el-button size="mini" type="danger" th:text="#{common.delete}" @click="handleDelete(scope.$index, scope.row)"></el-button>
-                            <el-button size="mini" type="primary" th:text="#{common.audit}" @click="handleAudit(scope.$index, scope.row)"></el-button>
+                            <el-button size="mini" type="warning" th:text="#{common.receivable}" v-if="activeIndex == '1'" @click="handleReceivable(scope.$index, scope.row)"></el-button>
+                            <span v-else th:text="#{common.noOperation}"></span>
                         </template>
                     </el-table-column>
                 </el-table>
                 <el-row class="samoyed-row" type="flex" align="middle">
-                    <el-col :span="10">
-                        <span class="normal-color" th:text="#{common.batchOperation}+'&nbsp;-&nbsp;'"></span>
-                        <el-button size="mini" type="danger" th:text="#{common.delete}" @click="handlebatchdelete()"></el-button>
-                        <el-button size="mini" type="primary" th:text="#{common.audit}" @click="handlebatchAudit()"></el-button>
-                    </el-col>
-                    <el-col :span="14" style="text-align:right;">
+                    <el-col :span="24" style="text-align:right;">
                         <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="currentPage" :page-sizes="[10, 20, 30,40, 50]"
                             :page-size="5" layout="total, sizes, prev, pager, next, jumper" :total="totalCount">
                         </el-pagination>
@@ -238,214 +234,168 @@
                 </el-row>
             </div>
         </div>
-    </div>
-    <div th:replace="~{footer :: footer}"></div>
+        <div th:replace="~{footer :: footer}"></div>
 
-    <script src="../../static/js/vue.js" th:src="@{/js/vue.js}"></script>
-    <script src="../../static/js/element.js" th:src="@{/js/element.js}"></script>
-    <script src="../../static/js/jquery-3.3.1.min.js" th:src="@{/js/jquery-3.3.1.min.js}"></script>
-    <script src="../../static/js/utils.js" th:src="@{/js/utils.js}"></script>
-    <script src="../../static/js/data.js" th:src="@{/js/data.js}"></script>
-    <!-- 引用vue组件相关的js文件 -->
-    <div th:replace="~{nav :: vue('purchaseOrder')}"></div>
-    <div th:replace="~{header :: vue}"></div>
-    <div th:replace="~{footer :: vue}"></div>
-    <!-- 本页面的js脚本 -->
-    <script th:inline="javascript">
-        new Vue({
-            el: '#page-content',
-            data: {
-                //结果集对象
-                data: {},
-                //查询条件
-                activeIndex: '0',
-                //数据源
-                tableData: [],
-                //每页数据量
-                pagesize: 10,
-                //当前页码
-                currentPage: 1,
-                //查询的页码
-                start: 1,
-                //数据总数
-                totalCount: 0,
-                //当前用户
-                user: getUserInfo(),
-                //多选数据
-                multipleSelection: [],
-            },
-            created: function () {
-                this.loadData();
-            },
-            methods: {
-                //加载数据
-                loadData: function () {
-                    this.data = getPurchaseOrders(this.activeIndex, this.currentPage, this.pagesize);
-                    this.tableData = this.data.list;
-                    this.totalCount = this.data.total;
+        <script src="../../static/js/vue.js" th:src="@{/js/vue.js}"></script>
+        <script src="../../static/js/element.js" th:src="@{/js/element.js}"></script>
+        <script src="../../static/js/jquery-3.3.1.min.js" th:src="@{/js/jquery-3.3.1.min.js}"></script>
+        <script src="../../static/js/utils.js" th:src="@{/js/utils.js}"></script>
+        <!-- 引用vue组件相关的js文件 -->
+        <div th:replace="~{nav :: vue('financeReceivable-purchase')}"></div>
+        <div th:replace="~{header :: vue}"></div>
+        <div th:replace="~{footer :: vue}"></div>
+        <!-- 本页面的js脚本 -->
+        <script th:inline="javascript">
+            new Vue({
+                el: '#page-content',
+                data: {
+                    //结果集对象
+                    data: {},
+                    //查询条件
+                    activeIndex: '1',
+                    //数据源
+                    tableData: [],
+                    //每页数据量
+                    pagesize: 10,
+                    //当前页码
+                    currentPage: 1,
+                    //查询的页码
+                    start: 1,
+                    //数据总数
+                    totalCount: 0,
+                    //当前用户
+                    user: getUserInfo(),
                 },
-                //切换订单类型
-                handleSelectType: function (index) {
-                    //切换效果
-                    if (this.activeIndex !== index) {
-                        this.activeIndex = index;
-                    }
-                    //重新加载数据
+                created: function () {
                     this.loadData();
                 },
-                //每页显示数据量变更
-                handleSizeChange(val) {
-                    this.pagesize = val;
-                    this.loadData();
-                },
-                //页码变更
-                handleCurrentChange(val) {
-                    this.currentPage = val;
-                    this.loadData();
-                },
-                //编辑
-                handleEdit(index, row) {
-                    console.log(index, row);
-                },
-                //删除
-                handleDelete(index, row) {
-                    console.log(index, row);
-                },
-                //审核
-                handleAudit(index, row) {
-                    var warnings = [];
-                    //判断用户部门
-                    if (this.user.dept.deptId !== 1 && this.user.dept.deptId !== 2) {
-                        var msg = '采购订单仅由采购部门成员审核。';
-                        var english_msg = 'Purchase orders are audited only by members of the procurement department.';
-                        warnings.push(msg.orEnglish(english_msg));
-                    }
-                    //判断订单状态
-                    if (this.tableData[index].orderStatusId !== 1) {
-                        var msg = '仅有采购订单(待审核)需要审核。';
-                        var english_msg = 'Only purchase orders (to be audited) need to be audited.';
-                        warnings.push(msg.orEnglish(english_msg));
-                    }
-                    if (warnings.length) {
-                        this.$notify({
-                            title: '警告'.orEnglish('Notice'),
-                            message: warnings[0],
-                            type: 'warning'
-                        });
-                    } else {
-                        //获取订单号
-                        var orderNumber = this.tableData[index].orderNumber;
-                        var formData = new FormData();
-                        formData.append('orderNumber', orderNumber);
-                        var that = this;
-                        $.ajax({
-                            url: 'http://localhost:8091/api/purchase/audit',
-                            type: 'POST',
-                            cache: false,
-                            processData: false, // 告诉jQuery不要去处理发送的数据
-                            contentType: false, // 告诉jQuery不要去设置Content-Type请求头
-                            data: formData,
-                            dataType: "json",
-                            success: function (result) {
-                                var title;
-                                var content;
-                                var okBtnTxt;
-                                var type;
-                                if (result.status === 'success') {
-                                    title = '审核成功'.orEnglish('Audit successfully');
-                                    content = '进入其他流程。'.orEnglish('Entering other processes.');
-                                    okBtnTxt = '确定'.orEnglish('OK');
-                                    type = 'success';
-                                } else {
-                                    title = '审核失败'.orEnglish('Submitted failed');
-                                    content = '请联系'.orEnglish('Please contact ') + supportMail + '。'.orEnglish('.');
-                                    okBtnTxt = '确定'.orEnglish('OK');
-                                    type = 'error';
-                                }
-                                that.$alert(content, title, { confirmButtonText: okBtnTxt, type: type });
-                                //重新加载数据
-                                that.loadData();
-                            },
-                        });
-                    }
-                },
-                handleSelectionChange(val) {
-                    this.multipleSelection = val;
-                },
-                handlebatchdelete: function () {
-
-                },
-                //批量审核
-                handlebatchAudit: function () {
-                    var warnings = [];
-                    //判断用户部门
-                    if (this.user.dept.deptId !== 1 && this.user.dept.deptId !== 2) {
-                        var msg = '采购订单仅由采购部门成员审核。';
-                        var english_msg = 'Purchase orders are audited only by members of the procurement department.';
-                        warnings.push(msg.orEnglish(english_msg));
-                    }
-                    //判断订单状态
-                    if (this.multipleSelection.length == 0) {
-                        var msg = '请选择待审核订单。';
-                        var english_msg = 'Please choose the order to be audited.';
-                        warnings.push(msg.orEnglish(english_msg));
-                    }
-                    for (var i = 0; i < this.multipleSelection.length; i++) {
-                        if (this.multipleSelection[i].orderStatusId !== 1) {
-                            var msg = '仅有采购订单(待审核)需要审核。';
-                            var english_msg = 'Only purchase orders (to be audited) need to be audited.';
+                methods: {
+                    //减法(保留两位小数)
+                    floatReduce: function (arg1, arg2) {
+                        var r1, r2, m;
+                        try { r1 = arg1.toString().split(".")[1].length } catch (e) { r1 = 0 }
+                        try { r2 = arg2.toString().split(".")[1].length } catch (e) { r2 = 0 }
+                        m = Math.pow(10, Math.max(r1, r2))
+                        return (arg1 * m - arg2 * m) / m
+                    },
+                    //加载数据
+                    loadData: function () {
+                        if (this.activeIndex == '1') {
+                            this.data = getIsPayOrders(this.currentPage, this.pagesize);
+                        } else {
+                            this.data = getAlreadyIsPayOrders(this.currentPage, this.pagesize);
+                        }
+                        this.tableData = this.data.list;
+                        this.totalCount = this.data.total;
+                    },
+                    //切换订单类型
+                    handleSelectType: function (index) {
+                        //切换效果
+                        if (this.activeIndex !== index) {
+                            this.activeIndex = index;
+                        }
+                        //重新加载数据
+                        this.loadData();
+                    },
+                    //每页显示数据量变更
+                    handleSizeChange(val) {
+                        this.pagesize = val;
+                        this.loadData();
+                    },
+                    //页码变更
+                    handleCurrentChange(val) {
+                        this.currentPage = val;
+                        this.loadData();
+                    },
+                    //收款
+                    handleReceivable(index, row) {
+                        var warnings = [];
+                        //判断用户部门
+                        if (this.user.dept.deptId !== 1 && this.user.dept.deptId !== 5) {
+                            var msg = '订单收款仅由财务部门成员操作。';
+                            var english_msg = 'Purchase orders are receivableed only by members of the procurement department.';
                             warnings.push(msg.orEnglish(english_msg));
-                            break;
                         }
-                    }
-                    if (warnings.length) {
-                        this.$notify({
-                            title: '警告'.orEnglish('Notice'),
-                            message: warnings[0],
-                            type: 'warning'
-                        });
-                    } else {
-                        //获取订单号
-                        var formData = new FormData();
-                        for (var i = 0; i < this.multipleSelection.length; i++) {
-                            formData.append('orderNumbers[]', this.multipleSelection[i].orderNumber);
+                        //判断订单状态
+                        if (this.tableData[index].orderStatusId !== 5) {
+                            var msg = '仅有采购订单(待退货)需要收款。';
+                            var english_msg = 'Only purchase orders (to be returned) need to be receivableed.';
+                            warnings.push(msg.orEnglish(english_msg));
                         }
-                        var that = this;
-                        $.ajax({
-                            url: 'http://localhost:8091/api/purchase/batchAudit',
-                            type: 'POST',
-                            cache: false,
-                            processData: false, // 告诉jQuery不要去处理发送的数据
-                            contentType: false, // 告诉jQuery不要去设置Content-Type请求头
-                            data: formData,
-                            dataType: "json",
-                            success: function (result) {
-                                var title;
-                                var content;
-                                var okBtnTxt;
-                                var type;
-                                if (result.status === 'success') {
-                                    title = '审核成功'.orEnglish('Audit successfully');
-                                    content = '进入其他流程。'.orEnglish('Entering other processes.');
-                                    okBtnTxt = '确定'.orEnglish('OK');
-                                    type = 'success';
-                                } else {
-                                    title = '审核失败'.orEnglish('Submitted failed');
-                                    content = '请联系'.orEnglish('Please contact ') + supportMail + '。'.orEnglish('.');
-                                    okBtnTxt = '确定'.orEnglish('OK');
-                                    type = 'error';
-                                }
-                                that.$alert(content, title, { confirmButtonText: okBtnTxt, type: type });
-                                //重新加载数据
-                                that.loadData();
-                            },
-                        });
-                    }
-
+                        if (warnings.length) {
+                            this.$notify({
+                                title: '警告'.orEnglish('Notice'),
+                                message: warnings[0],
+                                type: 'warning'
+                            });
+                        } else {
+                            var payType;
+                            var payPrice;
+                            //直接付款
+                            if (this.tableData[index].orderPayType == 1) {
+                                payType = '直接付款';
+                                payPrice = this.tableData[index].orderPayMoney;
+                            }
+                            //货到付款
+                            if (this.tableData[index].orderPayType == 2) {
+                                payType = '货到付款';
+                                payPrice = this.tableData[index].orderPayMoney;
+                            }
+                            //支付定金
+                            if (this.tableData[index].orderPayType == 3) {
+                                payType = '支付定金';
+                                payPrice = this.tableData[index].orderPayMoney;
+                            }
+                            this.$confirm(payType + '-RMB ' + payPrice + ', 是否确定退货并确认收款?', '收款提示', {
+                                confirmButtonText: '确定',
+                                cancelButtonText: '取消',
+                                type: 'warning'
+                            }).then(() => {
+                                //获取订单号
+                                var orderNumber = this.tableData[index].orderNumber;
+                                var formData = new FormData();
+                                formData.append('orderNumber', orderNumber);
+                                var that = this;
+                                $.ajax({
+                                    url: 'http://localhost:8091/api/finance/purchaseReceivable',
+                                    type: 'POST',
+                                    cache: false,
+                                    processData: false, // 告诉jQuery不要去处理发送的数据
+                                    contentType: false, // 告诉jQuery不要去设置Content-Type请求头
+                                    data: formData,
+                                    dataType: "json",
+                                    success: function (result) {
+                                        var title;
+                                        var content;
+                                        var okBtnTxt;
+                                        var type;
+                                        if (result.status === 'success') {
+                                            title = '收款成功'.orEnglish('Receivable successfully');
+                                            content = '进入其他流程。'.orEnglish('Entering other processes.');
+                                            okBtnTxt = '确定'.orEnglish('OK');
+                                            type = 'success';
+                                        } else {
+                                            title = '收款失败'.orEnglish('Receivable failed');
+                                            content = '请联系'.orEnglish('Please contact ') + supportMail + '。'.orEnglish('.');
+                                            okBtnTxt = '确定'.orEnglish('OK');
+                                            type = 'error';
+                                        }
+                                        that.$alert(content, title, { confirmButtonText: okBtnTxt, type: type });
+                                        //重新加载数据
+                                        that.loadData();
+                                    },
+                                });
+                            }).catch(() => {
+                                this.$message({
+                                    type: 'info',
+                                    message: '已取消收款'
+                                });
+                            });
+                        }
+                    },
                 },
-            },
-        });
-    </script>
+            });
+        </script>
 
 </body>
 

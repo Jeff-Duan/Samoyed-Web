@@ -32,11 +32,11 @@
 
 <body>
 
-    <div th:replace="~{nav :: nav('financeReceivable')}"></div>
+    <div th:replace="~{nav :: nav('financeReceivable-sale')}"></div>
     <div th:replace="~{header :: header}"></div>
     <div class="margin-helper">
         <div class="samoyed-content">
-            <div th:replace="~{pageHead :: pageHead(pageName=#{nav.financeReceivable}, parentMenu=#{nav.finance})}"></div>
+            <div th:replace="~{pageHead :: pageHead(pageName=#{nav.financeReceivable-sale}, parentMenu=#{nav.finance})}"></div>
             <div id="page-content" class="page-content" v-cloak>
                 <div class="type-menu">
                     <el-menu :default-active="activeIndex" mode="horizontal" @select="handleSelectType">
@@ -211,7 +211,7 @@
     <script src="../../static/js/jquery-3.3.1.min.js" th:src="@{/js/jquery-3.3.1.min.js}"></script>
     <script src="../../static/js/utils.js" th:src="@{/js/utils.js}"></script>
     <!-- 引用vue组件相关的js文件 -->
-    <div th:replace="~{nav :: vue('financeReceivable')}"></div>
+    <div th:replace="~{nav :: vue('financeReceivable-sale')}"></div>
     <div th:replace="~{header :: vue}"></div>
     <div th:replace="~{footer :: vue}"></div>
     <!-- 本页面的js脚本 -->

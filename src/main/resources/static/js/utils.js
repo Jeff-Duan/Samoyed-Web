@@ -1,8 +1,18 @@
-//服务支持邮箱
-var supportMail = '1191837698@qq.com';
+
+//客户端域名
+var webUrl = 'http://localhost:8090';
+
+//服务端域名
+var serverUrl = 'http://localhost:8091';
+
+//SSO域名
+var ssoUrl = 'http://localhost:8888';
 
 //SSO注销地址
-var ssoLogout = 'http://localhost:8888/sso/logout?callBackUrl=http://localhost:8090/';
+var ssoLogout = ssoUrl + '/sso/logout?callBackUrl=' + webUrl;
+
+//服务支持邮箱
+var supportMail = '1191837698@qq.com';
 
 //设置全局AJAX配置（跨域支持,携带cookie）
 $.ajaxSetup({
@@ -55,21 +65,18 @@ function getSequence(num) {
 //获取用户信息
 function getUserInfo() {
     var cacheKey = 'user';
-    var result = loadCache(cacheKey);
-    if (result) {
-        console.log('Find user in cache.');
-    } else {
-        $.ajax({
-            url: 'http://localhost:8091/api/user/info',
-            type: 'GET',
-            async: false,   // 同步获取数据
-            dataType: "json",
-            success: function (result) {
-                result = result;
-                saveCache(cacheKey, result);
-            },
-        });
-    }
+    var result;
+    sessionStorage.removeItem(cacheKey);
+    $.ajax({
+        url: serverUrl + '/api/user/info',
+        type: 'GET',
+        async: false,   // 同步获取数据
+        dataType: "json",
+        success: function (result) {
+            result = result;
+            saveCache(cacheKey, result);
+        },
+    });
     result = loadCache(cacheKey);
     return result;
 }
@@ -82,7 +89,7 @@ function getSuppliers() {
         console.log('Find suppliers in cache.');
     } else {
         $.ajax({
-            url: 'http://localhost:8091/api/basic/supplier/all',
+            url: serverUrl + '/api/basic/supplier/all',
             type: 'GET',
             async: false,   // 同步获取数据
             dataType: "json",
@@ -104,7 +111,7 @@ function getProduces() {
         console.log('Find produces in cache.');
     } else {
         $.ajax({
-            url: 'http://localhost:8091/api/basic/produce/all',
+            url: serverUrl + '/api/basic/produce/all',
             type: 'GET',
             async: false,   // 同步获取数据
             dataType: "json",
@@ -118,7 +125,7 @@ function getProduces() {
     return result;
 }
 
-//获取所有采购订单(分页获取)
+//获取采购订单(分页获取)
 function getPurchaseOrders(statusId, pageNum, pageSize) {
     var statusId = statusId;
     var pageNum = pageNum;
@@ -127,7 +134,7 @@ function getPurchaseOrders(statusId, pageNum, pageSize) {
     var cacheKey = 'purchaseOrders';
     sessionStorage.removeItem(cacheKey);
     $.ajax({
-        url: 'http://localhost:8091/api/purchase/order/all?statusId=' + statusId + '&pageNum=' + pageNum + '&pageSize=' + pageSize,
+        url: serverUrl + '/api/purchase/order/all?statusId=' + statusId + '&pageNum=' + pageNum + '&pageSize=' + pageSize,
         data: {},
         type: 'GET',
         cache: false,    //关闭缓存
@@ -142,7 +149,7 @@ function getPurchaseOrders(statusId, pageNum, pageSize) {
     return result;
 }
 
-//获取所有生产订单(分页获取)
+//获取生产订单(分页获取)
 function getProduceOrders(statusId, pageNum, pageSize) {
     var statusId = statusId;
     var pageNum = pageNum;
@@ -151,7 +158,7 @@ function getProduceOrders(statusId, pageNum, pageSize) {
     var cacheKey = 'produceOrders';
     sessionStorage.removeItem(cacheKey);
     $.ajax({
-        url: 'http://localhost:8091/api/produce/order/all?statusId=' + statusId + '&pageNum=' + pageNum + '&pageSize=' + pageSize,
+        url: serverUrl + '/api/produce/order/all?statusId=' + statusId + '&pageNum=' + pageNum + '&pageSize=' + pageSize,
         data: {},
         type: 'GET',
         cache: false,    //关闭缓存
@@ -166,7 +173,7 @@ function getProduceOrders(statusId, pageNum, pageSize) {
     return result;
 }
 
-//获取所有销售订单(分页获取)
+//获取销售订单(分页获取)
 function getSaleOrders(statusId, pageNum, pageSize) {
     var statusId = statusId;
     var pageNum = pageNum;
@@ -175,7 +182,7 @@ function getSaleOrders(statusId, pageNum, pageSize) {
     var cacheKey = 'saleOrders';
     sessionStorage.removeItem(cacheKey);
     $.ajax({
-        url: 'http://localhost:8091/api/sale/order/all?statusId=' + statusId + '&pageNum=' + pageNum + '&pageSize=' + pageSize,
+        url: serverUrl + '/api/sale/order/all?statusId=' + statusId + '&pageNum=' + pageNum + '&pageSize=' + pageSize,
         data: {},
         type: 'GET',
         cache: false,    //关闭缓存
@@ -198,7 +205,7 @@ function getToPayOrders(pageNum, pageSize) {
     var cacheKey = 'toPayOrders';
     sessionStorage.removeItem(cacheKey);
     $.ajax({
-        url: 'http://localhost:8091/api/purchase/order/toPay?pageNum=' + pageNum + '&pageSize=' + pageSize,
+        url: serverUrl + '/api/purchase/order/toPay?pageNum=' + pageNum + '&pageSize=' + pageSize,
         data: {},
         type: 'GET',
         cache: false,    //关闭缓存
@@ -214,14 +221,14 @@ function getToPayOrders(pageNum, pageSize) {
 }
 
 //获取已付款订单-采购订单(分页获取)
-function getAlreadyPayOrders(pageNum, pageSize) {
+function getAlreadyToPayOrders(pageNum, pageSize) {
     var pageNum = pageNum;
     var pageSize = pageSize;
     var result;
     var cacheKey = 'alreadyPayOrders';
     sessionStorage.removeItem(cacheKey);
     $.ajax({
-        url: 'http://localhost:8091/api/purchase/order/alreadyPay?pageNum=' + pageNum + '&pageSize=' + pageSize,
+        url: serverUrl + '/api/purchase/order/alreadyPay?pageNum=' + pageNum + '&pageSize=' + pageSize,
         data: {},
         type: 'GET',
         cache: false,    //关闭缓存
@@ -236,6 +243,21 @@ function getAlreadyPayOrders(pageNum, pageSize) {
     return result;
 }
 
+//获取待收款订单-采购订单(分页获取)
+function getIsPayOrders(pageNum, pageSize) {
+    return getPurchaseOrders(5, pageNum, pageSize);
+}
+
+//获取已收款订单-采购订单(分页获取)
+function getAlreadyIsPayOrders(pageNum, pageSize) {
+    return getPurchaseOrders(8, pageNum, pageSize);
+}
+
+
+
+
+
+
 //获取待收款(定金)订单-销售订单(分页获取)
 function getIsPayDepositOrders(pageNum, pageSize) {
     var pageNum = pageNum;
@@ -244,7 +266,7 @@ function getIsPayDepositOrders(pageNum, pageSize) {
     var cacheKey = 'isPayDepositOrders';
     sessionStorage.removeItem(cacheKey);
     $.ajax({
-        url: 'http://localhost:8091/api/sale/order/isPayDeposit?pageNum=' + pageNum + '&pageSize=' + pageSize,
+        url: serverUrl + '/api/sale/order/isPayDeposit?pageNum=' + pageNum + '&pageSize=' + pageSize,
         data: {},
         type: 'GET',
         cache: false,    //关闭缓存
@@ -267,7 +289,7 @@ function getIsPayFinalOrders(pageNum, pageSize) {
     var cacheKey = 'isPayFinalOrders';
     sessionStorage.removeItem(cacheKey);
     $.ajax({
-        url: 'http://localhost:8091/api/sale/order/isPayFinal?pageNum=' + pageNum + '&pageSize=' + pageSize,
+        url: serverUrl + '/api/sale/order/isPayFinal?pageNum=' + pageNum + '&pageSize=' + pageSize,
         data: {},
         type: 'GET',
         cache: false,    //关闭缓存
@@ -290,7 +312,7 @@ function getIsSuccessOrders(pageNum, pageSize) {
     var cacheKey = 'isSuccessOrders';
     sessionStorage.removeItem(cacheKey);
     $.ajax({
-        url: 'http://localhost:8091/api/sale/order/isSuccess?pageNum=' + pageNum + '&pageSize=' + pageSize,
+        url: serverUrl + '/api/sale/order/isSuccess?pageNum=' + pageNum + '&pageSize=' + pageSize,
         data: {},
         type: 'GET',
         cache: false,    //关闭缓存
