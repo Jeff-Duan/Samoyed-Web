@@ -253,6 +253,61 @@ function getAlreadyIsPayOrders(pageNum, pageSize) {
     return getPurchaseOrders(8, pageNum, pageSize);
 }
 
+//获取待出库订单-生产订单(分页获取)
+function getIsIssueOrders(pageNum, pageSize) {
+    var pageNum = pageNum;
+    var pageSize = pageSize;
+    var result;
+    var cacheKey = 'toIssueOrders';
+    sessionStorage.removeItem(cacheKey);
+    $.ajax({
+        url: serverUrl + '/api/produce/order/toIssue?pageNum=' + pageNum + '&pageSize=' + pageSize,
+        data: {},
+        type: 'GET',
+        cache: false,    //关闭缓存
+        async: false,   // 同步获取数据
+        dataType: "json",
+        success: function (result) {
+            result = result;
+            saveCache(cacheKey, result);
+        },
+    });
+    result = loadCache(cacheKey);
+    return result;
+}
+
+//获取已出库订单-生产订单(分页获取)
+function getAlreadyIssueOrders(pageNum, pageSize) {
+    var pageNum = pageNum;
+    var pageSize = pageSize;
+    var result;
+    var cacheKey = 'alreadyIssueOrders';
+    sessionStorage.removeItem(cacheKey);
+    $.ajax({
+        url: serverUrl + '/api/produce/order/alreadyIssue?pageNum=' + pageNum + '&pageSize=' + pageSize,
+        data: {},
+        type: 'GET',
+        cache: false,    //关闭缓存
+        async: false,   // 同步获取数据
+        dataType: "json",
+        success: function (result) {
+            result = result;
+            saveCache(cacheKey, result);
+        },
+    });
+    result = loadCache(cacheKey);
+    return result;
+}
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -326,6 +381,8 @@ function getIsSuccessOrders(pageNum, pageSize) {
     result = loadCache(cacheKey);
     return result;
 }
+
+
 
 
 

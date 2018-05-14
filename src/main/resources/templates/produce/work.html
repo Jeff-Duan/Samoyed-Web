@@ -25,7 +25,7 @@
         .samoyed-table-expand .el-form-item {
             margin-right: 0;
             margin-bottom: 0;
-            width: 25%;
+            width: 33.33%;
         }
     </style>
 </head>
@@ -43,19 +43,20 @@
                         <el-menu-item index="0" th:text="#{common.all}"></el-menu-item>
                         <el-menu-item index="1" th:text="#{common.toAudit}"></el-menu-item>
                         <el-menu-item index="2" th:text="#{common.toIssue}"></el-menu-item>
-                        <el-menu-item index="3" th:text="#{common.winnowering}"></el-menu-item>
-                        <el-menu-item index="4" th:text="#{common.toAcceptance-1}"></el-menu-item>
-                        <el-menu-item index="5" th:text="#{common.gradeding}"></el-menu-item>
-                        <el-menu-item index="6" th:text="#{common.toAcceptance-2}"></el-menu-item>
-                        <el-menu-item index="7" th:text="#{common.miscellaneousing}"></el-menu-item>
-                        <el-menu-item index="8" th:text="#{common.toAcceptance-3}"></el-menu-item>
-                        <el-menu-item index="9" th:text="#{common.drying}"></el-menu-item>
-                        <el-menu-item index="10" th:text="#{common.toAcceptance-4}"></el-menu-item>
-                        <el-menu-item index="11" th:text="#{common.toStorage}"></el-menu-item>
-                        <el-menu-item index="12" th:text="#{common.isStorage}"></el-menu-item>
+                        <el-menu-item index="3" th:text="#{common.toIncome}"></el-menu-item>
+                        <el-menu-item index="4" th:text="#{common.winnowering}"></el-menu-item>
+                        <el-menu-item index="5" th:text="#{common.toAcceptance-1}"></el-menu-item>
+                        <el-menu-item index="6" th:text="#{common.gradeding}"></el-menu-item>
+                        <el-menu-item index="7" th:text="#{common.toAcceptance-2}"></el-menu-item>
+                        <el-menu-item index="8" th:text="#{common.miscellaneousing}"></el-menu-item>
+                        <el-menu-item index="9" th:text="#{common.toAcceptance-3}"></el-menu-item>
+                        <el-menu-item index="10" th:text="#{common.drying}"></el-menu-item>
+                        <el-menu-item index="11" th:text="#{common.toAcceptance-4}"></el-menu-item>
+                        <el-menu-item index="12" th:text="#{common.toStorage}"></el-menu-item>
+                        <el-menu-item index="13" th:text="#{common.isStorage}"></el-menu-item>
                     </el-menu>
                 </div>
-                <el-table :data="tableData">
+                <el-table :data="tableData" @selection-change="handleSelectionChange">
                     <el-table-column type="selection">
                     </el-table-column>
                     <el-table-column type="expand">
@@ -93,9 +94,6 @@
                                 </el-form-item>
                                 <el-form-item th:label="#{common.yield}">
                                     <span>{{ produceOrderPlanDetail.detailProduceNumber }}</span>
-                                </el-form-item>
-                                <el-form-item>
-                                    <span></span>
                                 </el-form-item>
                                 <el-form-item th:label="#{common.material}">
                                     <span>{{ produceOrderPlanDetail.material.materialName }}</span>
@@ -192,16 +190,17 @@
                         <template slot-scope="scope">
                             <span class="normal-color" v-if="scope.row.orderStatusId=='1'" th:text="#{common.toAudit}"></span>
                             <span class="normal-color" v-else-if="scope.row.orderStatusId=='2'" th:text="#{common.toIssue}"></span>
-                            <span class="normal-color" v-else-if="scope.row.orderStatusId=='3'" th:text="#{common.winnowering}"></span>
-                            <span class="normal-color" v-else-if="scope.row.orderStatusId=='4'" th:text="#{common.toAcceptance-1}"></span>
-                            <span class="normal-color" v-else-if="scope.row.orderStatusId=='5'" th:text="#{common.gradeding}"></span>
-                            <span class="normal-color" v-else-if="scope.row.orderStatusId=='6'" th:text="#{common.toAcceptance-2}"></span>
-                            <span class="normal-color" v-else-if="scope.row.orderStatusId=='7'" th:text="#{common.miscellaneousing}"></span>
-                            <span class="normal-color" v-else-if="scope.row.orderStatusId=='8'" th:text="#{common.toAcceptance-3}"></span>
-                            <span class="normal-color" v-else-if="scope.row.orderStatusId=='9'" th:text="#{common.drying}"></span>
-                            <span class="normal-color" v-else-if="scope.row.orderStatusId=='10'" th:text="#{common.toAcceptance-4}"></span>
-                            <span class="normal-color" v-else-if="scope.row.orderStatusId=='11'" th:text="#{common.toStorage}"></span>
-                            <span class="normal-color" v-else-if="scope.row.orderStatusId=='12'" th:text="#{common.isStorage}"></span>
+                            <span class="normal-color" v-else-if="scope.row.orderStatusId=='3'" th:text="#{common.toIncome}"></span>
+                            <span class="normal-color" v-else-if="scope.row.orderStatusId=='4'" th:text="#{common.winnowering}"></span>
+                            <span class="normal-color" v-else-if="scope.row.orderStatusId=='5'" th:text="#{common.toAcceptance-1}"></span>
+                            <span class="normal-color" v-else-if="scope.row.orderStatusId=='6'" th:text="#{common.gradeding}"></span>
+                            <span class="normal-color" v-else-if="scope.row.orderStatusId=='7'" th:text="#{common.toAcceptance-2}"></span>
+                            <span class="normal-color" v-else-if="scope.row.orderStatusId=='8'" th:text="#{common.miscellaneousing}"></span>
+                            <span class="normal-color" v-else-if="scope.row.orderStatusId=='9'" th:text="#{common.toAcceptance-3}"></span>
+                            <span class="normal-color" v-else-if="scope.row.orderStatusId=='10'" th:text="#{common.drying}"></span>
+                            <span class="normal-color" v-else-if="scope.row.orderStatusId=='11'" th:text="#{common.toAcceptance-4}"></span>
+                            <span class="normal-color" v-else-if="scope.row.orderStatusId=='12'" th:text="#{common.toStorage}"></span>
+                            <span class="normal-color" v-else-if="scope.row.orderStatusId=='13'" th:text="#{common.isStorage}"></span>
                             <span class="normal-color" v-else th:text="#{common.notStatus}"></span>
                         </template>
                     </el-table-column>
@@ -264,6 +263,10 @@
                 start: 1,
                 //数据总数
                 totalCount: 0,
+                //当前用户
+                user: getUserInfo(),
+                //多选数据
+                multipleSelection: [],
             },
             created: function () {
                 this.loadData();
@@ -298,14 +301,124 @@
                 handleEdit(index, row) {
                     console.log(index, row);
                 },
-                handleAudit(index, row) {
-                    console.log(index, row);
-                },
                 handleDelete(index, row) {
                     console.log(index, row);
                 },
+                //审核
+                handleAudit(index, row) {
+                    var warnings = [];
+                    //判断用户部门
+                    if (this.user.dept.deptId !== 1 && this.user.dept.deptId !== 3) {
+                        var msg = '生产订单仅由生产部门成员审核。';
+                        var english_msg = 'Produce orders are audited only by members of the producement department.';
+                        warnings.push(msg.orEnglish(english_msg));
+                    }
+                    //判断订单状态
+                    if (this.tableData[index].orderStatusId !== 1) {
+                        var msg = '仅有生产订单(待审核)需要审核。';
+                        var english_msg = 'Only produce orders (to be audited) need to be audited.';
+                        warnings.push(msg.orEnglish(english_msg));
+                    }
+                    if (warnings.length) {
+                        this.$notify({
+                            title: '警告'.orEnglish('Notice'),
+                            message: warnings[0],
+                            type: 'warning'
+                        });
+                    } else {
+                        //获取订单号
+                        var orderNumber = this.tableData[index].orderNumber;
+                        var formData = new FormData();
+                        formData.append('orderNumber', orderNumber);
+                        var that = this;
+                        $.ajax({
+                            url: 'http://localhost:8091/api/produce/audit',
+                            type: 'POST',
+                            cache: false,
+                            processData: false, // 告诉jQuery不要去处理发送的数据
+                            contentType: false, // 告诉jQuery不要去设置Content-Type请求头
+                            data: formData,
+                            dataType: "json",
+                            success: function (result) {
+                                var title;
+                                var content;
+                                var okBtnTxt;
+                                var type;
+                                if (result.status === 'success') {
+                                    title = '审核成功'.orEnglish('Audit successfully');
+                                    content = '进入其他流程。'.orEnglish('Entering other processes.');
+                                    okBtnTxt = '确定'.orEnglish('OK');
+                                    type = 'success';
+                                } else {
+                                    title = '审核失败'.orEnglish('Submitted failed');
+                                    content = '请联系'.orEnglish('Please contact ') + supportMail + '。'.orEnglish('.');
+                                    okBtnTxt = '确定'.orEnglish('OK');
+                                    type = 'error';
+                                }
+                                that.$alert(content, title, { confirmButtonText: okBtnTxt, type: type });
+                                //重新加载数据
+                                that.loadData();
+                            },
+                        });
+                    }
+                },
+                //收入
                 handleIncome(index, row) {
-                    console.log(index, row);
+                    var warnings = [];
+                    //判断用户部门
+                    if (this.user.dept.deptId !== 1 && this.user.dept.deptId !== 3) {
+                        var msg = '生产订单仅由生产部门成员审核。';
+                        var english_msg = 'Produce orders are audited only by members of the producement department.';
+                        warnings.push(msg.orEnglish(english_msg));
+                    }
+                    //判断订单状态
+                    if (this.tableData[index].orderStatusId !== 3) {
+                        var msg = '仅有生产订单(待收入)需要收入。';
+                        var english_msg = 'Only produce orders (to be incomeed) need to be incomeed.';
+                        warnings.push(msg.orEnglish(english_msg));
+                    }
+                    if (warnings.length) {
+                        this.$notify({
+                            title: '警告'.orEnglish('Notice'),
+                            message: warnings[0],
+                            type: 'warning'
+                        });
+                    } else {
+                        //获取订单号
+                        var orderNumber = this.tableData[index].orderNumber;
+                        var formData = new FormData();
+                        formData.append('orderNumber', orderNumber);
+                        var that = this;
+                        $.ajax({
+                            url: 'http://localhost:8091/api/produce/income',
+                            type: 'POST',
+                            cache: false,
+                            processData: false, // 告诉jQuery不要去处理发送的数据
+                            contentType: false, // 告诉jQuery不要去设置Content-Type请求头
+                            data: formData,
+                            dataType: "json",
+                            success: function (result) {
+                                var title;
+                                var content;
+                                var okBtnTxt;
+                                var type;
+                                if (result.status === 'success') {
+                                    title = '收入成功'.orEnglish('Incomed successfully');
+                                    content = '进入其他流程。'.orEnglish('Entering other processes.');
+                                    okBtnTxt = '确定'.orEnglish('OK');
+                                    type = 'success';
+                                } else {
+                                    title = '收入失败'.orEnglish('Incomed failed');
+                                    content = '请联系'.orEnglish('Please contact ') + supportMail + '。'.orEnglish('.');
+                                    okBtnTxt = '确定'.orEnglish('OK');
+                                    type = 'error';
+                                }
+                                that.$alert(content, title, { confirmButtonText: okBtnTxt, type: type });
+                                //重新加载数据
+                                that.loadData();
+                            },
+                        });
+                    }
                 },
                 handleTransfer(index, row) {
                     console.log(index, row);
@@ -313,15 +426,145 @@
                 handleCheck(index, row) {
                     console.log(index, row);
                 },
-
-                handlebatchAudit: function () {
-
+                handleSelectionChange(val) {
+                    this.multipleSelection = val;
                 },
                 handlebatchdelete: function () {
 
                 },
+                //批量审核
+                handlebatchAudit: function () {
+                    var warnings = [];
+                    //判断用户部门
+                    if (this.user.dept.deptId !== 1 && this.user.dept.deptId !== 3) {
+                        var msg = '生产订单仅由生产部门成员审核。';
+                        var english_msg = 'Produce orders are audited only by members of the producement department.';
+                        warnings.push(msg.orEnglish(english_msg));
+                    }
+                    //判断订单状态
+                    if (this.multipleSelection.length == 0) {
+                        var msg = '请选择待审核订单。';
+                        var english_msg = 'Please choose the order to be audited.';
+                        warnings.push(msg.orEnglish(english_msg));
+                    }
+                    for (var i = 0; i < this.multipleSelection.length; i++) {
+                        if (this.multipleSelection[i].orderStatusId !== 1) {
+                            var msg = '仅有生产订单(待审核)需要审核。';
+                            var english_msg = 'Only produce orders (to be audited) need to be audited.';
+                            warnings.push(msg.orEnglish(english_msg));
+                            break;
+                        }
+                    }
+                    if (warnings.length) {
+                        this.$notify({
+                            title: '警告'.orEnglish('Notice'),
+                            message: warnings[0],
+                            type: 'warning'
+                        });
+                    } else {
+                        //获取订单号
+                        var formData = new FormData();
+                        for (var i = 0; i < this.multipleSelection.length; i++) {
+                            formData.append('orderNumbers[]', this.multipleSelection[i].orderNumber);
+                        }
+                        var that = this;
+                        $.ajax({
+                            url: 'http://localhost:8091/api/produce/batchAudit',
+                            type: 'POST',
+                            cache: false,
+                            processData: false, // 告诉jQuery不要去处理发送的数据
+                            contentType: false, // 告诉jQuery不要去设置Content-Type请求头
+                            data: formData,
+                            dataType: "json",
+                            success: function (result) {
+                                var title;
+                                var content;
+                                var okBtnTxt;
+                                var type;
+                                if (result.status === 'success') {
+                                    title = '审核成功'.orEnglish('Audit successfully');
+                                    content = '进入其他流程。'.orEnglish('Entering other processes.');
+                                    okBtnTxt = '确定'.orEnglish('OK');
+                                    type = 'success';
+                                } else {
+                                    title = '审核失败'.orEnglish('Submitted failed');
+                                    content = '请联系'.orEnglish('Please contact ') + supportMail + '。'.orEnglish('.');
+                                    okBtnTxt = '确定'.orEnglish('OK');
+                                    type = 'error';
+                                }
+                                that.$alert(content, title, { confirmButtonText: okBtnTxt, type: type });
+                                //重新加载数据
+                                that.loadData();
+                            },
+                        });
+                    }
+                },
+                //批量收入
                 handleBatchIncome: function () {
-
+                    var warnings = [];
+                    //判断用户部门
+                    if (this.user.dept.deptId !== 1 && this.user.dept.deptId !== 3) {
+                        var msg = '生产订单仅由生产部门成员审核。';
+                        var english_msg = 'Produce orders are audited only by members of the producement department.';
+                        warnings.push(msg.orEnglish(english_msg));
+                    }
+                    //判断订单状态
+                    if (this.multipleSelection.length == 0) {
+                        var msg = '请选择待收入订单。';
+                        var english_msg = 'Please choose the order to be incomed.';
+                        warnings.push(msg.orEnglish(english_msg));
+                    }
+                    for (var i = 0; i < this.multipleSelection.length; i++) {
+                        if (this.multipleSelection[i].orderStatusId !== 3) {
+                            var msg = '仅有生产订单(待收入)需要收入。';
+                            var english_msg = 'Only produce orders (to be incomeed) need to be incomeed.';
+                            warnings.push(msg.orEnglish(english_msg));
+                            break;
+                        }
+                    }
+                    if (warnings.length) {
+                        this.$notify({
+                            title: '警告'.orEnglish('Notice'),
+                            message: warnings[0],
+                            type: 'warning'
+                        });
+                    } else {
+                        //获取订单号
+                        var formData = new FormData();
+                        for (var i = 0; i < this.multipleSelection.length; i++) {
+                            formData.append('orderNumbers[]', this.multipleSelection[i].orderNumber);
+                        }
+                        var that = this;
+                        $.ajax({
+                            url: 'http://localhost:8091/api/produce/batchIncome',
+                            type: 'POST',
+                            cache: false,
+                            processData: false, // 告诉jQuery不要去处理发送的数据
+                            contentType: false, // 告诉jQuery不要去设置Content-Type请求头
+                            data: formData,
+                            dataType: "json",
+                            success: function (result) {
+                                var title;
+                                var content;
+                                var okBtnTxt;
+                                var type;
+                                if (result.status === 'success') {
+                                    title = '收入成功'.orEnglish('Incomed successfully');
+                                    content = '进入其他流程。'.orEnglish('Entering other processes.');
+                                    okBtnTxt = '确定'.orEnglish('OK');
+                                    type = 'success';
+                                } else {
+                                    title = '收入失败'.orEnglish('Incomed failed');
+                                    content = '请联系'.orEnglish('Please contact ') + supportMail + '。'.orEnglish('.');
+                                    okBtnTxt = '确定'.orEnglish('OK');
+                                    type = 'error';
+                                }
+                                that.$alert(content, title, { confirmButtonText: okBtnTxt, type: type });
+                                //重新加载数据
+                                that.loadData();
+                            },
+                        });
+                    }
                 },
                 handleBatchTransfer: function () {
 
