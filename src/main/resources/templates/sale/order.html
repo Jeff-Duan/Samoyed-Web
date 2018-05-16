@@ -47,9 +47,10 @@
                         <el-menu-item index="4" th:text="#{common.isPayFinal}"></el-menu-item>
                         <el-menu-item index="5" th:text="#{common.toReturn}"></el-menu-item>
                         <el-menu-item index="6" th:text="#{common.isSuccess}"></el-menu-item>
+                        <el-menu-item index="7" th:text="#{common.isCancel}"></el-menu-item>
                     </el-menu>
                 </div>
-                <el-table :data="tableData">
+                <el-table :data="tableData" @selection-change="handleSelectionChange">
                     <el-table-column type="selection">
                     </el-table-column>
                     <el-table-column type="expand">
@@ -175,6 +176,7 @@
                             <span class="normal-color" v-else-if="scope.row.orderStatusId=='4'" th:text="#{common.isPayFinal}"></span>
                             <span class="normal-color" v-else-if="scope.row.orderStatusId=='5'" th:text="#{common.toReturn}"></span>
                             <span class="normal-color" v-else-if="scope.row.orderStatusId=='6'" th:text="#{common.isSuccess}"></span>
+                            <span class="normal-color" v-else-if="scope.row.orderStatusId=='7'" th:text="#{common.isCancel}"></span>
                             <span class="normal-color" v-else th:text="#{common.notStatus}"></span>
                         </template>
                     </el-table-column>
@@ -189,8 +191,8 @@
                 <el-row class="samoyed-row" type="flex" align="middle">
                     <el-col :span="10">
                         <span class="normal-color" th:text="#{common.batchOperation}+'&nbsp;-&nbsp;'"></span>
-                        <el-button size="mini" type="danger" th:text="#{common.delete}" @click="handlebatchdelete()"></el-button>
-                        <el-button size="mini" type="primary" th:text="#{common.audit}" @click="handlebatchAudit()"></el-button>
+                        <el-button size="mini" type="danger" th:text="#{common.delete}" @click="handleBatchdelete()"></el-button>
+                        <el-button size="mini" type="primary" th:text="#{common.audit}" @click="handleBatchAudit()"></el-button>
                     </el-col>
                     <el-col :span="14" style="text-align:right;">
                         <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="currentPage" :page-sizes="[10, 20, 30,40, 50]"
@@ -231,6 +233,10 @@
                 start: 1,
                 //数据总数
                 totalCount: 0,
+                //当前用户
+                user: getUserInfo(),
+                //多选数据
+                multipleSelection: [],
             },
             created: function () {
                 this.loadData();
@@ -261,21 +267,140 @@
                     this.currentPage = val;
                     this.loadData();
                 },
-
                 handleEdit(index, row) {
-                    console.log(index, row);
-                },
-                handleAudit(index, row) {
                     console.log(index, row);
                 },
                 handleDelete(index, row) {
                     console.log(index, row);
                 },
-                handlebatchAudit: function () {
+                handleAudit(index, row) {
+                    var warnings = [];
+                    //判断用户部门
+                    if (this.user.dept.deptId !== 1 && this.user.dept.deptId !== 4) {
+                        var msg = '销售订单仅由销售部门成员审核。';
+                        var english_msg = 'Sale orders are audited only by members of the salement department.';
+                        warnings.push(msg.orEnglish(english_msg));
+                    }
+                    //判断订单状态
+                    if (this.tableData[index].orderStatusId !== 1) {
+                        var msg = '仅有销售订单(待审核)需要审核。';
+                        var english_msg = 'Only sale orders (to be audited) need to be audited.';
+                        warnings.push(msg.orEnglish(english_msg));
+                    }
+                    if (warnings.length) {
+                        this.$notify({
+                            title: '警告'.orEnglish('Notice'),
+                            message: warnings[0],
+                            type: 'warning'
+                        });
+                    } else {
+                        //获取订单号
+                        var orderNumber = this.tableData[index].orderNumber;
+                        var formData = new FormData();
+                        formData.append('orderNumber', orderNumber);
+                        var that = this;
+                        $.ajax({
+                            url: 'http://localhost:8091/api/sale/audit',
+                            type: 'POST',
+                            cache: false,
+                            processData: false, // 告诉jQuery不要去处理发送的数据
+                            contentType: false, // 告诉jQuery不要去设置Content-Type请求头
+                            data: formData,
+                            dataType: "json",
+                            success: function (result) {
+                                var title;
+                                var content;
+                                var okBtnTxt;
+                                var type;
+                                if (result.status === 'success') {
+                                    title = '审核成功'.orEnglish('Audit successfully');
+                                    content = '进入其他流程。'.orEnglish('Entering other processes.');
+                                    okBtnTxt = '确定'.orEnglish('OK');
+                                    type = 'success';
+                                } else {
+                                    title = '审核失败'.orEnglish('Submitted failed');
+                                    content = '请联系'.orEnglish('Please contact ') + supportMail + '。'.orEnglish('.');
+                                    okBtnTxt = '确定'.orEnglish('OK');
+                                    type = 'error';
+                                }
+                                that.$alert(content, title, { confirmButtonText: okBtnTxt, type: type });
+                                //重新加载数据
+                                that.loadData();
+                            },
+                        });
+                    }
+                },
+                handleSelectionChange(val) {
+                    this.multipleSelection = val;
+                },
+                handleBatchdelete: function () {
 
                 },
-                handlebatchdelete: function () {
-
+                handleBatchAudit: function () {
+                    var warnings = [];
+                    //判断用户部门
+                    if (this.user.dept.deptId !== 1 && this.user.dept.deptId !== 4) {
+                        var msg = '销售订单仅由销售部门成员审核。';
+                        var english_msg = 'Sale orders are audited only by members of the salement department.';
+                        warnings.push(msg.orEnglish(english_msg));
+                    }
+                    //判断订单状态
+                    if (this.multipleSelection.length == 0) {
+                        var msg = '请选择待审核订单。';
+                        var english_msg = 'Please choose the order to be audited.';
+                        warnings.push(msg.orEnglish(english_msg));
+                    }
+                    for (var i = 0; i < this.multipleSelection.length; i++) {
+                        if (this.multipleSelection[i].orderStatusId !== 1) {
+                            var msg = '仅有销售订单(待审核)需要审核。';
+                            var english_msg = 'Only sale orders (to be audited) need to be audited.';
+                            warnings.push(msg.orEnglish(english_msg));
+                            break;
+                        }
+                    }
+                    if (warnings.length) {
+                        this.$notify({
+                            title: '警告'.orEnglish('Notice'),
+                            message: warnings[0],
+                            type: 'warning'
+                        });
+                    } else {
+                        //获取订单号
+                        var formData = new FormData();
+                        for (var i = 0; i < this.multipleSelection.length; i++) {
+                            formData.append('orderNumbers[]', this.multipleSelection[i].orderNumber);
+                        }
+                        var that = this;
+                        $.ajax({
+                            url: 'http://localhost:8091/api/sale/batchAudit',
+                            type: 'POST',
+                            cache: false,
+                            processData: false, // 告诉jQuery不要去处理发送的数据
+                            contentType: false, // 告诉jQuery不要去设置Content-Type请求头
+                            data: formData,
+                            dataType: "json",
+                            success: function (result) {
+                                var title;
+                                var content;
+                                var okBtnTxt;
+                                var type;
+                                if (result.status === 'success') {
+                                    title = '审核成功'.orEnglish('Audit successfully');
+                                    content = '进入其他流程。'.orEnglish('Entering other processes.');
+                                    okBtnTxt = '确定'.orEnglish('OK');
+                                    type = 'success';
+                                } else {
+                                    title = '审核失败'.orEnglish('Submitted failed');
+                                    content = '请联系'.orEnglish('Please contact ') + supportMail + '。'.orEnglish('.');
+                                    okBtnTxt = '确定'.orEnglish('OK');
+                                    type = 'error';
+                                }
+                                that.$alert(content, title, { confirmButtonText: okBtnTxt, type: type });
+                                //重新加载数据
+                                that.loadData();
+                            },
+                        });
+                    }
                 },
             },
         });

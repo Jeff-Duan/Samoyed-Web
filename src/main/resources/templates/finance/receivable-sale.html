@@ -179,13 +179,14 @@
                             <span class="normal-color" v-else-if="scope.row.orderStatusId=='4'" th:text="#{common.isPayFinal}"></span>
                             <span class="normal-color" v-else-if="scope.row.orderStatusId=='5'" th:text="#{common.toReturn}"></span>
                             <span class="normal-color" v-else-if="scope.row.orderStatusId=='6'" th:text="#{common.isSuccess}"></span>
+                            <span class="normal-color" v-else-if="scope.row.orderStatusId=='7'" th:text="#{common.isCancel}"></span>
                             <span class="normal-color" v-else th:text="#{common.notStatus}"></span>
                         </template>
                     </el-table-column>
                     <el-table-column th:label="#{common.operation}">
                         <template slot-scope="scope">
-                            <el-button size="mini" type="warning" th:text="#{common.receivable}" v-if="activeIndex == '1'" @click="handlePay(scope.$index, scope.row)"></el-button>
-                            <el-button size="mini" type="warning" th:text="#{common.receivable}" v-else-if="activeIndex == '2'" @click="handlePay(scope.$index, scope.row)"></el-button>
+                            <el-button size="mini" type="warning" th:text="#{common.receivable}" v-if="activeIndex == '1'" @click="handleReceivable(scope.$index, scope.row)"></el-button>
+                            <el-button size="mini" type="warning" th:text="#{common.receivable}" v-else-if="activeIndex == '2'" @click="handleReceivable(scope.$index, scope.row)"></el-button>
                             <span v-else th:text="#{common.noOperation}"></span>
                         </template>
                     </el-table-column>
@@ -198,10 +199,6 @@
                     </el-col>
                 </el-row>
             </div>
-
-
-
-
         </div>
     </div>
     <div th:replace="~{footer :: footer}"></div>
@@ -233,11 +230,21 @@
                 start: 1,
                 //数据总数
                 totalCount: 0,
+                //当前用户
+                user: getUserInfo(),
             },
             created: function () {
                 this.loadData();
             },
             methods: {
+                //减法(保留两位小数)
+                floatReduce: function (arg1, arg2) {
+                    var r1, r2, m;
+                    try { r1 = arg1.toString().split(".")[1].length } catch (e) { r1 = 0 }
+                    try { r2 = arg2.toString().split(".")[1].length } catch (e) { r2 = 0 }
+                    m = Math.pow(10, Math.max(r1, r2))
+                    return (arg1 * m - arg2 * m) / m
+                },
                 //加载数据
                 loadData: function () {
                     if (this.activeIndex == '1') {
@@ -269,9 +276,86 @@
                     this.currentPage = val;
                     this.loadData();
                 },
-
-                handlePay(index, row) {
-                    console.log(index, row);
+                //收款
+                handleReceivable(index, row) {
+                    var warnings = [];
+                    //判断用户部门
+                    if (this.user.dept.deptId !== 1 && this.user.dept.deptId !== 5) {
+                        var msg = '订单收款仅由财务部门成员操作。';
+                        var english_msg = 'Orders are receivabled only by members of the salement department.';
+                        warnings.push(msg.orEnglish(english_msg));
+                    }
+                    //判断订单状态
+                    if (this.tableData[index].orderStatusId !== 2 && this.tableData[index].orderStatusId !== 4) {
+                        var msg = '仅有销售订单(待收款)需要收款。';
+                        var english_msg = 'Only sale orders (to be receivabled) need to be receivabled.';
+                        warnings.push(msg.orEnglish(english_msg));
+                    }
+                    if (warnings.length) {
+                        this.$notify({
+                            title: '警告'.orEnglish('Notice'),
+                            message: warnings[0],
+                            type: 'warning'
+                        });
+                    } else {
+                        var receivabledType;
+                        var receivabledPrice;
+                        //收款-定金
+                        if (this.tableData[index].orderStatusId == 2) {
+                            receivabledType = '收取定金';
+                            receivabledPrice = this.tableData[index].orderDepositMoney;
+                        }
+                        //收款-尾款
+                        if (this.tableData[index].orderStatusId == 4) {
+                            receivabledType = '收取尾款';
+                            receivabledPrice = this.floatReduce(this.tableData[index].orderTotalMoney, this.tableData[index].orderDepositMoney);
+                        }
+                        this.$confirm(receivabledType + '-RMB ' + receivabledPrice + ', 是否确定收款?', '收款提示', {
+                            confirmButtonText: '确定',
+                            cancelButtonText: '取消',
+                            type: 'warning'
+                        }).then(() => {
+                            //获取订单号
+                            var orderNumber = this.tableData[index].orderNumber;
+                            var formData = new FormData();
+                            formData.append('orderNumber', orderNumber);
+                            var that = this;
+                            $.ajax({
+                                url: 'http://localhost:8091/api/finance/saleReceivable',
+                                type: 'POST',
+                                cache: false,
+                                processData: false, // 告诉jQuery不要去处理发送的数据
+                                contentType: false, // 告诉jQuery不要去设置Content-Type请求头
+                                data: formData,
+                                dataType: "json",
+                                success: function (result) {
+                                    var title;
+                                    var content;
+                                    var okBtnTxt;
+                                    var type;
+                                    if (result.status === 'success') {
+                                        title = '收款成功'.orEnglish('Receivable successfully');
+                                        content = '进入其他流程。'.orEnglish('Entering other processes.');
+                                        okBtnTxt = '确定'.orEnglish('OK');
+                                        type = 'success';
+                                    } else {
+                                        title = '收款失败'.orEnglish('Receivable failed');
+                                        content = '请联系'.orEnglish('Please contact ') + supportMail + '。'.orEnglish('.');
+                                        okBtnTxt = '确定'.orEnglish('OK');
+                                        type = 'error';
+                                    }
+                                    that.$alert(content, title, { confirmButtonText: okBtnTxt, type: type });
+                                    //重新加载数据
+                                    that.loadData();
+                                },
+                            });
+                        }).catch(() => {
+                            this.$message({
+                                type: 'info',
+                                message: '已取消收款'
+                            });
+                        });
+                    }
                 },
             },
         });

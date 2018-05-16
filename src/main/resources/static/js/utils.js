@@ -197,6 +197,8 @@ function getSaleOrders(statusId, pageNum, pageSize) {
     return result;
 }
 
+/** 采购订单 */
+
 //获取待付款订单-采购订单(分页获取)
 function getToPayOrders(pageNum, pageSize) {
     var pageNum = pageNum;
@@ -252,6 +254,8 @@ function getIsPayOrders(pageNum, pageSize) {
 function getAlreadyIsPayOrders(pageNum, pageSize) {
     return getPurchaseOrders(8, pageNum, pageSize);
 }
+
+/** 生产订单 */
 
 //获取待出库订单-生产订单(分页获取)
 function getIsIssueOrders(pageNum, pageSize) {
@@ -331,17 +335,7 @@ function getAlreadyStorageOrders(pageNum, pageSize) {
     return getProduceOrders(13, pageNum, pageSize);
 }
 
-
-
-
-
-
-
-
-
-
-
-
+/** 销售订单 */
 
 //获取待收款(定金)订单-销售订单(分页获取)
 function getIsPayDepositOrders(pageNum, pageSize) {
@@ -389,7 +383,7 @@ function getIsPayFinalOrders(pageNum, pageSize) {
     return result;
 }
 
-//获取已完成订单-销售订单(分页获取)
+//获取已收款订单-销售订单(分页获取)
 function getIsSuccessOrders(pageNum, pageSize) {
     var pageNum = pageNum;
     var pageSize = pageSize;
@@ -412,25 +406,15 @@ function getIsSuccessOrders(pageNum, pageSize) {
     return result;
 }
 
+//获取待付款订单-销售订单(分页获取)
+function getToPend(pageNum, pageSize) {
+    return getSaleOrders(5, pageNum, pageSize);
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+//获取已付款订单-销售订单(分页获取)
+function getIsPend(pageNum, pageSize) {
+    return getSaleOrders(7, pageNum, pageSize);
+}
 
 
 
@@ -452,8 +436,6 @@ function checkManifestFile(vueComponent, file) {
     }
     return true;
 }
-
-
 
 Array.prototype.expandParams = function () {
     for (var i = 0; i < this.length; i++) {
