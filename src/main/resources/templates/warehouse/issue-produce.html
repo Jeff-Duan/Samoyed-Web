@@ -25,7 +25,7 @@
         .samoyed-table-expand .el-form-item {
             margin-right: 0;
             margin-bottom: 0;
-            width: 33.33%;
+            width: 25%;
         }
     </style>
 </head>
@@ -83,6 +83,9 @@
                                 <el-form-item th:label="#{common.yield}">
                                     <span>{{ produceOrderPlanDetail.detailProduceNumber }}</span>
                                 </el-form-item>
+                                <el-form-item>
+                                    <span></span>
+                                </el-form-item>
                                 <el-form-item th:label="#{common.material}">
                                     <span>{{ produceOrderPlanDetail.material.materialName }}</span>
                                 </el-form-item>
@@ -93,7 +96,7 @@
                                     <span>{{ produceOrderPlanDetail.detailMaterialNumber }}</span>
                                 </el-form-item>
                             </el-form>
-                            <el-form label-position="left" inline class="samoyed-table-expand">
+                            <el-form label-position="left" inline class="samoyed-table-expand" v-if="props.row.produceOrderActualDetails.length > 0">
                                 <el-form-item th:label="#{common.actualDetail}"></el-form-item>
                             </el-form>
                             <el-form label-position="left" inline class="samoyed-table-expand" v-for="produceOrderActualDetail in props.row.produceOrderActualDetails"
@@ -102,13 +105,23 @@
                                     <span>{{ produceOrderActualDetail.produce.produceName }}</span>
                                 </el-form-item>
                                 <el-form-item th:label="#{common.type}">
-                                    <span>{{ produceOrderActualDetail.produce.produceType.produceTypeName }}</span>
+                                    <span>{{ produceOrderActualDetail.produceType.produceTypeName }}</span>
                                 </el-form-item>
                                 <el-form-item th:label="#{common.measurement}">
                                     <span>{{ produceOrderActualDetail.unit.unitName }}</span>
                                 </el-form-item>
                                 <el-form-item th:label="#{common.yield}">
                                     <span>{{ produceOrderActualDetail.detailProduceNumber }}</span>
+                                </el-form-item>
+                            </el-form>
+                            <el-form label-position="left" inline class="samoyed-table-expand" v-if="props.row.produceOrderActualDetails.length > 0">
+                                <el-form-item th:label="#{common.wasteMeasurement}">
+                                    <span v-if="props.row.orderWasteUnitId=='1'" th:text="#{common.jin}"></span>
+                                    <span v-else-if="props.row.orderWasteUnitId=='2'" th:text="#{common.kg}"></span>
+                                    <span v-else th:text="#{common.ton}"></span>
+                                </el-form-item>
+                                <el-form-item th:label="#{common.wasteNumber}">
+                                    <span>{{ props.row.orderWasteNumber }}</span>
                                 </el-form-item>
                             </el-form>
                         </template>

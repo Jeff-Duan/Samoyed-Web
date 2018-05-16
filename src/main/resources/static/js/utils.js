@@ -299,7 +299,37 @@ function getAlreadyIssueOrders(pageNum, pageSize) {
     return result;
 }
 
+//判断生产明细是否存在
+function actualIsExist(orderNumber) {
+    var orderNumber = orderNumber;
+    var result;
+    var cacheKey = 'actualIsExist';
+    sessionStorage.removeItem(cacheKey);
+    $.ajax({
+        url: 'http://localhost:8091/api/produce/order/actual/isExist?orderNumber=' + orderNumber,
+        data: {},
+        type: 'GET',
+        cache: false,    //关闭缓存
+        async: false,   // 同步获取数据
+        dataType: "json",
+        success: function (result) {
+            result = result;
+            saveCache(cacheKey, result);
+        },
+    });
+    result = loadCache(cacheKey);
+    return result;
+}
 
+//获取待入库订单-生产订单(分页获取)
+function getIsStorageOrders(pageNum, pageSize) {
+    return getProduceOrders(12, pageNum, pageSize);
+}
+
+//获取已入库订单-生产订单(分页获取)
+function getAlreadyStorageOrders(pageNum, pageSize) {
+    return getProduceOrders(13, pageNum, pageSize);
+}
 
 
 

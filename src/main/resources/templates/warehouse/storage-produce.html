@@ -1,43 +1,433 @@
 <!DOCTYPE html>
-<html lang="zh-CN" xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:th="http://www.thymeleaf.org">
+<html lang="zh-CN" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
     <title th:utext="#{project.name}"></title>
-    <link href="../../static/css/element/index.css"
-          rel="stylesheet"
-          th:href="@{/css/element/index.css}">
+    <link href="../../static/css/element/index.css" rel="stylesheet" th:href="@{/css/element/index.css}">
     <!-- 自定义css文件 -->
-    <link href="../../static/css/common.css"
-          rel="stylesheet"
-          th:href="@{/css/common.css}">
+    <link href="../../static/css/common.css" rel="stylesheet" th:href="@{/css/common.css}">
+    <style>
+        /* 引入element-ui表格展开行 */
+
+        .samoyed-table-expand {
+            font-size: 0;
+        }
+
+        .samoyed-table-expand label {
+            width: 100px;
+            color: #99a9bf;
+        }
+
+        .samoyed-table-expand .el-form-item {
+            margin-right: 0;
+            margin-bottom: 0;
+            width: 25%;
+        }
+    </style>
 </head>
+
 <body>
 
-<div th:replace="~{nav :: nav('warehouseStorage-produce')}"></div>
-<div th:replace="~{header :: header}"></div>
-<div class="margin-helper">
-    <div class="samoyed-content">
-        <div th:replace="~{pageHead :: pageHead(pageName=#{nav.warehouseStorage-produce}, parentMenu=#{nav.warehouse})}"></div>
+    <div th:replace="~{nav :: nav('warehouseStorage-produce')}"></div>
+    <div th:replace="~{header :: header}"></div>
+    <div class="margin-helper">
+        <div class="samoyed-content">
+            <div th:replace="~{pageHead :: pageHead(pageName=#{nav.warehouseStorage-produce}, parentMenu=#{nav.warehouse})}"></div>
+
+            <div id="page-content" class="page-content" v-cloak>
+                <div class="type-menu">
+                    <el-menu :default-active="activeIndex" mode="horizontal" @select="handleSelectType">
+                        <el-menu-item index="1" th:text="#{common.toStorage}"></el-menu-item>
+                        <el-menu-item index="2" th:text="#{common.isStorage}"></el-menu-item>
+                    </el-menu>
+                </div>
+                <el-table :data="tableData" @selection-change="handleSelectionChange">
+                    <el-table-column type="selection">
+                    </el-table-column>
+                    <el-table-column type="expand">
+                        <template slot-scope="props">
+                            <el-form label-position="left" inline class="samoyed-table-expand">
+                                <el-form-item th:label="#{common.orderInfo}"></el-form-item>
+                            </el-form>
+                            <el-form label-position="left" inline class="samoyed-table-expand">
+                                <el-form-item th:label="#{common.orderDate}">
+                                    <i class="el-icon-time"></i>
+                                    <span>{{ props.row.orderInsertTime }}</span>
+                                </el-form-item>
+                                <el-form-item th:label="#{common.produceStartDate}">
+                                    <i class="el-icon-time"></i>
+                                    <span>{{ props.row.orderStartTime }}</span>
+                                </el-form-item>
+                                <el-form-item th:label="#{common.produceEndDate}">
+                                    <i class="el-icon-time"></i>
+                                    <span>{{ props.row.orderEndTime }}</span>
+                                </el-form-item>
+                                <el-form-item style="width:100%;" th:label="#{common.remark}">
+                                    <span>{{ props.row.orderRemark }}</span>
+                                </el-form-item>
+                            </el-form>
+                            <el-form label-position="left" inline class="samoyed-table-expand">
+                                <el-form-item th:label="#{common.planDetail}"></el-form-item>
+                            </el-form>
+                            <el-form label-position="left" inline class="samoyed-table-expand" v-for="produceOrderPlanDetail in props.row.produceOrderPlanDetails"
+                                :key="produceOrderPlanDetail.detailId">
+                                <el-form-item th:label="#{common.produce}">
+                                    <span>{{ produceOrderPlanDetail.produce.produceName }}</span>
+                                </el-form-item>
+                                <el-form-item th:label="#{common.measurement}">
+                                    <span>{{ produceOrderPlanDetail.produceUnit.unitName }}</span>
+                                </el-form-item>
+                                <el-form-item th:label="#{common.yield}">
+                                    <span>{{ produceOrderPlanDetail.detailProduceNumber }}</span>
+                                </el-form-item>
+                                <el-form-item>
+                                    <span></span>
+                                </el-form-item>
+                                <el-form-item th:label="#{common.material}">
+                                    <span>{{ produceOrderPlanDetail.material.materialName }}</span>
+                                </el-form-item>
+                                <el-form-item th:label="#{common.measurement}">
+                                    <span>{{ produceOrderPlanDetail.materialUnit.unitName }}</span>
+                                </el-form-item>
+                                <el-form-item th:label="#{common.requirement}">
+                                    <span>{{ produceOrderPlanDetail.detailMaterialNumber }}</span>
+                                </el-form-item>
+                            </el-form>
+                            <el-form label-position="left" inline class="samoyed-table-expand" v-if="props.row.produceOrderActualDetails.length > 0">
+                                <el-form-item th:label="#{common.actualDetail}"></el-form-item>
+                            </el-form>
+                            <el-form label-position="left" inline class="samoyed-table-expand" v-for="produceOrderActualDetail in props.row.produceOrderActualDetails"
+                                :key="produceOrderActualDetail.detailId">
+                                <el-form-item th:label="#{common.produce}">
+                                    <span>{{ produceOrderActualDetail.produce.produceName }}</span>
+                                </el-form-item>
+                                <el-form-item th:label="#{common.type}">
+                                    <span>{{ produceOrderActualDetail.produceType.produceTypeName }}</span>
+                                </el-form-item>
+                                <el-form-item th:label="#{common.measurement}">
+                                    <span>{{ produceOrderActualDetail.unit.unitName }}</span>
+                                </el-form-item>
+                                <el-form-item th:label="#{common.yield}">
+                                    <span>{{ produceOrderActualDetail.detailProduceNumber }}</span>
+                                </el-form-item>
+                            </el-form>
+                            <el-form label-position="left" inline class="samoyed-table-expand" v-if="props.row.produceOrderActualDetails.length > 0">
+                                <el-form-item th:label="#{common.wasteMeasurement}">
+                                    <span v-if="props.row.orderWasteUnitId=='1'" th:text="#{common.jin}"></span>
+                                    <span v-else-if="props.row.orderWasteUnitId=='2'" th:text="#{common.kg}"></span>
+                                    <span v-else th:text="#{common.ton}"></span>
+                                </el-form-item>
+                                <el-form-item th:label="#{common.wasteNumber}">
+                                    <span>{{ props.row.orderWasteNumber }}</span>
+                                </el-form-item>
+                            </el-form>
+                        </template>
+                    </el-table-column>
+                    <el-table-column sortable prop="orderNumber" th:label="#{common.orderNumber}">
+                    </el-table-column>
+                    <el-table-column sortable th:label="#{common.createUser}">
+                        <template slot-scope="scope">
+                            <el-popover trigger="hover" placement="top">
+                                <p>
+                                    <label th:text="#{common.userName}+':'"></label>
+                                    <font>{{ scope.row.user.userName }}</font>
+                                </p>
+                                <p>
+                                    <label th:text="#{common.userEnglishName}+':'"></label>
+                                    <font>{{ scope.row.user.userEnglishName }}</font>
+                                </p>
+                                <p>
+                                    <label th:text="#{common.userSex}+':'"></label>
+                                    <font v-if="scope.row.user.userSex=='0'" th:text="#{common.man}"></font>
+                                    <font v-else th:text="#{common.woman}"></font>
+                                </p>
+                                <p>
+                                    <label th:text="#{common.userBirth}+':'"></label>
+                                    <i class="el-icon-time"></i>
+                                    <font>{{ scope.row.user.userBirth }}</font>
+                                </p>
+                                <p>
+                                    <label th:text="#{common.userOrigin}+':'"></label>
+                                    <font>{{ scope.row.user.userOriginProvince }}-{{ scope.row.user.userOriginCity }}-{{ scope.row.user.userOriginArea}}</font>
+                                </p>
+                                <p>
+                                    <label th:text="#{common.userTel}+':'"></label>
+                                    <font>{{ scope.row.user.userTel }}</font>
+                                </p>
+                                <p>
+                                    <label th:text="#{common.userStatus}+':'"></label>
+                                    <font v-if="scope.row.user.userStatus=='0'" th:text="#{common.normalStatus}"></font>
+                                    <font v-else th:text="#{common.QuitStatus}"></font>
+                                </p>
+                                <p>
+                                    <label th:text="#{common.userEntryTime}+':'"></label>
+                                    <i class="el-icon-time"></i>
+                                    <font>{{ scope.row.user.userEntryTime }}</font>
+                                </p>
+                                <p>
+                                    <label th:text="#{common.userQuitTime}+':'"></label>
+                                    <i class="el-icon-time"></i>
+                                    <font v-if="scope.row.user.userQuitTime=='1980-01-01'">-</font>
+                                    <font v-else>{{scope.row.user.userQuitTime}}</font>
+                                </p>
+                                <p>
+                                    <label th:text="#{common.deptName}+':'"></label>
+                                    <font>{{ scope.row.user.dept.deptName }}</font>
+                                </p>
+                                <p>
+                                    <label th:text="#{common.positionName}+':'"></label>
+                                    <font>{{ scope.row.user.position.positionName }}</font>
+                                </p>
+                                <div slot="reference" class="name-wrapper">
+                                    <el-tag size="medium">{{ scope.row.user.userName }}</el-tag>
+                                </div>
+                            </el-popover>
+                        </template>
+                    </el-table-column>
+                    <el-table-column sortable th:label="#{common.status}">
+                        <template slot-scope="scope">
+                            <span class="normal-color" v-if="scope.row.orderStatusId=='1'" th:text="#{common.toAudit}"></span>
+                            <span class="normal-color" v-else-if="scope.row.orderStatusId=='2'" th:text="#{common.toIssue}"></span>
+                            <span class="normal-color" v-else-if="scope.row.orderStatusId=='3'" th:text="#{common.toIncome}"></span>
+                            <span class="normal-color" v-else-if="scope.row.orderStatusId=='4'" th:text="#{common.winnowering}"></span>
+                            <span class="normal-color" v-else-if="scope.row.orderStatusId=='5'" th:text="#{common.toAcceptance-1}"></span>
+                            <span class="normal-color" v-else-if="scope.row.orderStatusId=='6'" th:text="#{common.gradeding}"></span>
+                            <span class="normal-color" v-else-if="scope.row.orderStatusId=='7'" th:text="#{common.toAcceptance-2}"></span>
+                            <span class="normal-color" v-else-if="scope.row.orderStatusId=='8'" th:text="#{common.miscellaneousing}"></span>
+                            <span class="normal-color" v-else-if="scope.row.orderStatusId=='9'" th:text="#{common.toAcceptance-3}"></span>
+                            <span class="normal-color" v-else-if="scope.row.orderStatusId=='10'" th:text="#{common.drying}"></span>
+                            <span class="normal-color" v-else-if="scope.row.orderStatusId=='11'" th:text="#{common.toAcceptance-4}"></span>
+                            <span class="normal-color" v-else-if="scope.row.orderStatusId=='12'" th:text="#{common.toStorage}"></span>
+                            <span class="normal-color" v-else-if="scope.row.orderStatusId=='13'" th:text="#{common.isStorage}"></span>
+                            <span class="normal-color" v-else th:text="#{common.notStatus}"></span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column width="120" th:label="#{common.operation}">
+                        <template slot-scope="scope">
+                            <el-button size="mini" type="success" th:text="#{common.storage}" v-if="activeIndex == '1'" @click="handleStorage(scope.$index, scope.row)"></el-button>
+                            <span v-else th:text="#{common.noOperation}"></span>
+                        </template>
+                    </el-table-column>
+                </el-table>
+                <el-row class="samoyed-row" type="flex" align="middle">
+                    <el-col :span="10">
+                        <span class="normal-color" th:text="#{common.batchOperation}+'&nbsp;-&nbsp;'"></span>
+                        <el-button size="mini" type="success" th:text="#{common.storage}" @click="handleBatchStorage()"></el-button>
+                    </el-col>
+                    <el-col :span="14" style="text-align:right;">
+                        <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="currentPage" :page-sizes="[10, 20, 30,40, 50]"
+                            :page-size="5" layout="total, sizes, prev, pager, next, jumper" :total="totalCount">
+                        </el-pagination>
+                    </el-col>
+                </el-row>
+            </div>
+
+        </div>
     </div>
-</div>
-<div th:replace="~{footer :: footer}"></div>
+    <div th:replace="~{footer :: footer}"></div>
 
-<script src="../../static/js/vue.js" th:src="@{/js/vue.js}"></script>
-<script src="../../static/js/element.js" th:src="@{/js/element.js}"></script>
-<script src="../../static/js/jquery-3.3.1.min.js" th:src="@{/js/jquery-3.3.1.min.js}"></script>
-<script src="../../static/js/utils.js" th:src="@{/js/utils.js}"></script>
-<!-- 引用vue组件相关的js文件 -->
-<div th:replace="~{nav :: vue('warehouseStorage-produce')}"></div>
-<div th:replace="~{header :: vue}"></div>
-<div th:replace="~{footer :: vue}"></div>
-<!-- 本页面的js脚本 -->
-<script th:inline="javascript">
-
-</script>
+    <script src="../../static/js/vue.js" th:src="@{/js/vue.js}"></script>
+    <script src="../../static/js/element.js" th:src="@{/js/element.js}"></script>
+    <script src="../../static/js/jquery-3.3.1.min.js" th:src="@{/js/jquery-3.3.1.min.js}"></script>
+    <script src="../../static/js/utils.js" th:src="@{/js/utils.js}"></script>
+    <!-- 引用vue组件相关的js文件 -->
+    <div th:replace="~{nav :: vue('warehouseStorage-produce')}"></div>
+    <div th:replace="~{header :: vue}"></div>
+    <div th:replace="~{footer :: vue}"></div>
+        <!-- 本页面的js脚本 -->
+        <script th:inline="javascript">
+            new Vue({
+                el: '#page-content',
+                data: {
+                    //结果集对象
+                    data: {},
+                    //查询条件
+                    activeIndex: '1',
+                    //数据源
+                    tableData: [],
+                    //每页数据量
+                    pagesize: 10,
+                    //当前页码
+                    currentPage: 1,
+                    //查询的页码
+                    start: 1,
+                    //数据总数
+                    totalCount: 0,
+                    //当前用户
+                    user: getUserInfo(),
+                    //多选数据
+                    multipleSelection: [],
+                },
+                created: function () {
+                    this.loadData();
+                },
+                methods: {
+                    //加载数据
+                    loadData: function () {
+                        if (this.activeIndex == '1') {
+                            this.data = getIsStorageOrders(this.currentPage, this.pagesize);
+                        } else {
+                            this.data = getAlreadyStorageOrders(this.currentPage, this.pagesize);
+                        }
+                        this.tableData = this.data.list;
+                        this.totalCount = this.data.total;
+                    },
+                    //切换订单类型
+                    handleSelectType: function (index) {
+                        //切换效果
+                        if (this.activeIndex !== index) {
+                            this.activeIndex = index;
+                        }
+                        //重新加载数据
+                        this.loadData();
+                    },
+                    //每页显示数据量变更
+                    handleSizeChange(val) {
+                        this.pagesize = val;
+                        this.loadData();
+                    },
+                    //页码变更
+                    handleCurrentChange(val) {
+                        this.currentPage = val;
+                        this.loadData();
+                    },
+                    //入库
+                    handleStorage(index, row) {
+                        var warnings = [];
+                        //判断用户部门
+                        if (this.user.dept.deptId !== 1 && this.user.dept.deptId !== 6) {
+                            var msg = '生产订单(待入库)仅由仓储部门成员操作。';
+                            var english_msg = 'Produce orders are storaged only by members of the wareHousement department.';
+                            warnings.push(msg.orEnglish(english_msg));
+                        }
+                        //判断订单状态
+                        if (this.tableData[index].orderStatusId !== 12) {
+                            var msg = '仅有生产订单(待入库)需要入库。';
+                            var english_msg = 'Only produce orders (to be storaged) need to be storaged.';
+                            warnings.push(msg.orEnglish(english_msg));
+                        }
+                        if (warnings.length) {
+                            this.$notify({
+                                title: '警告'.orEnglish('Notice'),
+                                message: warnings[0],
+                                type: 'warning'
+                            });
+                        } else {
+                            //获取订单号
+                            var orderNumber = this.tableData[index].orderNumber;
+                            var formData = new FormData();
+                            formData.append('orderNumber', orderNumber);
+                            var that = this;
+                            $.ajax({
+                                url: 'http://localhost:8091/api/warehouse/produceStorage',
+                                type: 'POST',
+                                cache: false,
+                                processData: false, // 告诉jQuery不要去处理发送的数据
+                                contentType: false, // 告诉jQuery不要去设置Content-Type请求头
+                                data: formData,
+                                dataType: "json",
+                                success: function (result) {
+                                    var title;
+                                    var content;
+                                    var okBtnTxt;
+                                    var type;
+                                    if (result.status === 'success') {
+                                        title = '入库成功'.orEnglish('Storage successfully');
+                                        content = '进入其他流程。'.orEnglish('Entering other processes.');
+                                        okBtnTxt = '确定'.orEnglish('OK');
+                                        type = 'success';
+                                    } else {
+                                        title = '入库失败'.orEnglish('Storage failed');
+                                        content = '请联系'.orEnglish('Please contact ') + supportMail + '。'.orEnglish('.');
+                                        okBtnTxt = '确定'.orEnglish('OK');
+                                        type = 'error';
+                                    }
+                                    that.$alert(content, title, { confirmButtonText: okBtnTxt, type: type });
+                                    //重新加载数据
+                                    that.loadData();
+                                },
+                            });
+                        }
+                    },
+                    //多选数据
+                    handleSelectionChange(val) {
+                        this.multipleSelection = val;
+                    },
+                    //批量入库
+                    handleBatchStorage: function () {
+                        var warnings = [];
+                        //判断用户部门
+                        if (this.user.dept.deptId !== 1 && this.user.dept.deptId !== 6) {
+                            var msg = '生产订单(待入库)仅由仓储部门成员操作。';
+                            var english_msg = 'Produce orders are storaged only by members of the wareHousement department.';
+                            warnings.push(msg.orEnglish(english_msg));
+                        }
+                        //判断订单状态
+                        if (this.multipleSelection.length == 0) {
+                            var msg = '请选择待入库订单。';
+                            var english_msg = 'Please choose the order to be storaged.';
+                            warnings.push(msg.orEnglish(english_msg));
+                        }
+                        for (var i = 0; i < this.multipleSelection.length; i++) {
+                            if (this.multipleSelection[i].orderStatusId !== 12) {
+                                var msg = '仅有生产订单(待入库)需要入库。';
+                                var english_msg = 'Only produce orders (to be storaged) need to be storaged.';
+                                warnings.push(msg.orEnglish(english_msg));
+                                break;
+                            }
+                        }
+                        if (warnings.length) {
+                            this.$notify({
+                                title: '警告'.orEnglish('Notice'),
+                                message: warnings[0],
+                                type: 'warning'
+                            });
+                        } else {
+                            //获取订单号
+                            var formData = new FormData();
+                            for (var i = 0; i < this.multipleSelection.length; i++) {
+                                formData.append('orderNumbers[]', this.multipleSelection[i].orderNumber);
+                            }
+                            var that = this;
+                            $.ajax({
+                                url: 'http://localhost:8091/api/warehouse/produceBatchStorage',
+                                type: 'POST',
+                                cache: false,
+                                processData: false, // 告诉jQuery不要去处理发送的数据
+                                contentType: false, // 告诉jQuery不要去设置Content-Type请求头
+                                data: formData,
+                                dataType: "json",
+                                success: function (result) {
+                                    var title;
+                                    var content;
+                                    var okBtnTxt;
+                                    var type;
+                                    if (result.status === 'success') {
+                                        title = '入库成功'.orEnglish('Storage successfully');
+                                        content = '进入其他流程。'.orEnglish('Entering other processes.');
+                                        okBtnTxt = '确定'.orEnglish('OK');
+                                        type = 'success';
+                                    } else {
+                                        title = '入库失败'.orEnglish('Storage failed');
+                                        content = '请联系'.orEnglish('Please contact ') + supportMail + '。'.orEnglish('.');
+                                        okBtnTxt = '确定'.orEnglish('OK');
+                                        type = 'error';
+                                    }
+                                    that.$alert(content, title, { confirmButtonText: okBtnTxt, type: type });
+                                    //重新加载数据
+                                    that.loadData();
+                                },
+                            });
+                        }
+                    },
+                },
+            });
+        </script>
 
 </body>
+
 </html>

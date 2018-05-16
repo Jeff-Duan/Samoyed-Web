@@ -25,7 +25,11 @@
         .samoyed-table-expand .el-form-item {
             margin-right: 0;
             margin-bottom: 0;
-            width: 33.33%;
+            width: 25%;
+        }
+
+        .el-col-width {
+            width: 220px;
         }
     </style>
 </head>
@@ -95,6 +99,9 @@
                                 <el-form-item th:label="#{common.yield}">
                                     <span>{{ produceOrderPlanDetail.detailProduceNumber }}</span>
                                 </el-form-item>
+                                <el-form-item>
+                                    <span></span>
+                                </el-form-item>
                                 <el-form-item th:label="#{common.material}">
                                     <span>{{ produceOrderPlanDetail.material.materialName }}</span>
                                 </el-form-item>
@@ -105,7 +112,7 @@
                                     <span>{{ produceOrderPlanDetail.detailMaterialNumber }}</span>
                                 </el-form-item>
                             </el-form>
-                            <el-form label-position="left" inline class="samoyed-table-expand">
+                            <el-form label-position="left" inline class="samoyed-table-expand" v-if="props.row.produceOrderActualDetails.length > 0">
                                 <el-form-item th:label="#{common.actualDetail}"></el-form-item>
                             </el-form>
                             <el-form label-position="left" inline class="samoyed-table-expand" v-for="produceOrderActualDetail in props.row.produceOrderActualDetails"
@@ -114,13 +121,23 @@
                                     <span>{{ produceOrderActualDetail.produce.produceName }}</span>
                                 </el-form-item>
                                 <el-form-item th:label="#{common.type}">
-                                    <span>{{ produceOrderActualDetail.produce.produceType.produceTypeName }}</span>
+                                    <span>{{ produceOrderActualDetail.produceType.produceTypeName }}</span>
                                 </el-form-item>
                                 <el-form-item th:label="#{common.measurement}">
                                     <span>{{ produceOrderActualDetail.unit.unitName }}</span>
                                 </el-form-item>
                                 <el-form-item th:label="#{common.yield}">
                                     <span>{{ produceOrderActualDetail.detailProduceNumber }}</span>
+                                </el-form-item>
+                            </el-form>
+                            <el-form label-position="left" inline class="samoyed-table-expand" v-if="props.row.produceOrderActualDetails.length > 0">
+                                <el-form-item th:label="#{common.wasteMeasurement}">
+                                    <span v-if="props.row.orderWasteUnitId=='1'" th:text="#{common.jin}"></span>
+                                    <span v-else-if="props.row.orderWasteUnitId=='2'" th:text="#{common.kg}"></span>
+                                    <span v-else th:text="#{common.ton}"></span>
+                                </el-form-item>
+                                <el-form-item th:label="#{common.wasteNumber}">
+                                    <span>{{ props.row.orderWasteNumber }}</span>
                                 </el-form-item>
                             </el-form>
                         </template>
@@ -218,8 +235,8 @@
                 <el-row class="samoyed-row" type="flex" align="middle">
                     <el-col :span="10">
                         <span class="normal-color" th:text="#{common.batchOperation}+'&nbsp;-&nbsp;'"></span>
-                        <el-button size="mini" type="danger" th:text="#{common.delete}" @click="handlebatchdelete()"></el-button>
-                        <el-button size="mini" type="primary" th:text="#{common.audit}" @click="handlebatchAudit()"></el-button>
+                        <el-button size="mini" type="danger" th:text="#{common.delete}" @click="handleBatchdelete()"></el-button>
+                        <el-button size="mini" type="primary" th:text="#{common.audit}" @click="handleBatchAudit()"></el-button>
                         <el-button size="mini" type="info" th:text="#{common.income}" @click="handleBatchIncome()"></el-button>
                         <el-button size="mini" type="success" th:text="#{common.transfer}" @click="handleBatchTransfer()"></el-button>
                         <el-button size="mini" type="warning" th:text="#{common.check}" @click="handleBatchCheck()"></el-button>
@@ -230,9 +247,70 @@
                         </el-pagination>
                     </el-col>
                 </el-row>
+
+                <!--生产明细表单-->
+                <el-dialog title="生产明细" :visible.sync="dialogFormVisible" width="65%">
+                    <el-form :inline="true">
+                        <el-form-item label="订单号" :label-width="formLabelWidth">
+                            <el-input class="el-col-width" :disabled="true" v-model="actualDetailOrderNumber"></el-input>
+                        </el-form-item>
+                    </el-form>
+                    <div v-for="(actualDetail, actualDetailIndex) in actualDetails">
+                        <el-form :inline="true">
+                            <el-form-item label="产品" :label-width="formLabelWidth">
+                                <input type="hidden" v-model="actualDetail.produceId" />
+                                <el-input class="el-col-width" :disabled="true" v-model="actualDetail.produceName"></el-input>
+                            </el-form-item>
+                        </el-form>
+                        <div v-for="(detail, detailIndex) in actualDetail.details">
+                            <el-form :inline="true">
+                                <el-form-item label="类型" :label-width="formLabelWidth">
+                                    <el-select class="el-col-width" placeholder="请选择产品类型" v-model="detail.produceTypeId">
+                                        <el-option v-for="item in produceTypeList" :key="item.value" :label="item.label?item.label:item.value" :value="item.value"></el-option>
+                                    </el-select>
+                                </el-form-item>
+                                <el-form-item label="计量单位" :label-width="formLabelWidth">
+                                    <el-select class="el-col-width" placeholder="请选择计量单位" v-model="detail.produceMeasurement">
+                                        <el-option v-for="item in measurementList" :key="item.value" :label="item.label?item.label:item.value" :value="item.value"></el-option>
+                                    </el-select>
+                                </el-form-item>
+                                <el-form-item label="产量" :label-width="formLabelWidth">
+                                    <el-input class="el-col-width" type="number" v-model="detail.produceYield"></el-input>
+                                </el-form-item>
+                                <el-form-item v-if="actualDetail.details.length>1">
+                                    <div class="center">
+                                        <i class="el-icon-close btn hover-normal-color" @click="removeOrderDetail(actualDetailIndex,detailIndex)"></i>
+                                    </div>
+                                </el-form-item>
+                            </el-form>
+                        </div>
+                        <div class="add-task-btn-wrapper">
+                            <span class="btn normal-color" @click="addOrderDetail(actualDetailIndex)">
+                                <i class="el-icon-circle-plus-outline center"></i>
+                                <span th:text="#{common.add}"></span>
+                            </span>
+                        </div>
+                    </div>
+                    <el-form :inline="true">
+                        <el-form-item label="废料单位" :label-width="formLabelWidth">
+                            <el-select class="el-col-width" placeholder="请选择计量单位" v-model="produceWasteUnitId">
+                                <el-option v-for="item in measurementList" :key="item.value" :label="item.label?item.label:item.value" :value="item.value"></el-option>
+                            </el-select>
+                        </el-form-item>
+                        <el-form-item label="废料数量" :label-width="formLabelWidth">
+                            <el-input class="el-col-width" type="number" v-model="produceWasteNumber"></el-input>
+                        </el-form-item>
+                    </el-form>
+                    <div slot="footer" class="dialog-footer">
+                        <el-button @click="dialogFormVisible = false" th:text="#{common.cancel}"></el-button>
+                        <el-button type="primary" @click="onClickSubmit" th:text="#{common.go}"></el-button>
+                    </div>
+                </el-dialog>
+
             </div>
         </div>
     </div>
+
     <div th:replace="~{footer :: footer}"></div>
 
     <script src="../../static/js/vue.js" th:src="@{/js/vue.js}"></script>
@@ -246,6 +324,19 @@
     <div th:replace="~{footer :: vue}"></div>
     <!-- 本页面的js脚本 -->
     <script th:inline="javascript">
+
+        function detail() {
+            this.produceTypeId = '';
+            this.produceMeasurement = '';
+            this.produceYield = '';
+        }
+
+        function actualDetail() {
+            this.produceId = '';
+            this.produceName = '';
+            this.details = [new detail()];
+        }
+
         new Vue({
             el: '#page-content',
             data: {
@@ -267,6 +358,23 @@
                 user: getUserInfo(),
                 //多选数据
                 multipleSelection: [],
+                //生产工序
+                produceSetpList: [4, 6, 8, 10],
+                //生产明细表单开关
+                dialogFormVisible: false,
+                //生产明细订单号
+                actualDetailOrderNumber: '',
+                //生产明细废料单位
+                produceWasteUnitId: '',
+                //生产明细废料数量
+                produceWasteNumber: '',
+                //生产明细数组
+                actualDetails: [],
+                //Label宽度
+                formLabelWidth: '120px',
+                //填充数据
+                measurementList: samoyedData.measurementList,
+                produceTypeList: samoyedData.produceTypeList,
             },
             created: function () {
                 this.loadData();
@@ -297,7 +405,135 @@
                     this.currentPage = val;
                     this.loadData();
                 },
-
+                //添加明细
+                addOrderDetail: function (index) {
+                    this.actualDetails[index].details.push(new detail());
+                },
+                //删除明细
+                removeOrderDetail: function (index1, index2) {
+                    this.actualDetails[index1].details.splice(index2, 1);
+                },
+                //提交前验证
+                checkBeforeSubmit: function () {
+                    var warnings = [];
+                    for (var i = 0; i < this.actualDetails.length; i++) {
+                        for (var j = 0; j < this.actualDetails[i].details.length; j++) {
+                            if (this.actualDetails[i].details[j].produceTypeId === '') {
+                                var seq1 = getSequence(i + 1);
+                                var seq2 = getSequence(j + 1);
+                                var msg = '第' + (i + 1) + '个生产明细中的第' + (j + 1) + '个明细没有指定产品类型。';
+                                var english_msg = 'The ' + seq1 + ' produce detail\'s' + seq2 + 'doesn\'t select produce type.';
+                                warnings.push(msg.orEnglish(english_msg));
+                            }
+                            if (this.actualDetails[i].details[j].produceMeasurement === '') {
+                                var seq1 = getSequence(i + 1);
+                                var seq2 = getSequence(j + 1);
+                                var msg = '第' + (i + 1) + '个生产明细中的第' + (j + 1) + '个明细没有指定计量单位。';
+                                var english_msg = 'The ' + seq1 + ' produce detail\'s' + seq2 + 'doesn\'t select measurement.';
+                                warnings.push(msg.orEnglish(english_msg));
+                            }
+                            if (this.actualDetails[i].details[j].produceYield === '') {
+                                var seq1 = getSequence(i + 1);
+                                var seq2 = getSequence(j + 1);
+                                var msg = '第' + (i + 1) + '个生产明细中的第' + (j + 1) + '个明细没有指定产品产量。';
+                                var english_msg = 'The ' + seq1 + ' produce detail\'s' + seq2 + 'doesn\'t select produce yield.';
+                                warnings.push(msg.orEnglish(english_msg));
+                            }
+                            for (var k = 0; k < this.actualDetails[i].details.length; k++) {
+                                if (j !== k && this.actualDetails[i].details[j].produceTypeId === this.actualDetails[i].details[k].produceTypeId) {
+                                    var i_seq = getSequence(i + 1);
+                                    var j_seq = getSequence(j + 1);
+                                    var k_seq = getSequence(k + 1);
+                                    var msg = '第' + (i + 1) + '个生产明细中第' + (j + 1) + '个和第' + (k + 1) + '个明细产品类别重复。';
+                                    var english_msg = 'The ' + i_seq + 'produce detail\'s' + j_seq + 'and' + k_seq + ' detail type repeat.';
+                                    warnings.push(msg.orEnglish(english_msg));
+                                }
+                            }
+                        }
+                    }
+                    if (this.produceWasteUnitId === '') {
+                        var msg = '生产明细没有指定废料单位。';
+                        var english_msg = 'produce detail\'s doesn\'t select waste unit.';
+                        warnings.push(msg.orEnglish(english_msg));
+                    }
+                    if (this.produceWasteNumber === '') {
+                        var msg = '生产明细没有指定废料数量。';
+                        var english_msg = 'produce detail\'s doesn\'t select waste number.';
+                        warnings.push(msg.orEnglish(english_msg));
+                    }
+                    if (warnings.length) {
+                        this.$notify({
+                            title: '警告'.orEnglish('Notice'),
+                            message: warnings[0],
+                            type: 'warning'
+                        });
+                        return false;
+                    } else {
+                        return true;
+                    }
+                },
+                //组装
+                assemble: function () {
+                    var produceOrderActualDetails = [];
+                    var a;
+                    var b;
+                    var c;
+                    var d;
+                    var e;
+                    a = this.actualDetailOrderNumber;
+                    for (var i = 0; i < this.actualDetails.length; i++) {
+                        b = this.actualDetails[i].produceId;
+                        for (var j = 0; j < this.actualDetails[i].details.length; j++) {
+                            c = this.actualDetails[i].details[j].produceTypeId;
+                            d = this.actualDetails[i].details[j].produceMeasurement;
+                            e = this.actualDetails[i].details[j].produceYield;
+                            produceOrderActualDetails.push({ detailOrderNumber: a, detailProduceId: b, detailProduceTypeId: c, detailProduceUnitId: d, detailProduceNumber: e });
+                        }
+                    }
+                    return {
+                        produceOrderActualDetails: produceOrderActualDetails,
+                        orderNumber: this.actualDetailOrderNumber,
+                        orderWasteUnitId: this.produceWasteUnitId,
+                        orderWasteNumber: this.produceWasteNumber,
+                    }
+                },
+                //提交表单
+                onClickSubmit: function () {
+                    if (!this.checkBeforeSubmit()) {
+                        console.warn('Check does not pass!');
+                        return;
+                    }
+                    var formData = new FormData();
+                    formData.append('data', JSON.stringify(this.assemble()));
+                    var that = this;
+                    $.ajax({
+                        url: 'http://localhost:8091/api/produce/actual',
+                        type: 'POST',
+                        cache: false,
+                        processData: false, // 告诉jQuery不要去处理发送的数据
+                        contentType: false, // 告诉jQuery不要去设置Content-Type请求头
+                        data: formData,
+                        dataType: "json",
+                        success: function (result) {
+                            var title;
+                            var content;
+                            var okBtnTxt;
+                            var type;
+                            if (result.status === 'success') {
+                                title = '生产明细提交成功'.orEnglish('Submitted successfully');
+                                content = '请再次尝试验收。'.orEnglish('Please wait for audit.');
+                                okBtnTxt = '确定'.orEnglish('OK');
+                                type = 'success';
+                            } else {
+                                title = '生产明细提交失败'.orEnglish('Submitted failed');
+                                content = '请联系'.orEnglish('Please contact ') + supportMail + '。'.orEnglish('.');
+                                okBtnTxt = '确定'.orEnglish('OK');
+                                type = 'error';
+                            }
+                            that.$alert(content, title, { confirmButtonText: okBtnTxt, type: type });
+                        },
+                    });
+                },
                 handleEdit(index, row) {
                     console.log(index, row);
                 },
@@ -420,20 +656,180 @@
                         });
                     }
                 },
+                //移交
                 handleTransfer(index, row) {
-                    console.log(index, row);
+                    var warnings = [];
+                    var bool = false;
+                    //判断用户部门
+                    if (this.user.dept.deptId !== 1 && this.user.dept.deptId !== 3) {
+                        var msg = '生产订单仅由生产部门成员移交。';
+                        var english_msg = 'Produce orders are transfered only by members of the producement department.';
+                        warnings.push(msg.orEnglish(english_msg));
+                    }
+                    //判断订单状态
+                    for (var i = 0; i < this.produceSetpList.length; i++) {
+                        if (this.tableData[index].orderStatusId == this.produceSetpList[i]) {
+                            bool = true;
+                        }
+                    }
+                    if (!bool) {
+                        var msg = '仅有生产订单(生产中)需要移交。';
+                        var english_msg = 'Only produce orders (to be transfered) need to be transfered.';
+                        warnings.push(msg.orEnglish(english_msg));
+                    }
+                    if (warnings.length) {
+                        this.$notify({
+                            title: '警告'.orEnglish('Notice'),
+                            message: warnings[0],
+                            type: 'warning'
+                        });
+                    } else {
+                        //获取订单号
+                        var orderNumber = this.tableData[index].orderNumber;
+                        var formData = new FormData();
+                        formData.append('orderNumber', orderNumber);
+                        var that = this;
+                        $.ajax({
+                            url: 'http://localhost:8091/api/produce/transfer',
+                            type: 'POST',
+                            cache: false,
+                            processData: false, // 告诉jQuery不要去处理发送的数据
+                            contentType: false, // 告诉jQuery不要去设置Content-Type请求头
+                            data: formData,
+                            dataType: "json",
+                            success: function (result) {
+                                var title;
+                                var content;
+                                var okBtnTxt;
+                                var type;
+                                if (result.status === 'success') {
+                                    title = '移交成功'.orEnglish('Transfered successfully');
+                                    content = '进入其他流程。'.orEnglish('Entering other processes.');
+                                    okBtnTxt = '确定'.orEnglish('OK');
+                                    type = 'success';
+                                } else {
+                                    title = '移交失败'.orEnglish('Transfered failed');
+                                    content = '请联系'.orEnglish('Please contact ') + supportMail + '。'.orEnglish('.');
+                                    okBtnTxt = '确定'.orEnglish('OK');
+                                    type = 'error';
+                                }
+                                that.$alert(content, title, { confirmButtonText: okBtnTxt, type: type });
+                                //重新加载数据
+                                that.loadData();
+                            },
+                        });
+                    }
                 },
+                //验收
                 handleCheck(index, row) {
-                    console.log(index, row);
+                    var warnings = [];
+                    var bool1 = false;
+                    var bool2 = false;
+                    //判断用户部门
+                    if (this.user.dept.deptId !== 1 && this.user.dept.deptId !== 3) {
+                        var msg = '生产订单仅由生产部门成员验收。';
+                        var english_msg = 'Produce orders are checked only by members of the producement department.';
+                        warnings.push(msg.orEnglish(english_msg));
+                    }
+                    //判断订单状态
+                    for (var i = 0; i < this.produceSetpList.length; i++) {
+                        if (this.tableData[index].orderStatusId == this.produceSetpList[i] + 1) {
+                            bool1 = true;
+                        }
+                    }
+                    if (!bool1) {
+                        var msg = '仅有生产订单(待验收)需要验收。';
+                        var english_msg = 'Only produce orders (to be checked) need to be checked.';
+                        warnings.push(msg.orEnglish(english_msg));
+                    }
+                    if (warnings.length) {
+                        this.$notify({
+                            title: '警告'.orEnglish('Notice'),
+                            message: warnings[0],
+                            type: 'warning'
+                        });
+                    } else {
+                        //清空表单
+                        this.actualDetailOrderNumber = '';
+                        this.actualDetails.splice(0, this.actualDetails.length);
+                        if (this.tableData[index].orderStatusId == this.produceSetpList[this.produceSetpList.length - 1] + 1) {
+                            //判断是否提交生产明细
+                            var orderNumber = this.tableData[index].orderNumber;
+                            var result = actualIsExist(orderNumber);
+                            if(result.status === 'success'){
+                                bool2 = true;
+                            }
+                        }
+                        if (!bool2) {
+                            //最后一次验收-提交生产明细
+                            this.$confirm('入库前(待验收-杀菌)需要提交生产明细,是否去提交?(请提交生产明细后尝试验收)', '验收提示', {
+                                confirmButtonText: '确定',
+                                cancelButtonText: '取消',
+                                type: 'warning'
+                            }).then(() => {
+                                //填充数据
+                                this.actualDetailOrderNumber = this.tableData[index].orderNumber;
+                                for (var i = 0; i < this.tableData[index].produceOrderPlanDetails.length; i++) {
+                                    this.actualDetails.push(new actualDetail());
+                                }
+                                for (var i = 0; i < this.actualDetails.length; i++) {
+                                    this.actualDetails[i].produceId = this.tableData[index].produceOrderPlanDetails[i].detailProduceId;
+                                    this.actualDetails[i].produceName = this.tableData[index].produceOrderPlanDetails[i].produce.produceName;
+                                }
+                                this.dialogFormVisible = true;
+                            }).catch(() => {
+                                this.$message({
+                                    type: 'info',
+                                    message: '已取消验收'
+                                });
+                            });
+                        } else {
+                            //获取订单号
+                            var orderNumber = this.tableData[index].orderNumber;
+                            var formData = new FormData();
+                            formData.append('orderNumber', orderNumber);
+                            var that = this;
+                            $.ajax({
+                                url: 'http://localhost:8091/api/produce/check',
+                                type: 'POST',
+                                cache: false,
+                                processData: false, // 告诉jQuery不要去处理发送的数据
+                                contentType: false, // 告诉jQuery不要去设置Content-Type请求头
+                                data: formData,
+                                dataType: "json",
+                                success: function (result) {
+                                    var title;
+                                    var content;
+                                    var okBtnTxt;
+                                    var type;
+                                    if (result.status === 'success') {
+                                        title = '验收成功'.orEnglish('Checked successfully');
+                                        content = '进入其他流程。'.orEnglish('Entering other processes.');
+                                        okBtnTxt = '确定'.orEnglish('OK');
+                                        type = 'success';
+                                    } else {
+                                        title = '验收失败'.orEnglish('Checked failed');
+                                        content = '请联系'.orEnglish('Please contact ') + supportMail + '。'.orEnglish('.');
+                                        okBtnTxt = '确定'.orEnglish('OK');
+                                        type = 'error';
+                                    }
+                                    that.$alert(content, title, { confirmButtonText: okBtnTxt, type: type });
+                                    //重新加载数据
+                                    that.loadData();
+                                },
+                            });
+                        }
+                    }
                 },
+                //多选数据
                 handleSelectionChange(val) {
                     this.multipleSelection = val;
                 },
-                handlebatchdelete: function () {
+                handleBatchdelete: function () {
 
                 },
                 //批量审核
-                handlebatchAudit: function () {
+                handleBatchAudit: function () {
                     var warnings = [];
                     //判断用户部门
                     if (this.user.dept.deptId !== 1 && this.user.dept.deptId !== 3) {
@@ -566,11 +962,159 @@
                         });
                     }
                 },
+                //批量移交
                 handleBatchTransfer: function () {
-
+                    var warnings = [];
+                    var bool = false;
+                    //判断用户部门
+                    if (this.user.dept.deptId !== 1 && this.user.dept.deptId !== 3) {
+                        var msg = '生产订单仅由生产部门成员移交。';
+                        var english_msg = 'Produce orders are transfered only by members of the producement department.';
+                        warnings.push(msg.orEnglish(english_msg));
+                    }
+                    //判断订单状态
+                    if (this.multipleSelection.length == 0) {
+                        var msg = '请选择待移交订单。';
+                        var english_msg = 'Please choose the order to be transfered.';
+                        warnings.push(msg.orEnglish(english_msg));
+                    }
+                    for (var i = 0; i < this.multipleSelection.length; i++) {
+                        for (var j = 0; j < this.produceSetpList.length; j++) {
+                            if (this.multipleSelection[i].orderStatusId == this.produceSetpList[j]) {
+                                bool = true;
+                            }
+                        }
+                        if (!bool) {
+                            var msg = '仅有生产订单(生产中)需要移交。';
+                            var english_msg = 'Only produce orders (to be transfered) need to be transfered.';
+                            warnings.push(msg.orEnglish(english_msg));
+                        }
+                    }
+                    if (warnings.length) {
+                        this.$notify({
+                            title: '警告'.orEnglish('Notice'),
+                            message: warnings[0],
+                            type: 'warning'
+                        });
+                    } else {
+                        //获取订单号
+                        var formData = new FormData();
+                        for (var i = 0; i < this.multipleSelection.length; i++) {
+                            formData.append('orderNumbers[]', this.multipleSelection[i].orderNumber);
+                        }
+                        var that = this;
+                        $.ajax({
+                            url: 'http://localhost:8091/api/produce/batchTransfer',
+                            type: 'POST',
+                            cache: false,
+                            processData: false, // 告诉jQuery不要去处理发送的数据
+                            contentType: false, // 告诉jQuery不要去设置Content-Type请求头
+                            data: formData,
+                            dataType: "json",
+                            success: function (result) {
+                                var title;
+                                var content;
+                                var okBtnTxt;
+                                var type;
+                                if (result.status === 'success') {
+                                    title = '移交成功'.orEnglish('Transfered successfully');
+                                    content = '进入其他流程。'.orEnglish('Entering other processes.');
+                                    okBtnTxt = '确定'.orEnglish('OK');
+                                    type = 'success';
+                                } else {
+                                    title = '移交失败'.orEnglish('Transfered failed');
+                                    content = '请联系'.orEnglish('Please contact ') + supportMail + '。'.orEnglish('.');
+                                    okBtnTxt = '确定'.orEnglish('OK');
+                                    type = 'error';
+                                }
+                                that.$alert(content, title, { confirmButtonText: okBtnTxt, type: type });
+                                //重新加载数据
+                                that.loadData();
+                            },
+                        });
+                    }
                 },
+                //批量验收
                 handleBatchCheck: function () {
-
+                    var warnings = [];
+                    var bool = false;
+                    //判断用户部门
+                    if (this.user.dept.deptId !== 1 && this.user.dept.deptId !== 3) {
+                        var msg = '生产订单仅由生产部门成员验收。';
+                        var english_msg = 'Produce orders are checked only by members of the producement department.';
+                        warnings.push(msg.orEnglish(english_msg));
+                    }
+                    //判断订单状态
+                    if (this.multipleSelection.length == 0) {
+                        var msg = '请选择待验收订单。';
+                        var english_msg = 'Please choose the order to be checked.';
+                        warnings.push(msg.orEnglish(english_msg));
+                    }
+                    for (var i = 0; i < this.multipleSelection.length; i++) {
+                        for (var j = 0; j < this.produceSetpList.length; j++) {
+                            if (this.multipleSelection[i].orderStatusId == this.produceSetpList[j] + 1) {
+                                bool = true;
+                            }
+                        }
+                        if (!bool) {
+                            var msg = '仅有生产订单(待验收)需要验收。';
+                            var english_msg = 'Only produce orders (to be checked) need to be checked.';
+                            warnings.push(msg.orEnglish(english_msg));
+                        }
+                    }
+                    if (warnings.length) {
+                        this.$notify({
+                            title: '警告'.orEnglish('Notice'),
+                            message: warnings[0],
+                            type: 'warning'
+                        });
+                    } else {
+                        for (var i = 0; i < this.multipleSelection.length; i++) {
+                            if (this.multipleSelection[i].orderStatusId == this.produceSetpList[this.produceSetpList.length - 1] + 1) {
+                                this.$notify({
+                                    title: '警告'.orEnglish('Notice'),
+                                    message: '部分订单在入库前(待验收-杀菌)需要提交生产明细(请提交生产明细后尝试批量验收)',
+                                    type: 'warning'
+                                });
+                                return;
+                            }
+                        }
+                        //获取订单号
+                        var formData = new FormData();
+                        for (var i = 0; i < this.multipleSelection.length; i++) {
+                            formData.append('orderNumbers[]', this.multipleSelection[i].orderNumber);
+                        }
+                        var that = this;
+                        $.ajax({
+                            url: 'http://localhost:8091/api/produce/batchCheck',
+                            type: 'POST',
+                            cache: false,
+                            processData: false, // 告诉jQuery不要去处理发送的数据
+                            contentType: false, // 告诉jQuery不要去设置Content-Type请求头
+                            data: formData,
+                            dataType: "json",
+                            success: function (result) {
+                                var title;
+                                var content;
+                                var okBtnTxt;
+                                var type;
+                                if (result.status === 'success') {
+                                    title = '验收成功'.orEnglish('Checked successfully');
+                                    content = '进入其他流程。'.orEnglish('Entering other processes.');
+                                    okBtnTxt = '确定'.orEnglish('OK');
+                                    type = 'success';
+                                } else {
+                                    title = '验收失败'.orEnglish('Checked failed');
+                                    content = '请联系'.orEnglish('Please contact ') + supportMail + '。'.orEnglish('.');
+                                    okBtnTxt = '确定'.orEnglish('OK');
+                                    type = 'error';
+                                }
+                                that.$alert(content, title, { confirmButtonText: okBtnTxt, type: type });
+                                //重新加载数据
+                                that.loadData();
+                            },
+                        });
+                    }
                 },
             },
         });
