@@ -1,43 +1,379 @@
 <!DOCTYPE html>
-<html lang="zh-CN" xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:th="http://www.thymeleaf.org">
+<html lang="zh-CN" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
     <title th:utext="#{project.name}"></title>
-    <link href="../../static/css/element/index.css"
-          rel="stylesheet"
-          th:href="@{/css/element/index.css}">
+    <link href="../../static/css/element/index.css" rel="stylesheet" th:href="@{/css/element/index.css}">
     <!-- 自定义css文件 -->
-    <link href="../../static/css/common.css"
-          rel="stylesheet"
-          th:href="@{/css/common.css}">
+    <link href="../../static/css/common.css" rel="stylesheet" th:href="@{/css/common.css}">
+    <style>
+        .el-progress-color {
+            color: black !important;
+        }
+    </style>
 </head>
+
 <body>
 
-<div th:replace="~{nav :: nav('warehouseDetail')}"></div>
-<div th:replace="~{header :: header}"></div>
-<div class="margin-helper">
-    <div class="samoyed-content">
-        <div th:replace="~{pageHead :: pageHead(pageName=#{nav.warehouseDetail}, parentMenu=#{nav.warehouse})}"></div>
+    <div th:replace="~{nav :: nav('warehouseDetail')}"></div>
+    <div th:replace="~{header :: header}"></div>
+    <div class="margin-helper">
+        <div class="samoyed-content">
+            <div th:replace="~{pageHead :: pageHead(pageName=#{nav.warehouseDetail}, parentMenu=#{nav.warehouse})}"></div>
+            <div id="page-content" class="page-content" v-cloak>
+
+                <div class="section-title" th:text="#{common.material}+'('+ #{common.warnValue} + ':20%)'"></div>
+                <el-table :data="tableData1">
+                    <el-table-column sortable header-align="center" align="center" prop="material.materialName" th:label="#{common.material}">
+                    </el-table-column>
+                    <el-table-column sortable header-align="center" align="center" th:label="#{common.type}">
+                        <template slot-scope="scope">
+                            <span th:text="#{common.on}"></span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column sortable header-align="center" align="center" th:label="#{common.number}">
+                        <template slot-scope="scope">
+                            <span class="normal-color" v-if="scope.row.ratio > 20">{{scope.row.materialNumber}}</span>
+                            <span class="wrong-color" v-else>{{scope.row.materialNumber}}</span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column sortable header-align="center" align="center" th:label="#{common.ratio}" width="160">
+                        <template slot-scope="scope">
+                            <el-progress :text-inside="true" :stroke-width="16" :percentage="scope.row.ratio" v-if="scope.row.ratio > 20"></el-progress>
+                            <el-progress :text-inside="true" :stroke-width="16" :percentage="scope.row.ratio" status="exception" v-else></el-progress>
+                        </template>
+                    </el-table-column>
+                    <el-table-column header-align="center" align="center" th:label="#{common.operation}">
+                        <template slot-scope="scope">
+                            <el-button size="mini" type="primary" icon="el-icon-edit" th:text="#{common.edit}" @click="handleEditMaterial(scope.$index, scope.row)"></el-button>
+                        </template>
+                    </el-table-column>
+                </el-table>
+                <div class="section-title" th:text="#{common.produce}+'('+ #{common.warnValue} + ':4%)'"></div>
+                <el-table :data="tableData2">
+                    <el-table-column sortable header-align="center" align="center" prop="produce.produceName" th:label="#{common.produce}">
+                    </el-table-column>
+                    <el-table-column sortable header-align="center" align="center" prop="produceType.produceTypeName" th:label="#{common.type}">
+                    </el-table-column>
+                    <el-table-column sortable header-align="center" align="center" th:label="#{common.number}">
+                        <template slot-scope="scope">
+                            <span class="normal-color" v-if="scope.row.ratio > 4">{{scope.row.produceNumber}}</span>
+                            <span class="wrong-color" v-else>{{scope.row.produceNumber}}</span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column sortable header-align="center" align="center" th:label="#{common.ratio}" width="160">
+                        <template slot-scope="scope">
+                            <el-progress :text-inside="true" :stroke-width="16" :percentage="scope.row.ratio" v-if="scope.row.ratio > 4"></el-progress>
+                            <el-progress :text-inside="true" :stroke-width="16" :percentage="scope.row.ratio" status="exception" v-else></el-progress>
+                        </template>
+                    </el-table-column>
+                    <el-table-column header-align="center" align="center" th:label="#{common.operation}">
+                        <template slot-scope="scope">
+                            <el-button size="mini" type="primary" icon="el-icon-edit" th:text="#{common.edit}" @click="handleEditProduce(scope.$index, scope.row)"></el-button>
+                        </template>
+                    </el-table-column>
+                </el-table>
+                <div class="section-title" th:text="#{common.waste}+'('+ #{common.warnValue} + ':0%)'"></div>
+                <el-table :data="tableData3">
+                    <el-table-column sortable header-align="center" align="center" prop="wasteName" th:label="#{common.waste}">
+                    </el-table-column>
+                    <el-table-column sortable header-align="center" align="center" th:label="#{common.type}">
+                        <template slot-scope="scope">
+                            <span th:text="#{common.on}"></span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column sortable class="wrong-color" header-align="center" align="center" th:label="#{common.number}">
+                        <template slot-scope="scope">
+                            <span class="normal-color" v-if="scope.row.ratio > 0">{{scope.row.wasteNumber}}</span>
+                            <span class="wrong-color" v-else>{{scope.row.wasteNumber}}</span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column sortable header-align="center" align="center" th:label="#{common.ratio}" width="160">
+                        <template slot-scope="scope">
+                            <el-progress :text-inside="true" :stroke-width="16" :percentage="scope.row.ratio" v-if="scope.row.ratio > 20"></el-progress>
+                            <el-progress :text-inside="true" :stroke-width="16" :percentage="scope.row.ratio" status="exception" v-else></el-progress>
+                        </template>
+                    </el-table-column>
+                    <el-table-column header-align="center" align="center" th:label="#{common.operation}">
+                        <template slot-scope="scope">
+                            <el-button size="mini" type="primary" icon="el-icon-edit" th:text="#{common.edit}" @click="handleEditWaste(scope.$index, scope.row)"></el-button>
+                        </template>
+                    </el-table-column>
+                </el-table>
+
+                <!--编辑原材料明细表单-->
+                <el-dialog title="编辑明细" :visible.sync="dialogFormVisible1" width="40%">
+                    <el-form :inline="true">
+                        <el-form-item label="原材料" :label-width="formLabelWidth1">
+                            <input type="hidden" v-model="materialId" />
+                            <el-input :disabled="true" v-model="materialName"></el-input>
+                        </el-form-item>
+                        <el-form-item label="数量" :label-width="formLabelWidth1">
+                            <el-input type="number" v-model="materialNumber"></el-input>
+                        </el-form-item>
+                    </el-form>
+                    <div slot="footer" class="dialog-footer">
+                        <el-button @click="dialogFormVisible1 = false" th:text="#{common.cancel}"></el-button>
+                        <el-button type="primary" @click="onClickSubmitMaterial" th:text="#{common.go}"></el-button>
+                    </div>
+                </el-dialog>
+
+                <!--编辑产品明细表单-->
+                <el-dialog title="编辑明细" :visible.sync="dialogFormVisible2" width="50%">
+                    <el-form :inline="true">
+                        <el-form-item label="产品" :label-width="formLabelWidth2">
+                            <input type="hidden" v-model="produceId" />
+                            <el-input :disabled="true" v-model="produceName"></el-input>
+                        </el-form-item>
+                        <el-form-item label="类型" :label-width="formLabelWidth2">
+                            <input type="hidden" v-model="produceTypeId" />
+                            <el-input :disabled="true" v-model="produceTypeName"></el-input>
+                        </el-form-item>
+                        <el-form-item label="数量" :label-width="formLabelWidth2">
+                            <el-input type="number" v-model="produceNumber"></el-input>
+                        </el-form-item>
+                    </el-form>
+                    <div slot="footer" class="dialog-footer">
+                        <el-button @click="dialogFormVisible2 = false" th:text="#{common.cancel}"></el-button>
+                        <el-button type="primary" @click="onClickSubmitProduce" th:text="#{common.go}"></el-button>
+                    </div>
+                </el-dialog>
+
+                <!--编辑废料明细表单-->
+                <el-dialog title="编辑明细" :visible.sync="dialogFormVisible3" width="40%">
+                    <el-form :inline="true">
+                        <el-form-item label="废料" :label-width="formLabelWidth3">
+                            <el-input :disabled="true" v-model="wasteName"></el-input>
+                        </el-form-item>
+                        <el-form-item label="数量" :label-width="formLabelWidth3">
+                            <el-input type="number" v-model="wasteNumber"></el-input>
+                        </el-form-item>
+                    </el-form>
+                    <div slot="footer" class="dialog-footer">
+                        <el-button @click="dialogFormVisible3 = false" th:text="#{common.cancel}"></el-button>
+                        <el-button type="primary" @click="onClickSubmitWaste" th:text="#{common.go}"></el-button>
+                    </div>
+                </el-dialog>
+
+            </div>
+        </div>
     </div>
-</div>
-<div th:replace="~{footer :: footer}"></div>
+    <div th:replace="~{footer :: footer}"></div>
 
-<script src="../../static/js/vue.js" th:src="@{/js/vue.js}"></script>
-<script src="../../static/js/element.js" th:src="@{/js/element.js}"></script>
-<script src="../../static/js/jquery-3.3.1.min.js" th:src="@{/js/jquery-3.3.1.min.js}"></script>
-<script src="../../static/js/utils.js" th:src="@{/js/utils.js}"></script>
-<!-- 引用vue组件相关的js文件 -->
-<div th:replace="~{nav :: vue('warehouseDetail')}"></div>
-<div th:replace="~{header :: vue}"></div>
-<div th:replace="~{footer :: vue}"></div>
-<!-- 本页面的js脚本 -->
-<script th:inline="javascript">
-
-</script>
+    <script src="../../static/js/vue.js" th:src="@{/js/vue.js}"></script>
+    <script src="../../static/js/element.js" th:src="@{/js/element.js}"></script>
+    <script src="../../static/js/jquery-3.3.1.min.js" th:src="@{/js/jquery-3.3.1.min.js}"></script>
+    <script src="../../static/js/utils.js" th:src="@{/js/utils.js}"></script>
+    <!-- 引用vue组件相关的js文件 -->
+    <div th:replace="~{nav :: vue('warehouseDetail')}"></div>
+    <div th:replace="~{header :: vue}"></div>
+    <div th:replace="~{footer :: vue}"></div>
+    <!-- 本页面的js脚本 -->
+    <script th:inline="javascript">
+        new Vue({
+            el: '#page-content',
+            data: {
+                //数据源
+                tableData1: [],
+                tableData2: [],
+                tableData3: [],
+                //原材料明细
+                dialogFormVisible1: false,
+                formLabelWidth1: '110px',
+                materialId: '',
+                materialName: '',
+                materialNumber: 0.00,
+                //产品明细
+                dialogFormVisible2: false,
+                formLabelWidth2: '70px',
+                produceId: '',
+                produceName: '',
+                produceTypeId: '',
+                produceTypeName: '',
+                produceNumber: 0.00,
+                //废料明细
+                dialogFormVisible3: false,
+                formLabelWidth3: '110px',
+                wasteName: '',
+                wasteNumber: 0.00,
+            },
+            created: function () {
+                this.loadData();
+            },
+            methods: {
+                //加载数据
+                loadData: function () {
+                    this.tableData1 = getAllWaseHouseMaterial();
+                    this.tableData2 = getAllWaseHouseProduce();
+                    var data = getAllWaseHouseWaste();
+                    this.tableData3.splice(0, 1);
+                    this.tableData3.push(data);
+                },
+                //编辑原材料明细
+                handleEditMaterial(index, row) {
+                    this.materialId = this.tableData1[index].materialId;
+                    this.materialName = this.tableData1[index].material.materialName;
+                    this.materialNumber = this.tableData1[index].materialNumber;
+                    this.dialogFormVisible1 = true;
+                },
+                //提交原材料明细
+                onClickSubmitMaterial() {
+                    if (this.materialNumber == '') {
+                        var msg = '请输入原材料数量。';
+                        var english_msg = 'Place input masterial\'s number.';
+                        this.$notify({
+                            title: '警告'.orEnglish('Notice'),
+                            message: msg.orEnglish(english_msg),
+                            type: 'warning'
+                        });
+                    } else {
+                        var formData = new FormData();
+                        formData.append('data', JSON.stringify({ materialId: this.materialId, materialNumber: this.materialNumber }));
+                        var that = this;
+                        $.ajax({
+                            url: 'http://localhost:8091/api/warehouse/material/update',
+                            type: 'POST',
+                            cache: false,
+                            processData: false, // 告诉jQuery不要去处理发送的数据
+                            contentType: false, // 告诉jQuery不要去设置Content-Type请求头
+                            data: formData,
+                            dataType: "json",
+                            success: function (result) {
+                                var title;
+                                var content;
+                                var okBtnTxt;
+                                var type;
+                                if (result.status === 'success') {
+                                    title = '编辑成功'.orEnglish('Edited successfully');
+                                    content = '可尝试编辑其他明细。'.orEnglish('Can edit other detail.');
+                                    okBtnTxt = '确定'.orEnglish('OK');
+                                    type = 'success';
+                                } else {
+                                    title = '编辑失败'.orEnglish('Edited failed');
+                                    content = '请联系'.orEnglish('Please contact ') + supportMail + '。'.orEnglish('.');
+                                    okBtnTxt = '确定'.orEnglish('OK');
+                                    type = 'error';
+                                }
+                                that.$alert(content, title, { confirmButtonText: okBtnTxt, type: type });
+                                that.dialogFormVisible1 = false;
+                                that.loadData();
+                            },
+                        });
+                    }
+                },
+                //编辑产品明细
+                handleEditProduce(index, row) {
+                    this.produceId = this.tableData2[index].produceId;
+                    this.produceName = this.tableData2[index].produce.produceName;
+                    this.produceTypeId = this.tableData2[index].produceType.produceTypeId;
+                    this.produceTypeName = this.tableData2[index].produceType.produceTypeName;
+                    this.produceNumber = this.tableData2[index].produceNumber;
+                    this.dialogFormVisible2 = true;
+                },
+                //提交原材料明细
+                onClickSubmitProduce() {
+                    if (this.produceNumber == '') {
+                        var msg = '请输入产品数量。';
+                        var english_msg = 'Place input produce\'s number.';
+                        this.$notify({
+                            title: '警告'.orEnglish('Notice'),
+                            message: msg.orEnglish(english_msg),
+                            type: 'warning'
+                        });
+                    } else {
+                        var formData = new FormData();
+                        formData.append('data', JSON.stringify({ produceId: this.produceId, produceTypeId: this.produceTypeId, produceNumber: this.produceNumber }));
+                        var that = this;
+                        $.ajax({
+                            url: 'http://localhost:8091/api/warehouse/produce/update',
+                            type: 'POST',
+                            cache: false,
+                            processData: false, // 告诉jQuery不要去处理发送的数据
+                            contentType: false, // 告诉jQuery不要去设置Content-Type请求头
+                            data: formData,
+                            dataType: "json",
+                            success: function (result) {
+                                var title;
+                                var content;
+                                var okBtnTxt;
+                                var type;
+                                if (result.status === 'success') {
+                                    title = '编辑成功'.orEnglish('Edited successfully');
+                                    content = '可尝试编辑其他明细。'.orEnglish('Can edit other detail.');
+                                    okBtnTxt = '确定'.orEnglish('OK');
+                                    type = 'success';
+                                } else {
+                                    title = '编辑失败'.orEnglish('Edited failed');
+                                    content = '请联系'.orEnglish('Please contact ') + supportMail + '。'.orEnglish('.');
+                                    okBtnTxt = '确定'.orEnglish('OK');
+                                    type = 'error';
+                                }
+                                that.$alert(content, title, { confirmButtonText: okBtnTxt, type: type });
+                                that.dialogFormVisible2 = false;
+                                that.loadData();
+                            },
+                        });
+                    }
+                },
+                //编辑废料明细
+                handleEditWaste(index, row) {
+                    this.wasteName = this.tableData3[index].wasteName;
+                    this.wasteNumber = this.tableData3[index].wasteNumber;
+                    this.dialogFormVisible3 = true;
+                },
+                //提交原材料明细
+                onClickSubmitWaste() {
+                    if (this.wasteNumber == '') {
+                        var msg = '请输入废料数量。';
+                        var english_msg = 'Place input waste\'s number.';
+                        this.$notify({
+                            title: '警告'.orEnglish('Notice'),
+                            message: msg.orEnglish(english_msg),
+                            type: 'warning'
+                        });
+                    } else {
+                        var formData = new FormData();
+                        formData.append('data', JSON.stringify({ wasteNumber: this.wasteNumber }));
+                        var that = this;
+                        $.ajax({
+                            url: 'http://localhost:8091/api/warehouse/waste/update',
+                            type: 'POST',
+                            cache: false,
+                            processData: false, // 告诉jQuery不要去处理发送的数据
+                            contentType: false, // 告诉jQuery不要去设置Content-Type请求头
+                            data: formData,
+                            dataType: "json",
+                            success: function (result) {
+                                var title;
+                                var content;
+                                var okBtnTxt;
+                                var type;
+                                if (result.status === 'success') {
+                                    title = '编辑成功'.orEnglish('Edited successfully');
+                                    content = '可尝试编辑其他明细。'.orEnglish('Can edit other detail.');
+                                    okBtnTxt = '确定'.orEnglish('OK');
+                                    type = 'success';
+                                } else {
+                                    title = '编辑失败'.orEnglish('Edited failed');
+                                    content = '请联系'.orEnglish('Please contact ') + supportMail + '。'.orEnglish('.');
+                                    okBtnTxt = '确定'.orEnglish('OK');
+                                    type = 'error';
+                                }
+                                that.$alert(content, title, { confirmButtonText: okBtnTxt, type: type });
+                                that.dialogFormVisible3 = false;
+                                that.loadData();
+                            },
+                        });
+                    }
+                },
+            },
+        });
+    </script>
 
 </body>
+
 </html>

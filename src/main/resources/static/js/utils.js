@@ -197,7 +197,7 @@ function getSaleOrders(statusId, pageNum, pageSize) {
     return result;
 }
 
-/** 采购订单 */
+/** ---------------------------------------------------------------------采购订单-------------------------------------------------------------------------- */
 
 //获取待付款订单-采购订单(分页获取)
 function getToPayOrders(pageNum, pageSize) {
@@ -255,7 +255,7 @@ function getAlreadyIsPayOrders(pageNum, pageSize) {
     return getPurchaseOrders(8, pageNum, pageSize);
 }
 
-/** 生产订单 */
+/** -----------------------------------------------------------------生产订单------------------------------------------------------------------------------ */
 
 //获取待出库订单-生产订单(分页获取)
 function getIsIssueOrders(pageNum, pageSize) {
@@ -335,7 +335,7 @@ function getAlreadyStorageOrders(pageNum, pageSize) {
     return getProduceOrders(13, pageNum, pageSize);
 }
 
-/** 销售订单 */
+/** --------------------------------------------------------------------销售订单--------------------------------------------------------------------------- */
 
 //获取待收款(定金)订单-销售订单(分页获取)
 function getIsPayDepositOrders(pageNum, pageSize) {
@@ -416,8 +416,70 @@ function getIsPend(pageNum, pageSize) {
     return getSaleOrders(7, pageNum, pageSize);
 }
 
+/** ---------------------------------------------------------------------仓储明细-------------------------------------------------------------------------- */
 
+//获取所有仓储原材料
+function getAllWaseHouseMaterial() {
+    var result;
+    var cacheKey = 'waseHouseMaterials';
+    sessionStorage.removeItem(cacheKey);
+    $.ajax({
+        url: serverUrl + '/api/warehouse/getAllMaterial',
+        data: {},
+        type: 'GET',
+        cache: false,    //关闭缓存
+        async: false,   // 同步获取数据
+        dataType: "json",
+        success: function (result) {
+            result = result;
+            saveCache(cacheKey, result);
+        },
+    });
+    result = loadCache(cacheKey);
+    return result;
+}
 
+//获取所有仓储产品
+function getAllWaseHouseProduce() {
+    var result;
+    var cacheKey = 'waseHouseProduces';
+    sessionStorage.removeItem(cacheKey);
+    $.ajax({
+        url: serverUrl + '/api/warehouse/getAllProduce',
+        data: {},
+        type: 'GET',
+        cache: false,    //关闭缓存
+        async: false,   // 同步获取数据
+        dataType: "json",
+        success: function (result) {
+            result = result;
+            saveCache(cacheKey, result);
+        },
+    });
+    result = loadCache(cacheKey);
+    return result;
+}
+
+//获取所有仓储废料
+function getAllWaseHouseWaste() {
+    var result;
+    var cacheKey = 'waseHouseWastes';
+    sessionStorage.removeItem(cacheKey);
+    $.ajax({
+        url: serverUrl + '/api/warehouse/getAllWaste',
+        data: {},
+        type: 'GET',
+        cache: false,    //关闭缓存
+        async: false,   // 同步获取数据
+        dataType: "json",
+        success: function (result) {
+            result = result;
+            saveCache(cacheKey, result);
+        },
+    });
+    result = loadCache(cacheKey);
+    return result;
+}
 
 
 
