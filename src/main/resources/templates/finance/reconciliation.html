@@ -1,43 +1,837 @@
 <!DOCTYPE html>
-<html lang="zh-CN" xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:th="http://www.thymeleaf.org">
+<html lang="zh-CN" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
     <title th:utext="#{project.name}"></title>
-    <link href="../../static/css/element/index.css"
-          rel="stylesheet"
-          th:href="@{/css/element/index.css}">
+    <link href="../../static/css/element/index.css" rel="stylesheet" th:href="@{/css/element/index.css}">
     <!-- 自定义css文件 -->
-    <link href="../../static/css/common.css"
-          rel="stylesheet"
-          th:href="@{/css/common.css}">
+    <link href="../../static/css/common.css" rel="stylesheet" th:href="@{/css/common.css}">
+    <style>
+        /* 引入element-ui表格展开行 */
+
+        .samoyed-table-expand1 {
+            font-size: 0;
+        }
+
+        .samoyed-table-expand1 label {
+            width: 100px;
+            color: #99a9bf;
+        }
+
+        .samoyed-table-expand1 .el-form-item {
+            margin-right: 0;
+            margin-bottom: 0;
+            width: 25%;
+        }
+
+        .samoyed-table-expand2 {
+            font-size: 0;
+        }
+
+        .samoyed-table-expand2 label {
+            width: 100px;
+            color: #99a9bf;
+        }
+
+        .samoyed-table-expand2 .el-form-item {
+            margin-right: 0;
+            margin-bottom: 0;
+            width: 20%;
+        }
+    </style>
 </head>
+
 <body>
 
-<div th:replace="~{nav :: nav('financeReconciliation')}"></div>
-<div th:replace="~{header :: header}"></div>
-<div class="margin-helper">
-    <div class="samoyed-content">
-        <div th:replace="~{pageHead :: pageHead(pageName=#{nav.financeReconciliation}, parentMenu=#{nav.finance})}"></div>
+    <div th:replace="~{nav :: nav('financeReconciliation')}"></div>
+    <div th:replace="~{header :: header}"></div>
+    <div class="margin-helper">
+        <div class="samoyed-content">
+            <div th:replace="~{pageHead :: pageHead(pageName=#{nav.financeReconciliation}, parentMenu=#{nav.finance})}"></div>
+            <div id="page-content" class="page-content" v-cloak>
+                <div class="section-title" th:text="#{nav.purchaseOrder}"></div>
+                <div class="type-menu">
+                    <el-menu :default-active="activeIndex1" mode="horizontal" @select="handleSelectType1">
+                        <el-menu-item index="1" th:text="#{common.isStorage}"></el-menu-item>
+                        <el-menu-item index="2" th:text="#{common.isReturn}"></el-menu-item>
+                    </el-menu>
+                </div>
+                <el-table :data="tableData1">
+                    <el-table-column type="expand">
+                        <template slot-scope="props">
+                            <el-form label-position="left" inline class="samoyed-table-expand1">
+                                <el-form-item th:label="#{common.orderInfo}"></el-form-item>
+                            </el-form>
+                            <el-form label-position="left" inline class="samoyed-table-expand1">
+                                <el-form-item th:label="#{common.orderDate}">
+                                    <i class="el-icon-time"></i>
+                                    <span>{{ props.row.orderInsertTime }}</span>
+                                </el-form-item>
+                                <el-form-item th:label="#{common.payDate}">
+                                    <i class="el-icon-time"></i>
+                                    <span>{{ props.row.orderPayTime }}</span>
+                                </el-form-item>
+                                <el-form-item th:label="#{common.arrivalDate}">
+                                    <i class="el-icon-time"></i>
+                                    <span>{{ props.row.orderDeliveryTime }}</span>
+                                </el-form-item>
+                                <el-form-item th:label="#{common.payAccount}">
+                                    <span>{{ props.row.orderPayBank }}</span>
+                                </el-form-item>
+                                <el-form-item th:label="#{common.allPrice}">
+                                    <span>{{ props.row.orderTotalMoney }}&nbsp;RMB</span>
+                                </el-form-item>
+                                <el-form-item th:label="#{common.payment}">
+                                    <span v-if="props.row.orderPayType=='1'" th:text="#{common.directPayMent}"></span>
+                                    <span v-else-if="props.row.orderPayType=='2'" th:text="#{common.cashOnDelivery}"></span>
+                                    <span v-else th:text="#{common.paymentOfDeposit}"></span>
+                                </el-form-item>
+                                <el-form-item th:label="#{common.payPrice}">
+                                    <span>{{ props.row.orderPayMoney }}&nbsp;RMB</span>
+                                </el-form-item>
+                                <el-form-item style="width:100%;" th:label="#{common.deliveryAddress}">
+                                    <span>{{ props.row.orderDeliveryAddress }}</span>
+                                </el-form-item>
+                                <el-form-item style="width:100%;" th:label="#{common.remark}">
+                                    <span>{{ props.row.orderRemark }}</span>
+                                </el-form-item>
+                            </el-form>
+                            <el-form label-position="left" inline class="samoyed-table-expand1">
+                                <el-form-item th:label="#{common.orderDetail}"></el-form-item>
+                            </el-form>
+                            <el-form label-position="left" inline class="samoyed-table-expand1" v-for="purchaseOrderDetail in props.row.purchaseOrderDetails"
+                                :key="purchaseOrderDetail.detailId">
+                                <el-form-item th:label="#{common.material}">
+                                    <span>{{ purchaseOrderDetail.material.materialName }}</span>
+                                </el-form-item>
+                                <el-form-item th:label="#{common.price}">
+                                    <span>{{ purchaseOrderDetail.detailMaterialPrice }}&nbsp;RMB</span>
+                                </el-form-item>
+                                <el-form-item th:label="#{common.measurement}">
+                                    <span>{{ purchaseOrderDetail.material.unit.unitName }}</span>
+                                </el-form-item>
+                                <el-form-item th:label="#{common.number}">
+                                    <span>{{ purchaseOrderDetail.detailMaterialNumber }}</span>
+                                </el-form-item>
+                            </el-form>
+                            <el-form label-position="left" inline class="samoyed-table-expand1" v-if="props.row.payRecords.length > 0">
+                                <el-form-item th:label="#{common.payRecord}"></el-form-item>
+                            </el-form>
+                            <el-form label-position="left" inline class="samoyed-table-expand1" v-for="payRecord in props.row.payRecords" :key="payRecord.id"
+                                v-if="props.row.payRecords.length > 0">
+                                <el-form-item th:label="#{common.payDate}">
+                                    <i class="el-icon-time"></i>
+                                    <span>{{ payRecord.recordInsertTime }}</span>
+                                </el-form-item>
+                                <el-form-item th:label="#{common.payUser}">
+                                    <el-popover trigger="hover" placement="top">
+                                        <p>
+                                            <label th:text="#{common.userName}+':'"></label>
+                                            <font>{{ payRecord.user.userName }}</font>
+                                        </p>
+                                        <p>
+                                            <label th:text="#{common.userEnglishName}+':'"></label>
+                                            <font>{{ payRecord.user.userEnglishName }}</font>
+                                        </p>
+                                        <p>
+                                            <label th:text="#{common.userSex}+':'"></label>
+                                            <font v-if="payRecord.user.userSex=='0'" th:text="#{common.man}"></font>
+                                            <font v-else th:text="#{common.woman}"></font>
+                                        </p>
+                                        <p>
+                                            <label th:text="#{common.userBirth}+':'"></label>
+                                            <i class="el-icon-time"></i>
+                                            <font>{{ payRecord.user.userBirth }}</font>
+                                        </p>
+                                        <p>
+                                            <label th:text="#{common.userOrigin}+':'"></label>
+                                            <font>{{ payRecord.user.userOriginProvince }}-{{ payRecord.user.userOriginCity }}-{{
+                                                payRecord.user.userOriginArea}}
+                                            </font>
+                                        </p>
+                                        <p>
+                                            <label th:text="#{common.userTel}+':'"></label>
+                                            <font>{{ payRecord.user.userTel }}</font>
+                                        </p>
+                                        <p>
+                                            <label th:text="#{common.userStatus}+':'"></label>
+                                            <font v-if="payRecord.user.userStatus=='0'" th:text="#{common.normalStatus}"></font>
+                                            <font v-else th:text="#{common.QuitStatus}"></font>
+                                        </p>
+                                        <p>
+                                            <label th:text="#{common.userEntryTime}+':'"></label>
+                                            <i class="el-icon-time"></i>
+                                            <font>{{ payRecord.user.userEntryTime }}</font>
+                                        </p>
+                                        <p>
+                                            <label th:text="#{common.userQuitTime}+':'"></label>
+                                            <i class="el-icon-time"></i>
+                                            <font v-if="payRecord.user.userQuitTime=='1980-01-01'">-</font>
+                                            <font v-else>{{payRecord.user.userQuitTime}}</font>
+                                        </p>
+                                        <p>
+                                            <label th:text="#{common.deptName}+':'"></label>
+                                            <font>{{ payRecord.user.dept.deptName }}</font>
+                                        </p>
+                                        <p>
+                                            <label th:text="#{common.positionName}+':'"></label>
+                                            <font>{{ payRecord.user.position.positionName }}</font>
+                                        </p>
+                                        <div slot="reference" class="name-wrapper">
+                                            <el-tag size="medium">{{ payRecord.user.userName }}</el-tag>
+                                        </div>
+                                    </el-popover>
+                                </el-form-item>
+                                <el-form-item th:label="#{common.payRecordPrice}">
+                                    <span>{{ payRecord.recordPayMoney }}&nbsp;RMB</span>
+                                </el-form-item>
+                                <el-form-item>
+                                    <span></span>
+                                </el-form-item>
+                            </el-form>
+                            <el-form label-position="left" inline class="samoyed-table-expand1" v-if="activeIndex1 == '2'">
+                                <el-form-item th:label="#{common.receivableRecord}"></el-form-item>
+                            </el-form>
+                            <el-form label-position="left" inline class="samoyed-table-expand1" v-for="receivableRecord in props.row.receivableRecords"
+                                :key="receivableRecord.id" v-if="activeIndex1 == '2'">
+                                <el-form-item th:label="#{common.receivableDate}">
+                                    <i class="el-icon-time"></i>
+                                    <span>{{ receivableRecord.recordInsertTime }}</span>
+                                </el-form-item>
+                                <el-form-item th:label="#{common.receivableUser}">
+                                    <el-popover trigger="hover" placement="top">
+                                        <p>
+                                            <label th:text="#{common.userName}+':'"></label>
+                                            <font>{{ receivableRecord.user.userName }}</font>
+                                        </p>
+                                        <p>
+                                            <label th:text="#{common.userEnglishName}+':'"></label>
+                                            <font>{{ receivableRecord.user.userEnglishName }}</font>
+                                        </p>
+                                        <p>
+                                            <label th:text="#{common.userSex}+':'"></label>
+                                            <font v-if="receivableRecord.user.userSex=='0'" th:text="#{common.man}"></font>
+                                            <font v-else th:text="#{common.woman}"></font>
+                                        </p>
+                                        <p>
+                                            <label th:text="#{common.userBirth}+':'"></label>
+                                            <i class="el-icon-time"></i>
+                                            <font>{{ receivableRecord.user.userBirth }}</font>
+                                        </p>
+                                        <p>
+                                            <label th:text="#{common.userOrigin}+':'"></label>
+                                            <font>{{ receivableRecord.user.userOriginProvince }}-{{ receivableRecord.user.userOriginCity
+                                                }}-{{ receivableRecord.user.userOriginArea}}
+                                            </font>
+                                        </p>
+                                        <p>
+                                            <label th:text="#{common.userTel}+':'"></label>
+                                            <font>{{ receivableRecord.user.userTel }}</font>
+                                        </p>
+                                        <p>
+                                            <label th:text="#{common.userStatus}+':'"></label>
+                                            <font v-if="receivableRecord.user.userStatus=='0'" th:text="#{common.normalStatus}"></font>
+                                            <font v-else th:text="#{common.QuitStatus}"></font>
+                                        </p>
+                                        <p>
+                                            <label th:text="#{common.userEntryTime}+':'"></label>
+                                            <i class="el-icon-time"></i>
+                                            <font>{{ receivableRecord.user.userEntryTime }}</font>
+                                        </p>
+                                        <p>
+                                            <label th:text="#{common.userQuitTime}+':'"></label>
+                                            <i class="el-icon-time"></i>
+                                            <font v-if="receivableRecord.user.userQuitTime=='1980-01-01'">-</font>
+                                            <font v-else>{{receivableRecord.user.userQuitTime}}</font>
+                                        </p>
+                                        <p>
+                                            <label th:text="#{common.deptName}+':'"></label>
+                                            <font>{{ receivableRecord.user.dept.deptName }}</font>
+                                        </p>
+                                        <p>
+                                            <label th:text="#{common.positionName}+':'"></label>
+                                            <font>{{ receivableRecord.user.position.positionName }}</font>
+                                        </p>
+                                        <div slot="reference" class="name-wrapper">
+                                            <el-tag size="medium">{{ receivableRecord.user.userName }}</el-tag>
+                                        </div>
+                                    </el-popover>
+                                </el-form-item>
+                                <el-form-item th:label="#{common.receivableRecordPrice}">
+                                    <span>{{ receivableRecord.recordReceivableMoney }}&nbsp;RMB</span>
+                                </el-form-item>
+                                <el-form-item>
+                                    <span></span>
+                                </el-form-item>
+                            </el-form>
+                        </template>
+                    </el-table-column>
+                    <el-table-column sortable width="170" prop="orderNumber" th:label="#{common.orderNumber}">
+                    </el-table-column>
+                    <el-table-column sortable width="170" th:label="#{common.supplier}">
+                        <template slot-scope="scope">
+                            <el-popover trigger="hover" placement="top">
+                                <p>
+                                    <label th:text="#{common.supplierName}+':'"></label>
+                                    <font>{{ scope.row.supplier.supplierName }}</font>
+                                </p>
+                                <p>
+                                    <label th:text="#{common.supplierAddress}+':'"></label>
+                                    <font>{{ scope.row.supplier.supplierAddress }}</font>
+                                </p>
+                                <p>
+                                    <label th:text="#{common.supplierTel}+':'"></label>
+                                    <font>{{ scope.row.supplier.supplierTel }}</font>
+                                </p>
+                                <p>
+                                    <label th:text="#{common.supplierEmail}+':'"></label>
+                                    <font>{{ scope.row.supplier.supplierEmail }}</font>
+                                </p>
+                                <p>
+                                    <label th:text="#{common.supplierBank}+':'"></label>
+                                    <font>{{ scope.row.supplier.supplierBank }}</font>
+                                </p>
+                                <div slot="reference" class="name-wrapper">
+                                    <el-tag size="medium">{{ scope.row.supplier.supplierName }}</el-tag>
+                                </div>
+                            </el-popover>
+                        </template>
+                    </el-table-column>
+                    <el-table-column sortable width="170" th:label="#{common.createUser}">
+                        <template slot-scope="scope">
+                            <el-popover trigger="hover" placement="top">
+                                <p>
+                                    <label th:text="#{common.userName}+':'"></label>
+                                    <font>{{ scope.row.user.userName }}</font>
+                                </p>
+                                <p>
+                                    <label th:text="#{common.userEnglishName}+':'"></label>
+                                    <font>{{ scope.row.user.userEnglishName }}</font>
+                                </p>
+                                <p>
+                                    <label th:text="#{common.userSex}+':'"></label>
+                                    <font v-if="scope.row.user.userSex=='0'" th:text="#{common.man}"></font>
+                                    <font v-else th:text="#{common.woman}"></font>
+                                </p>
+                                <p>
+                                    <label th:text="#{common.userBirth}+':'"></label>
+                                    <i class="el-icon-time"></i>
+                                    <font>{{ scope.row.user.userBirth }}</font>
+                                </p>
+                                <p>
+                                    <label th:text="#{common.userOrigin}+':'"></label>
+                                    <font>{{ scope.row.user.userOriginProvince }}-{{ scope.row.user.userOriginCity }}-{{ scope.row.user.userOriginArea}}</font>
+                                </p>
+                                <p>
+                                    <label th:text="#{common.userTel}+':'"></label>
+                                    <font>{{ scope.row.user.userTel }}</font>
+                                </p>
+                                <p>
+                                    <label th:text="#{common.userStatus}+':'"></label>
+                                    <font v-if="scope.row.user.userStatus=='0'" th:text="#{common.normalStatus}"></font>
+                                    <font v-else th:text="#{common.QuitStatus}"></font>
+                                </p>
+                                <p>
+                                    <label th:text="#{common.userEntryTime}+':'"></label>
+                                    <i class="el-icon-time"></i>
+                                    <font>{{ scope.row.user.userEntryTime }}</font>
+                                </p>
+                                <p>
+                                    <label th:text="#{common.userQuitTime}+':'"></label>
+                                    <i class="el-icon-time"></i>
+                                    <font v-if="scope.row.user.userQuitTime=='1980-01-01'">-</font>
+                                    <font v-else>{{scope.row.user.userQuitTime}}</font>
+                                </p>
+                                <p>
+                                    <label th:text="#{common.deptName}+':'"></label>
+                                    <font>{{ scope.row.user.dept.deptName }}</font>
+                                </p>
+                                <p>
+                                    <label th:text="#{common.positionName}+':'"></label>
+                                    <font>{{ scope.row.user.position.positionName }}</font>
+                                </p>
+                                <div slot="reference" class="name-wrapper">
+                                    <el-tag size="medium">{{ scope.row.user.userName }}</el-tag>
+                                </div>
+                            </el-popover>
+                        </template>
+                    </el-table-column>
+                    <el-table-column sortable width="170" th:label="#{common.isPayPrice}">
+                        <template slot-scope="scope">
+                            <span class="normal-color"> {{scope.row.orderIsPayMoney}}&nbsp;RMB </span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column sortable width="170" th:label="#{common.toPayPrice}">
+                        <template slot-scope="scope">
+                            <span class="normal-color"> {{scope.row.orderToPayMoney}}&nbsp;RMB </span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column sortable width="170" th:label="#{common.status}">
+                        <template slot-scope="scope">
+                            <span class="normal-color" v-if="scope.row.orderStatusId=='1'" th:text="#{common.toAudit}"></span>
+                            <span class="normal-color" v-else-if="scope.row.orderStatusId=='2'" th:text="#{common.toPay}"></span>
+                            <span class="normal-color" v-else-if="scope.row.orderStatusId=='3'" th:text="#{common.toDelivery}"></span>
+                            <span class="normal-color" v-else-if="scope.row.orderStatusId=='4'" th:text="#{common.toAcceptance}"></span>
+                            <span class="normal-color" v-else-if="scope.row.orderStatusId=='5'" th:text="#{common.toCancel}"></span>
+                            <span class="normal-color" v-else-if="scope.row.orderStatusId=='6'" th:text="#{common.toStorage}"></span>
+                            <span class="normal-color" v-else-if="scope.row.orderStatusId=='7'" th:text="#{common.isStorage}"></span>
+                            <span class="normal-color" v-else-if="scope.row.orderStatusId=='8'" th:text="#{common.isReturn}"></span>
+                            <span class="normal-color" v-else th:text="#{common.notStatus}"></span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column th:label="#{common.result}" v-if="activeIndex1 == '1'">
+                        <template slot-scope="scope">
+                            <span class="normal-color" v-if="scope.row.orderTotalMoney == scope.row.orderIsPayMoney ">正常</span>
+                            <span class="wrong-color" v-else>异常</span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column th:label="#{common.result}" v-if="activeIndex1 == '2'">
+                        <template slot-scope="scope">
+                            <span class="normal-color" v-if="scope.row.orderTotalMoney == scope.row.orderToPayMoney ">正常</span>
+                            <span class="wrong-color" v-else>异常</span>
+                        </template>
+                    </el-table-column>
+                </el-table>
+                <el-row class="samoyed-row" type="flex" align="middle">
+                    <el-col :span="24" style="text-align:right;">
+                        <el-pagination @size-change="handleSizeChange1" @current-change="handleCurrentChange1" :current-page="currentPage1" :page-sizes="[10, 20, 30,40, 50]"
+                            :page-size="5" layout="total, sizes, prev, pager, next, jumper" :total="totalCount1">
+                        </el-pagination>
+                    </el-col>
+                </el-row>
+                <div class="section-title" th:text="#{nav.saleOrder}"></div>
+                <div class="type-menu">
+                    <el-menu :default-active="activeIndex2" mode="horizontal" @select="handleSelectType2">
+                        <el-menu-item index="1" th:text="#{common.isSuccess}"></el-menu-item>
+                        <el-menu-item index="2" th:text="#{common.isCancel}"></el-menu-item>
+                    </el-menu>
+                </div>
+                <el-table :data="tableData2">
+                    <el-table-column type="expand">
+                        <template slot-scope="props">
+                            <el-form label-position="left" inline class="samoyed-table-expand2">
+                                <el-form-item th:label="#{common.orderInfo}"></el-form-item>
+                            </el-form>
+                            <el-form label-position="left" inline class="samoyed-table-expand2">
+                                <el-form-item th:label="#{common.orderDate}">
+                                    <i class="el-icon-time"></i>
+                                    <span>{{ props.row.orderInsertTime }}</span>
+                                </el-form-item>
+                                <el-form-item th:label="#{common.receivableDate}">
+                                    <i class="el-icon-time"></i>
+                                    <span>{{ props.row.orderReceivableTime }}</span>
+                                </el-form-item>
+                                <el-form-item th:label="#{common.sendDate}">
+                                    <i class="el-icon-time"></i>
+                                    <span>{{ props.row.orderSendTime }}</span>
+                                </el-form-item>
+                                <el-form-item th:label="#{common.allPrice}">
+                                    <span>{{ props.row.orderTotalMoney }}&nbsp;RMB</span>
+                                </el-form-item>
+                                <el-form-item th:label="#{common.deposit}">
+                                    <span>{{ props.row.orderDepositMoney }}&nbsp;RMB</span>
+                                </el-form-item>
+                                <el-form-item style="width:100%;" th:label="#{common.deliveryAddress}">
+                                    <span>{{ props.row.orderDeliveryAddress }}</span>
+                                </el-form-item>
+                                <el-form-item style="width:100%;" th:label="#{common.remark}">
+                                    <span>{{ props.row.orderRemark }}</span>
+                                </el-form-item>
+                            </el-form>
+                            <el-form label-position="left" inline class="samoyed-table-expand2">
+                                <el-form-item th:label="#{common.orderDetail}"></el-form-item>
+                            </el-form>
+                            <el-form label-position="left" inline class="samoyed-table-expand2" v-for="saleOrderDetail in props.row.saleOrderDetails"
+                                :key="saleOrderDetail.detailId">
+                                <el-form-item th:label="#{common.produce}">
+                                    <span>{{ saleOrderDetail.produce.produceName }}</span>
+                                </el-form-item>
+                                <el-form-item th:label="#{common.type}">
+                                    <span>{{ saleOrderDetail.produceType.produceTypeName }}</span>
+                                </el-form-item>
+                                <el-form-item th:label="#{common.price}">
+                                    <span>{{ saleOrderDetail.detailProducePrice }}&nbsp;RMB</span>
+                                </el-form-item>
+                                <el-form-item th:label="#{common.measurement}">
+                                    <span>{{ saleOrderDetail.unit.unitName }}</span>
+                                </el-form-item>
+                                <el-form-item th:label="#{common.number}">
+                                    <span>{{ saleOrderDetail.detailProduceNumber }}</span>
+                                </el-form-item>
+                            </el-form>
+                            <el-form label-position="left" inline class="samoyed-table-expand2">
+                                <el-form-item th:label="#{common.receivableRecord}"></el-form-item>
+                            </el-form>
+                            <el-form label-position="left" inline class="samoyed-table-expand2" v-for="receivableRecord in props.row.receivableRecords"
+                                :key="receivableRecord.id">
+                                <el-form-item th:label="#{common.receivableDate}">
+                                    <i class="el-icon-time"></i>
+                                    <span>{{ receivableRecord.recordInsertTime }}</span>
+                                </el-form-item>
+                                <el-form-item th:label="#{common.receivableUser}">
+                                    <el-popover trigger="hover" placement="top">
+                                        <p>
+                                            <label th:text="#{common.userName}+':'"></label>
+                                            <font>{{ receivableRecord.user.userName }}</font>
+                                        </p>
+                                        <p>
+                                            <label th:text="#{common.userEnglishName}+':'"></label>
+                                            <font>{{ receivableRecord.user.userEnglishName }}</font>
+                                        </p>
+                                        <p>
+                                            <label th:text="#{common.userSex}+':'"></label>
+                                            <font v-if="receivableRecord.user.userSex=='0'" th:text="#{common.man}"></font>
+                                            <font v-else th:text="#{common.woman}"></font>
+                                        </p>
+                                        <p>
+                                            <label th:text="#{common.userBirth}+':'"></label>
+                                            <i class="el-icon-time"></i>
+                                            <font>{{ receivableRecord.user.userBirth }}</font>
+                                        </p>
+                                        <p>
+                                            <label th:text="#{common.userOrigin}+':'"></label>
+                                            <font>{{ receivableRecord.user.userOriginProvince }}-{{ receivableRecord.user.userOriginCity
+                                                }}-{{ receivableRecord.user.userOriginArea}}
+                                            </font>
+                                        </p>
+                                        <p>
+                                            <label th:text="#{common.userTel}+':'"></label>
+                                            <font>{{ receivableRecord.user.userTel }}</font>
+                                        </p>
+                                        <p>
+                                            <label th:text="#{common.userStatus}+':'"></label>
+                                            <font v-if="receivableRecord.user.userStatus=='0'" th:text="#{common.normalStatus}"></font>
+                                            <font v-else th:text="#{common.QuitStatus}"></font>
+                                        </p>
+                                        <p>
+                                            <label th:text="#{common.userEntryTime}+':'"></label>
+                                            <i class="el-icon-time"></i>
+                                            <font>{{ receivableRecord.user.userEntryTime }}</font>
+                                        </p>
+                                        <p>
+                                            <label th:text="#{common.userQuitTime}+':'"></label>
+                                            <i class="el-icon-time"></i>
+                                            <font v-if="receivableRecord.user.userQuitTime=='1980-01-01'">-</font>
+                                            <font v-else>{{receivableRecord.user.userQuitTime}}</font>
+                                        </p>
+                                        <p>
+                                            <label th:text="#{common.deptName}+':'"></label>
+                                            <font>{{ receivableRecord.user.dept.deptName }}</font>
+                                        </p>
+                                        <p>
+                                            <label th:text="#{common.positionName}+':'"></label>
+                                            <font>{{ receivableRecord.user.position.positionName }}</font>
+                                        </p>
+                                        <div slot="reference" class="name-wrapper">
+                                            <el-tag size="medium">{{ receivableRecord.user.userName }}</el-tag>
+                                        </div>
+                                    </el-popover>
+                                </el-form-item>
+                                <el-form-item th:label="#{common.receivableRecordPrice}">
+                                    <span>{{ receivableRecord.recordReceivableMoney }}&nbsp;RMB</span>
+                                </el-form-item>
+                                <el-form-item>
+                                    <span></span>
+                                </el-form-item>
+                            </el-form>
+                            <el-form label-position="left" inline class="samoyed-table-expand2" v-if="activeIndex2 == '2'">
+                                <el-form-item th:label="#{common.payRecord}"></el-form-item>
+                            </el-form>
+                            <el-form label-position="left" inline class="samoyed-table-expand2" v-for="payRecord in props.row.payRecords" :key="payRecord.id"
+                                v-if="activeIndex2 == '2'">
+                                <el-form-item th:label="#{common.payDate}">
+                                    <i class="el-icon-time"></i>
+                                    <span>{{ payRecord.recordInsertTime }}</span>
+                                </el-form-item>
+                                <el-form-item th:label="#{common.payUser}">
+                                    <el-popover trigger="hover" placement="top">
+                                        <p>
+                                            <label th:text="#{common.userName}+':'"></label>
+                                            <font>{{ payRecord.user.userName }}</font>
+                                        </p>
+                                        <p>
+                                            <label th:text="#{common.userEnglishName}+':'"></label>
+                                            <font>{{ payRecord.user.userEnglishName }}</font>
+                                        </p>
+                                        <p>
+                                            <label th:text="#{common.userSex}+':'"></label>
+                                            <font v-if="payRecord.user.userSex=='0'" th:text="#{common.man}"></font>
+                                            <font v-else th:text="#{common.woman}"></font>
+                                        </p>
+                                        <p>
+                                            <label th:text="#{common.userBirth}+':'"></label>
+                                            <i class="el-icon-time"></i>
+                                            <font>{{ payRecord.user.userBirth }}</font>
+                                        </p>
+                                        <p>
+                                            <label th:text="#{common.userOrigin}+':'"></label>
+                                            <font>{{ payRecord.user.userOriginProvince }}-{{ payRecord.user.userOriginCity }}-{{
+                                                payRecord.user.userOriginArea}}
+                                            </font>
+                                        </p>
+                                        <p>
+                                            <label th:text="#{common.userTel}+':'"></label>
+                                            <font>{{ payRecord.user.userTel }}</font>
+                                        </p>
+                                        <p>
+                                            <label th:text="#{common.userStatus}+':'"></label>
+                                            <font v-if="payRecord.user.userStatus=='0'" th:text="#{common.normalStatus}"></font>
+                                            <font v-else th:text="#{common.QuitStatus}"></font>
+                                        </p>
+                                        <p>
+                                            <label th:text="#{common.userEntryTime}+':'"></label>
+                                            <i class="el-icon-time"></i>
+                                            <font>{{ payRecord.user.userEntryTime }}</font>
+                                        </p>
+                                        <p>
+                                            <label th:text="#{common.userQuitTime}+':'"></label>
+                                            <i class="el-icon-time"></i>
+                                            <font v-if="payRecord.user.userQuitTime=='1980-01-01'">-</font>
+                                            <font v-else>{{payRecord.user.userQuitTime}}</font>
+                                        </p>
+                                        <p>
+                                            <label th:text="#{common.deptName}+':'"></label>
+                                            <font>{{ payRecord.user.dept.deptName }}</font>
+                                        </p>
+                                        <p>
+                                            <label th:text="#{common.positionName}+':'"></label>
+                                            <font>{{ payRecord.user.position.positionName }}</font>
+                                        </p>
+                                        <div slot="reference" class="name-wrapper">
+                                            <el-tag size="medium">{{ payRecord.user.userName }}</el-tag>
+                                        </div>
+                                    </el-popover>
+                                </el-form-item>
+                                <el-form-item th:label="#{common.payRecordPrice}">
+                                    <span>{{ payRecord.recordPayMoney }}&nbsp;RMB</span>
+                                </el-form-item>
+                                <el-form-item>
+                                    <span></span>
+                                </el-form-item>
+                            </el-form>
+                        </template>
+                    </el-table-column>
+                    <el-table-column sortable width="200" prop="orderNumber" th:label="#{common.orderNumber}">
+                    </el-table-column>
+                    <el-table-column sortable width="200" th:label="#{common.createUser}">
+                        <template slot-scope="scope">
+                            <el-popover trigger="hover" placement="top">
+                                <p>
+                                    <label th:text="#{common.userName}+':'"></label>
+                                    <font>{{ scope.row.user.userName }}</font>
+                                </p>
+                                <p>
+                                    <label th:text="#{common.userEnglishName}+':'"></label>
+                                    <font>{{ scope.row.user.userEnglishName }}</font>
+                                </p>
+                                <p>
+                                    <label th:text="#{common.userSex}+':'"></label>
+                                    <font v-if="scope.row.user.userSex=='0'" th:text="#{common.man}"></font>
+                                    <font v-else th:text="#{common.woman}"></font>
+                                </p>
+                                <p>
+                                    <label th:text="#{common.userBirth}+':'"></label>
+                                    <i class="el-icon-time"></i>
+                                    <font>{{ scope.row.user.userBirth }}</font>
+                                </p>
+                                <p>
+                                    <label th:text="#{common.userOrigin}+':'"></label>
+                                    <font>{{ scope.row.user.userOriginProvince }}-{{ scope.row.user.userOriginCity }}-{{ scope.row.user.userOriginArea}}</font>
+                                </p>
+                                <p>
+                                    <label th:text="#{common.userTel}+':'"></label>
+                                    <font>{{ scope.row.user.userTel }}</font>
+                                </p>
+                                <p>
+                                    <label th:text="#{common.userStatus}+':'"></label>
+                                    <font v-if="scope.row.user.userStatus=='0'" th:text="#{common.normalStatus}"></font>
+                                    <font v-else th:text="#{common.QuitStatus}"></font>
+                                </p>
+                                <p>
+                                    <label th:text="#{common.userEntryTime}+':'"></label>
+                                    <i class="el-icon-time"></i>
+                                    <font>{{ scope.row.user.userEntryTime }}</font>
+                                </p>
+                                <p>
+                                    <label th:text="#{common.userQuitTime}+':'"></label>
+                                    <i class="el-icon-time"></i>
+                                    <font v-if="scope.row.user.userQuitTime=='1980-01-01'">-</font>
+                                    <font v-else>{{scope.row.user.userQuitTime}}</font>
+                                </p>
+                                <p>
+                                    <label th:text="#{common.deptName}+':'"></label>
+                                    <font>{{ scope.row.user.dept.deptName }}</font>
+                                </p>
+                                <p>
+                                    <label th:text="#{common.positionName}+':'"></label>
+                                    <font>{{ scope.row.user.position.positionName }}</font>
+                                </p>
+                                <div slot="reference" class="name-wrapper">
+                                    <el-tag size="medium">{{ scope.row.user.userName }}</el-tag>
+                                </div>
+                            </el-popover>
+                        </template>
+                    </el-table-column>
+                    <el-table-column sortable width="200" th:label="#{common.isReceivablePrice}">
+                        <template slot-scope="scope">
+                            <span class="normal-color"> {{scope.row.orderIsReceivableMoney}}&nbsp;RMB </span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column sortable width="200" th:label="#{common.toReceivablePrice}">
+                        <template slot-scope="scope">
+                            <span class="normal-color"> {{scope.row.orderToReceivableMoney}}&nbsp;RMB </span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column sortable width="200" th:label="#{common.status}">
+                        <template slot-scope="scope">
+                            <span class="normal-color" v-if="scope.row.orderStatusId=='1'" th:text="#{common.toAudit}"></span>
+                            <span class="normal-color" v-else-if="scope.row.orderStatusId=='2'" th:text="#{common.isPayDeposit}"></span>
+                            <span class="normal-color" v-else-if="scope.row.orderStatusId=='3'" th:text="#{common.toSend}"></span>
+                            <span class="normal-color" v-else-if="scope.row.orderStatusId=='4'" th:text="#{common.isPayFinal}"></span>
+                            <span class="normal-color" v-else-if="scope.row.orderStatusId=='5'" th:text="#{common.toReturn}"></span>
+                            <span class="normal-color" v-else-if="scope.row.orderStatusId=='6'" th:text="#{common.isSuccess}"></span>
+                            <span class="normal-color" v-else-if="scope.row.orderStatusId=='7'" th:text="#{common.isCancel}"></span>
+                            <span class="normal-color" v-else th:text="#{common.notStatus}"></span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column th:label="#{common.result}" v-if="activeIndex2 == '1'">
+                        <template slot-scope="scope">
+                            <span class="normal-color" v-if="scope.row.orderTotalMoney == scope.row.orderIsReceivableMoney ">正常</span>
+                            <span class="wrong-color" v-else>异常</span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column th:label="#{common.result}" v-if="activeIndex2 == '2'">
+                        <template slot-scope="scope">
+                            <span class="normal-color" v-if="scope.row.orderTotalMoney == scope.row.orderToReceivableMoney ">正常</span>
+                            <span class="wrong-color" v-else>异常</span>
+                        </template>
+                    </el-table-column>
+                </el-table>
+                <el-row class="samoyed-row" type="flex" align="middle">
+                    <el-col :span="24" style="text-align:right;">
+                        <el-pagination @size-change="handleSizeChange2" @current-change="handleCurrentChange2" :current-page="currentPage2" :page-sizes="[10, 20, 30,40, 50]"
+                            :page-size="5" layout="total, sizes, prev, pager, next, jumper" :total="totalCount2">
+                        </el-pagination>
+                    </el-col>
+                </el-row>
+            </div>
+        </div>
     </div>
-</div>
-<div th:replace="~{footer :: footer}"></div>
+    <div th:replace="~{footer :: footer}"></div>
 
-<script src="../../static/js/vue.js" th:src="@{/js/vue.js}"></script>
-<script src="../../static/js/element.js" th:src="@{/js/element.js}"></script>
-<script src="../../static/js/jquery-3.3.1.min.js" th:src="@{/js/jquery-3.3.1.min.js}"></script>
-<script src="../../static/js/utils.js" th:src="@{/js/utils.js}"></script>
-<!-- 引用vue组件相关的js文件 -->
-<div th:replace="~{nav :: vue('financeReconciliation')}"></div>
-<div th:replace="~{header :: vue}"></div>
-<div th:replace="~{footer :: vue}"></div>
-<!-- 本页面的js脚本 -->
-<script th:inline="javascript">
-
-</script>
+    <script src="../../static/js/vue.js" th:src="@{/js/vue.js}"></script>
+    <script src="../../static/js/element.js" th:src="@{/js/element.js}"></script>
+    <script src="../../static/js/jquery-3.3.1.min.js" th:src="@{/js/jquery-3.3.1.min.js}"></script>
+    <script src="../../static/js/utils.js" th:src="@{/js/utils.js}"></script>
+    <!-- 引用vue组件相关的js文件 -->
+    <div th:replace="~{nav :: vue('financeReconciliation')}"></div>
+    <div th:replace="~{header :: vue}"></div>
+    <div th:replace="~{footer :: vue}"></div>
+    <!-- 本页面的js脚本 -->
+    <script th:inline="javascript">
+        new Vue({
+            el: '#page-content',
+            data: {
+                //结果集对象
+                data1: {},
+                //查询条件
+                activeIndex1: '1',
+                //数据源
+                tableData1: [],
+                //每页数据量
+                pagesize1: 10,
+                //当前页码
+                currentPage1: 1,
+                //查询的页码
+                start1: 1,
+                //数据总数
+                totalCount1: 0,
+                //结果集对象
+                data2: {},
+                //查询条件
+                activeIndex2: '1',
+                //数据源
+                tableData2: [],
+                //每页数据量
+                pagesize2: 10,
+                //当前页码
+                currentPage2: 1,
+                //查询的页码
+                start2: 1,
+                //数据总数
+                totalCount2: 0,
+            },
+            created: function () {
+                this.loadData1();
+                this.loadData2();
+            },
+            methods: {
+                //加载数据
+                loadData1: function () {
+                    if (this.activeIndex1 == '1') {
+                        this.data1 = getPurchasePayRecord(this.currentPage1, this.pagesize1);
+                    } else {
+                        this.data1 = getPurchaseReceivableRecord(this.currentPage1, this.pagesize1);
+                    }
+                    this.tableData1 = this.data1.list;
+                    this.totalCount1 = this.data1.total;
+                },
+                //切换订单类型
+                handleSelectType1: function (index) {
+                    //切换效果
+                    if (this.activeIndex1 !== index) {
+                        this.activeIndex1 = index;
+                    }
+                    //重新加载数据
+                    this.loadData1();
+                },
+                //每页显示数据量变更
+                handleSizeChange1(val) {
+                    this.pagesize1 = val;
+                    this.loadData1();
+                },
+                //页码变更
+                handleCurrentChange1(val) {
+                    this.currentPage1 = val;
+                    this.loadData1();
+                },
+                //加载数据
+                loadData2: function () {
+                    if (this.activeIndex2 == '1') {
+                        this.data2 = getSaleReceivableRecord(this.currentPage2, this.pagesize2);
+                    } else {
+                        this.data2 = getSalePayRecord(this.currentPage2, this.pagesize2);
+                    }
+                    this.tableData2 = this.data2.list;
+                    this.totalCount2 = this.data2.total;
+                },
+                //切换订单类型
+                handleSelectType2: function (index) {
+                    //切换效果
+                    if (this.activeIndex2 !== index) {
+                        this.activeIndex2 = index;
+                    }
+                    //重新加载数据
+                    this.loadData2();
+                },
+                //每页显示数据量变更
+                handleSizeChange2(val) {
+                    this.pagesize2 = val;
+                    this.loadData2();
+                },
+                //页码变更
+                handleCurrentChange2(val) {
+                    this.currentPage2 = val;
+                    this.loadData2();
+                },
+            },
+        });
+    </script>
 
 </body>
+
 </html>

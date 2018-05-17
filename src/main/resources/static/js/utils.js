@@ -416,6 +416,97 @@ function getIsPend(pageNum, pageSize) {
     return getSaleOrders(7, pageNum, pageSize);
 }
 
+/** ---------------------------------------------------------------------采购对账-------------------------------------------------------------------------- */
+
+function getPurchasePayRecord(pageNum, pageSize){
+    var pageNum = pageNum;
+    var pageSize = pageSize;
+    var result;
+    var cacheKey = 'purchasePayRecord';
+    sessionStorage.removeItem(cacheKey);
+    $.ajax({
+        url: serverUrl + '/api/finance/purchasePayRecord?pageNum=' + pageNum + '&pageSize=' + pageSize,
+        data: {},
+        type: 'GET',
+        cache: false,    //关闭缓存
+        async: false,   // 同步获取数据
+        dataType: "json",
+        success: function (result) {
+            result = result;
+            saveCache(cacheKey, result);
+        },
+    });
+    result = loadCache(cacheKey);
+    return result;
+}
+
+function getPurchaseReceivableRecord(pageNum, pageSize){
+    var pageNum = pageNum;
+    var pageSize = pageSize;
+    var result;
+    var cacheKey = 'purchaseReceivableRecord';
+    sessionStorage.removeItem(cacheKey);
+    $.ajax({
+        url: serverUrl + '/api/finance/purchaseReceivableRecord?pageNum=' + pageNum + '&pageSize=' + pageSize,
+        data: {},
+        type: 'GET',
+        cache: false,    //关闭缓存
+        async: false,   // 同步获取数据
+        dataType: "json",
+        success: function (result) {
+            result = result;
+            saveCache(cacheKey, result);
+        },
+    });
+    result = loadCache(cacheKey);
+    return result;
+}
+
+function getSaleReceivableRecord(pageNum, pageSize){
+    var pageNum = pageNum;
+    var pageSize = pageSize;
+    var result;
+    var cacheKey = 'saleReceivableRecord';
+    sessionStorage.removeItem(cacheKey);
+    $.ajax({
+        url: serverUrl + '/api/finance/saleReceivableRecord?pageNum=' + pageNum + '&pageSize=' + pageSize,
+        data: {},
+        type: 'GET',
+        cache: false,    //关闭缓存
+        async: false,   // 同步获取数据
+        dataType: "json",
+        success: function (result) {
+            result = result;
+            saveCache(cacheKey, result);
+        },
+    });
+    result = loadCache(cacheKey);
+    return result;
+}
+
+function getSalePayRecord(pageNum, pageSize){
+    var pageNum = pageNum;
+    var pageSize = pageSize;
+    var result;
+    var cacheKey = 'salePayRecord';
+    sessionStorage.removeItem(cacheKey);
+    $.ajax({
+        url: serverUrl + '/api/finance/salePayRecord?pageNum=' + pageNum + '&pageSize=' + pageSize,
+        data: {},
+        type: 'GET',
+        cache: false,    //关闭缓存
+        async: false,   // 同步获取数据
+        dataType: "json",
+        success: function (result) {
+            result = result;
+            saveCache(cacheKey, result);
+        },
+    });
+    result = loadCache(cacheKey);
+    return result;
+}
+
+
 /** ---------------------------------------------------------------------仓储明细-------------------------------------------------------------------------- */
 
 //获取所有仓储原材料
@@ -480,6 +571,24 @@ function getAllWaseHouseWaste() {
     result = loadCache(cacheKey);
     return result;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

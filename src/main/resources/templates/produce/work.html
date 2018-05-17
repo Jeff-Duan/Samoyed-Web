@@ -756,11 +756,11 @@
                             //判断是否提交生产明细
                             var orderNumber = this.tableData[index].orderNumber;
                             var result = actualIsExist(orderNumber);
-                            if(result.status === 'success'){
+                            if (result.status === 'success') {
                                 bool2 = true;
                             }
                         }
-                        if (!bool2) {
+                        if (this.tableData[index].orderStatusId == this.produceSetpList[this.produceSetpList.length - 1] + 1 && !bool2) {
                             //最后一次验收-提交生产明细
                             this.$confirm('入库前(待验收-杀菌)需要提交生产明细,是否去提交?(请提交生产明细后尝试验收)', '验收提示', {
                                 confirmButtonText: '确定',
