@@ -223,7 +223,7 @@
                     </el-table-column>
                     <el-table-column th:label="#{common.operation}">
                         <template slot-scope="scope">
-                            <el-button size="mini" th:text="#{common.edit}" @click="handleEdit(scope.$index, scope.row)"></el-button>
+                            <el-button size="mini" th:text="#{common.edit}" @click="handleEdit(scope.$index, scope.row)" v-show="false"></el-button>
                             <el-button size="mini" type="danger" th:text="#{common.delete}" @click="handleDelete(scope.$index, scope.row)"></el-button>
                             <el-button size="mini" type="primary" th:text="#{common.audit}" @click="handleAudit(scope.$index, scope.row)"></el-button>
                             <el-button size="mini" type="info" th:text="#{common.income}" @click="handleIncome(scope.$index, scope.row)"></el-button>
@@ -536,8 +536,63 @@
                 handleEdit(index, row) {
                     console.log(index, row);
                 },
+                //删除
                 handleDelete(index, row) {
-                    console.log(index, row);
+                    var warnings = [];
+                    //判断用户部门
+                    if (this.user.dept.deptId !== 1 && this.user.dept.deptId !== 3) {
+                        var msg = '生产订单仅由生产部门成员可删除。';
+                        var english_msg = 'Produce orders are deleted only by members of the producement department.';
+                        warnings.push(msg.orEnglish(english_msg));
+                    }
+                    //判断订单状态
+                    if (this.tableData[index].orderStatusId !== 1) {
+                        var msg = '仅有生产订单(待审核)可删除。';
+                        var english_msg = 'Only produce orders (to be audited) need to be deleted.';
+                        warnings.push(msg.orEnglish(english_msg));
+                    }
+                    if (warnings.length) {
+                        this.$notify({
+                            title: '警告'.orEnglish('Notice'),
+                            message: warnings[0],
+                            type: 'warning'
+                        });
+                    } else {
+                        //获取订单号
+                        var orderNumber = this.tableData[index].orderNumber;
+                        var formData = new FormData();
+                        formData.append('orderNumber', orderNumber);
+                        var that = this;
+                        $.ajax({
+                            url: 'http://localhost:8091/api/produce/delete',
+                            type: 'POST',
+                            cache: false,
+                            processData: false, // 告诉jQuery不要去处理发送的数据
+                            contentType: false, // 告诉jQuery不要去设置Content-Type请求头
+                            data: formData,
+                            dataType: "json",
+                            success: function (result) {
+                                var title;
+                                var content;
+                                var okBtnTxt;
+                                var type;
+                                if (result.status === 'success') {
+                                    title = '删除成功'.orEnglish('Delete successfully');
+                                    content = '订单以及明细已清除。'.orEnglish('Order and detail is deleted.');
+                                    okBtnTxt = '确定'.orEnglish('OK');
+                                    type = 'success';
+                                } else {
+                                    title = '删除失败'.orEnglish('Delete failed');
+                                    content = '请联系'.orEnglish('Please contact ') + supportMail + '。'.orEnglish('.');
+                                    okBtnTxt = '确定'.orEnglish('OK');
+                                    type = 'error';
+                                }
+                                that.$alert(content, title, { confirmButtonText: okBtnTxt, type: type });
+                                //重新加载数据
+                                that.loadData();
+                            },
+                        });
+                    }
                 },
                 //审核
                 handleAudit(index, row) {
@@ -824,8 +879,72 @@
                 handleSelectionChange(val) {
                     this.multipleSelection = val;
                 },
+                //批量删除
                 handleBatchdelete: function () {
-
+                    var warnings = [];
+                    //判断用户部门
+                    if (this.user.dept.deptId !== 1 && this.user.dept.deptId !== 3) {
+                        var msg = '生产订单仅由生产部门成员可删除。';
+                        var english_msg = 'Produce orders are deleted only by members of the producement department.';
+                        warnings.push(msg.orEnglish(english_msg));
+                    }
+                    //判断订单状态
+                    if (this.multipleSelection.length == 0) {
+                        var msg = '请选择待审核订单。';
+                        var english_msg = 'Please choose the order to be audited.';
+                        warnings.push(msg.orEnglish(english_msg));
+                    }
+                    for (var i = 0; i < this.multipleSelection.length; i++) {
+                        if (this.multipleSelection[i].orderStatusId !== 1) {
+                            var msg = '仅有生产订单(待审核)可删除。';
+                            var english_msg = 'Only produce orders (to be audited) need to be deleted.';
+                            warnings.push(msg.orEnglish(english_msg));
+                            break;
+                        }
+                    }
+                    if (warnings.length) {
+                        this.$notify({
+                            title: '警告'.orEnglish('Notice'),
+                            message: warnings[0],
+                            type: 'warning'
+                        });
+                    } else {
+                        //获取订单号
+                        var formData = new FormData();
+                        for (var i = 0; i < this.multipleSelection.length; i++) {
+                            formData.append('orderNumbers[]', this.multipleSelection[i].orderNumber);
+                        }
+                        var that = this;
+                        $.ajax({
+                            url: 'http://localhost:8091/api/produce/batchDelete',
+                            type: 'POST',
+                            cache: false,
+                            processData: false, // 告诉jQuery不要去处理发送的数据
+                            contentType: false, // 告诉jQuery不要去设置Content-Type请求头
+                            data: formData,
+                            dataType: "json",
+                            success: function (result) {
+                                var title;
+                                var content;
+                                var okBtnTxt;
+                                var type;
+                                if (result.status === 'success') {
+                                    title = '删除成功'.orEnglish('Delete successfully');
+                                    content = '订单以及明细已清除。'.orEnglish('Order and detail is deleted.');
+                                    okBtnTxt = '确定'.orEnglish('OK');
+                                    type = 'success';
+                                } else {
+                                    title = '删除失败'.orEnglish('Delete failed');
+                                    content = '请联系'.orEnglish('Please contact ') + supportMail + '。'.orEnglish('.');
+                                    okBtnTxt = '确定'.orEnglish('OK');
+                                    type = 'error';
+                                }
+                                that.$alert(content, title, { confirmButtonText: okBtnTxt, type: type });
+                                //重新加载数据
+                                that.loadData();
+                            },
+                        });
+                    }
                 },
                 //批量审核
                 handleBatchAudit: function () {
