@@ -37,7 +37,6 @@
     <div class="margin-helper">
         <div class="samoyed-content">
             <div th:replace="~{pageHead :: pageHead(pageName=#{nav.warehouseStorage-produce}, parentMenu=#{nav.warehouse})}"></div>
-
             <div id="page-content" class="page-content" v-cloak>
                 <div class="type-menu">
                     <el-menu :default-active="activeIndex" mode="horizontal" @select="handleSelectType">
@@ -225,7 +224,6 @@
                     </el-col>
                 </el-row>
             </div>
-
         </div>
     </div>
     <div th:replace="~{footer :: footer}"></div>

@@ -127,6 +127,19 @@
                     </el-menu-item>
                 </el-menu-item-group>
             </el-submenu>
+
+            <el-submenu index="report" :show-timeout="0" :hide-timeout="200">
+                <template slot="title">
+                    <i :class="'nav-icon nav-icon-report'+(activeReport?'-active':'')"></i>
+                    <span slot="title" th:text="#{nav.report}"></span>
+                </template>
+                <el-menu-item-group>
+                    <el-menu-item index="reportCenter" @click="onClickReportCenter">
+                        <span slot="title" th:text="#{nav.reportCenter}"></span>
+                    </el-menu-item>
+                </el-menu-item-group>
+            </el-submenu>
+
         </el-menu>
     </div>
     <a id="jump">
@@ -218,6 +231,15 @@
                             return false;
                     }
                 },
+                //报表模块
+                activeReport: function () {
+                    switch (this.active) {
+                        case 'reportCenter':
+                            return true;
+                        default:
+                            return false;
+                    }
+                },
             },
             methods: {
                 //nav样式
@@ -293,6 +315,10 @@
                 },
                 onClickWarehouseDetail: function () {
                     jumpToURL("/warehouse/detail");
+                },
+                //仓储模块
+                onClickReportCenter: function () {
+                    jumpToURL("/report/center");
                 },
             },
         })

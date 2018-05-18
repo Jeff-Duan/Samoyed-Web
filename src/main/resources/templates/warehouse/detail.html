@@ -11,7 +11,7 @@
     <!-- 自定义css文件 -->
     <link href="../../static/css/common.css" rel="stylesheet" th:href="@{/css/common.css}">
     <style>
-        .el-progress-color {
+        .el-progress-bar__innerText{
             color: black !important;
         }
     </style>
@@ -25,7 +25,6 @@
         <div class="samoyed-content">
             <div th:replace="~{pageHead :: pageHead(pageName=#{nav.warehouseDetail}, parentMenu=#{nav.warehouse})}"></div>
             <div id="page-content" class="page-content" v-cloak>
-
                 <div class="section-title" th:text="#{common.material}+'('+ #{common.warnValue} + ':20%)'"></div>
                 <el-table :data="tableData1">
                     <el-table-column sortable header-align="center" align="center" prop="material.materialName" th:label="#{common.material}">

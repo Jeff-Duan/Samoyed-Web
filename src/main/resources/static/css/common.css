@@ -214,6 +214,12 @@ a:active {
 .nav-icon-warehouse-active {
     background-image: url(../imgs/warehouse-active.png);
 }
+.nav-icon-report {
+    background-image: url(../imgs/report.png);
+}
+.nav-icon-report-active {
+    background-image: url(../imgs/report-active.png);
+}
 .nav-icon-download {
     background-image: url(../imgs/download.png);
 }

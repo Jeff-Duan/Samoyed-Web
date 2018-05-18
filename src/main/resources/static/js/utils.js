@@ -572,6 +572,106 @@ function getAllWaseHouseWaste() {
     return result;
 }
 
+/** ---------------------------------------------------------------------报表中心-------------------------------------------------------------------------- */
+function getPurchaseNumber(){
+    var result;
+    var cacheKey = 'purchaseNumber';
+    sessionStorage.removeItem(cacheKey);
+    $.ajax({
+        url: serverUrl + '/api/report/purchase/number',
+        data: {},
+        type: 'GET',
+        cache: false,    //关闭缓存
+        async: false,   // 同步获取数据
+        dataType: "json",
+        success: function (result) {
+            result = result;
+            saveCache(cacheKey, result);
+        },
+    });
+    result = loadCache(cacheKey);
+    return result;
+}
+
+function getProduceNumber(){
+    var result;
+    var cacheKey = 'produceNumber';
+    sessionStorage.removeItem(cacheKey);
+    $.ajax({
+        url: serverUrl + '/api/report/produce/number',
+        data: {},
+        type: 'GET',
+        cache: false,    //关闭缓存
+        async: false,   // 同步获取数据
+        dataType: "json",
+        success: function (result) {
+            result = result;
+            saveCache(cacheKey, result);
+        },
+    });
+    result = loadCache(cacheKey);
+    return result;
+}
+
+function getSaleNumber(){
+    var result;
+    var cacheKey = 'saleNumber';
+    sessionStorage.removeItem(cacheKey);
+    $.ajax({
+        url: serverUrl + '/api/report/sale/number',
+        data: {},
+        type: 'GET',
+        cache: false,    //关闭缓存
+        async: false,   // 同步获取数据
+        dataType: "json",
+        success: function (result) {
+            result = result;
+            saveCache(cacheKey, result);
+        },
+    });
+    result = loadCache(cacheKey);
+    return result;
+}
+
+function getFinanceNumber(){
+    var result;
+    var cacheKey = 'financeNumber';
+    sessionStorage.removeItem(cacheKey);
+    $.ajax({
+        url: serverUrl + '/api/report/finance/number',
+        data: {},
+        type: 'GET',
+        cache: false,    //关闭缓存
+        async: false,   // 同步获取数据
+        dataType: "json",
+        success: function (result) {
+            result = result;
+            saveCache(cacheKey, result);
+        },
+    });
+    result = loadCache(cacheKey);
+    return result;
+}
+
+function getWareHouseNumber(){
+    var result;
+    var cacheKey = 'warehouseNumber';
+    sessionStorage.removeItem(cacheKey);
+    $.ajax({
+        url: serverUrl + '/api/report/warehouse/number',
+        data: {},
+        type: 'GET',
+        cache: false,    //关闭缓存
+        async: false,   // 同步获取数据
+        dataType: "json",
+        success: function (result) {
+            result = result;
+            saveCache(cacheKey, result);
+        },
+    });
+    result = loadCache(cacheKey);
+    return result;
+}
 
 
 

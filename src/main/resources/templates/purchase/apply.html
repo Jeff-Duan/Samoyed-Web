@@ -229,293 +229,294 @@
                 </div>
             </div>
         </div>
-        <div th:replace="~{footer :: footer}"></div>
+    </div>
+    <div th:replace="~{footer :: footer}"></div>
 
-        <script src="../../static/js/vue.js" th:src="@{/js/vue.js}"></script>
-        <script src="../../static/js/element.js" th:src="@{/js/element.js}"></script>
-        <script src="../../static/js/jquery-3.3.1.min.js" th:src="@{/js/jquery-3.3.1.min.js}"></script>
-        <script src="../../static/js/utils.js" th:src="@{/js/utils.js}"></script>
-        <script src="../../static/js/data.js" th:src="@{/js/data.js}"></script>
-        <!-- 引用vue组件相关的js文件 -->
-        <div th:replace="~{nav :: vue('purchaseApply')}"></div>
-        <div th:replace="~{header :: vue}"></div>
-        <div th:replace="~{footer :: vue}"></div>
-        <!-- 本页面的js脚本 -->
-        <script th:inline="javascript">
+    <script src="../../static/js/vue.js" th:src="@{/js/vue.js}"></script>
+    <script src="../../static/js/element.js" th:src="@{/js/element.js}"></script>
+    <script src="../../static/js/jquery-3.3.1.min.js" th:src="@{/js/jquery-3.3.1.min.js}"></script>
+    <script src="../../static/js/utils.js" th:src="@{/js/utils.js}"></script>
+    <script src="../../static/js/data.js" th:src="@{/js/data.js}"></script>
+    <!-- 引用vue组件相关的js文件 -->
+    <div th:replace="~{nav :: vue('purchaseApply')}"></div>
+    <div th:replace="~{header :: vue}"></div>
+    <div th:replace="~{footer :: vue}"></div>
+    <!-- 本页面的js脚本 -->
+    <script th:inline="javascript">
 
-            //原料
-            function Material() {
-                this.name = '';
-                this.price = '';
-                this.unitId = '',
+        //原料
+        function Material() {
+            this.name = '';
+            this.price = '';
+            this.unitId = '',
                 this.measurement = '';
-                this.number = '';
-            }
+            this.number = '';
+        }
 
-            new Vue({
-                el: '#page-content',
-                data: {
-                    supplier: '',
-                    payAccount: '',
-                    allPrice: '',
-                    materials: [new Material()],
-                    payment: '',
-                    payPrice: '',
-                    orderDate: '',
-                    payDate: '',
-                    arrivalDate: '',
-                    deliveryAddress: '',
-                    remark: '',
-                    //填充数据
-                    supplierList: getSuppliers(),
-                    materialList: [],
-                    payMentList: samoyedData.payMentList,
-                },
-                created: function () {
+        new Vue({
+            el: '#page-content',
+            data: {
+                supplier: '',
+                payAccount: '',
+                allPrice: '',
+                materials: [new Material()],
+                payment: '',
+                payPrice: '',
+                orderDate: '',
+                payDate: '',
+                arrivalDate: '',
+                deliveryAddress: '',
+                remark: '',
+                //填充数据
+                supplierList: getSuppliers(),
+                materialList: [],
+                payMentList: samoyedData.payMentList,
+            },
+            created: function () {
 
-                },
-                computed: {
+            },
+            computed: {
 
+            },
+            methods: {
+                addMaterial: function () {
+                    this.materials.push(new Material());
                 },
-                methods: {
-                    addMaterial: function () {
-                        this.materials.push(new Material());
-                    },
-                    removeMaterial: function (index) {
-                        this.materials.splice(index, 1);
-                        this.allPriceCount();
-                        this.payPriceCount();
-                    },
-                    //改变供应商
-                    onChangeSupplier: function (supplierId) {
-                        this.allPrice = '';
-                        this.materials.splice(0, this.materials.length);
-                        this.materials.push(new Material());
-                        for (var i = 0; i < this.supplierList.length; i++) {
-                            if (supplierId == this.supplierList[i].supplierId) {
-                                this.payAccount = this.supplierList[i].supplierBank;
-                            };
-                            this.materialList = this.supplierList[i].materials;
-                        }
-                    },
-                    //改变原材料名称
-                    onChangeMaterialName: function (materialId, materialIndex) {
-                        this.materials[materialIndex].number = '';
-                        this.allPriceCount();
-                        this.payPriceCount();
-                        for (var i = 0; i < this.supplierList.length; i++) {
-                            if (this.supplier == this.supplierList[i].supplierId) {
-                                for (var j = 0; j < this.supplierList[i].materials.length; j++) {
-                                    if (materialId == this.supplierList[i].materials[j].materialId) {
-                                        this.materials[materialIndex].price = this.supplierList[i].materials[j].materialPrice;
-                                        this.materials[materialIndex].unitId = this.supplierList[i].materials[j].unit.unitId;
-                                        this.materials[materialIndex].measurement = this.supplierList[i].materials[j].unit.unitName;
-                                    };
+                removeMaterial: function (index) {
+                    this.materials.splice(index, 1);
+                    this.allPriceCount();
+                    this.payPriceCount();
+                },
+                //改变供应商
+                onChangeSupplier: function (supplierId) {
+                    this.allPrice = '';
+                    this.materials.splice(0, this.materials.length);
+                    this.materials.push(new Material());
+                    for (var i = 0; i < this.supplierList.length; i++) {
+                        if (supplierId == this.supplierList[i].supplierId) {
+                            this.payAccount = this.supplierList[i].supplierBank;
+                        };
+                        this.materialList = this.supplierList[i].materials;
+                    }
+                },
+                //改变原材料名称
+                onChangeMaterialName: function (materialId, materialIndex) {
+                    this.materials[materialIndex].number = '';
+                    this.allPriceCount();
+                    this.payPriceCount();
+                    for (var i = 0; i < this.supplierList.length; i++) {
+                        if (this.supplier == this.supplierList[i].supplierId) {
+                            for (var j = 0; j < this.supplierList[i].materials.length; j++) {
+                                if (materialId == this.supplierList[i].materials[j].materialId) {
+                                    this.materials[materialIndex].price = this.supplierList[i].materials[j].materialPrice;
+                                    this.materials[materialIndex].unitId = this.supplierList[i].materials[j].unit.unitId;
+                                    this.materials[materialIndex].measurement = this.supplierList[i].materials[j].unit.unitName;
                                 };
                             };
                         };
-                    },
-                    //改变原材料数量
-                    onChangeMaterialNumber: function () {
-                        this.allPriceCount();
-                        this.payPriceCount();
-                    },
-                    //改变支付类型
-                    onChangePayMent: function () {
-                        this.payPriceCount();
-                    },
-                    //乘法(保留两位小数)
-                    floatMul: function (arg1, arg2) {
-                        var m = 0, s1 = arg1.toString(), s2 = arg2.toString();
-                        try { m += s1.split(".")[1].length } catch (e) { };
-                        try { m += s2.split(".")[1].length } catch (e) { };
-                        return Number(s1.replace(".", "")) * Number(s2.replace(".", "")) / Math.pow(10, m);
-                    },
-                    //除法(保留两位小数)
-                    floatDiv: function (arg1, arg2) {
-                        var t1 = 0, t2 = 0, r1, r2;
-                        try { t1 = arg1.toString().split(".")[1].length } catch (e) { };
-                        try { t2 = arg2.toString().split(".")[1].length } catch (e) { };
-                        with (Math) {
-                            r1 = Number(arg1.toString().replace(".", ""));
-                            r2 = Number(arg2.toString().replace(".", ""));
-                            return (r1 / r2) * pow(10, t2 - t1);
-                        }
-                    },
-                    //加法(保留两位小数)
-                    floatAdd: function (arg1, arg2) {
-                        var r1, r2, m;
-                        try { r1 = arg1.toString().split(".")[1].length } catch (e) { r1 = 0 }
-                        try { r2 = arg2.toString().split(".")[1].length } catch (e) { r2 = 0 }
-                        m = Math.pow(10, Math.max(r1, r2))
-                        return (arg1 * m + arg2 * m) / m
-                    },
-                    //计算总金额
-                    allPriceCount: function () {
-                        var allPrice = 0.00;
-                        for (var i = 0; i < this.materials.length; i++) {
-                            if (this.materials[i].price && this.materials[i].number) {
-                                allPrice = this.floatAdd(allPrice, this.floatMul(this.materials[i].price, this.materials[i].number));
-                            };
+                    };
+                },
+                //改变原材料数量
+                onChangeMaterialNumber: function () {
+                    this.allPriceCount();
+                    this.payPriceCount();
+                },
+                //改变支付类型
+                onChangePayMent: function () {
+                    this.payPriceCount();
+                },
+                //乘法(保留两位小数)
+                floatMul: function (arg1, arg2) {
+                    var m = 0, s1 = arg1.toString(), s2 = arg2.toString();
+                    try { m += s1.split(".")[1].length } catch (e) { };
+                    try { m += s2.split(".")[1].length } catch (e) { };
+                    return Number(s1.replace(".", "")) * Number(s2.replace(".", "")) / Math.pow(10, m);
+                },
+                //除法(保留两位小数)
+                floatDiv: function (arg1, arg2) {
+                    var t1 = 0, t2 = 0, r1, r2;
+                    try { t1 = arg1.toString().split(".")[1].length } catch (e) { };
+                    try { t2 = arg2.toString().split(".")[1].length } catch (e) { };
+                    with (Math) {
+                        r1 = Number(arg1.toString().replace(".", ""));
+                        r2 = Number(arg2.toString().replace(".", ""));
+                        return (r1 / r2) * pow(10, t2 - t1);
+                    }
+                },
+                //加法(保留两位小数)
+                floatAdd: function (arg1, arg2) {
+                    var r1, r2, m;
+                    try { r1 = arg1.toString().split(".")[1].length } catch (e) { r1 = 0 }
+                    try { r2 = arg2.toString().split(".")[1].length } catch (e) { r2 = 0 }
+                    m = Math.pow(10, Math.max(r1, r2))
+                    return (arg1 * m + arg2 * m) / m
+                },
+                //计算总金额
+                allPriceCount: function () {
+                    var allPrice = 0.00;
+                    for (var i = 0; i < this.materials.length; i++) {
+                        if (this.materials[i].price && this.materials[i].number) {
+                            allPrice = this.floatAdd(allPrice, this.floatMul(this.materials[i].price, this.materials[i].number));
                         };
-                        this.allPrice = allPrice.toFixed(2);
-                    },
-                    //计算支付金额
-                    payPriceCount: function () {
-                        var payPrice = new Number(0.00);
-                        if (this.payment && this.allPrice) {
-                            if (this.payment == 1) {
-                                payPrice = this.floatAdd(0.00, this.allPrice);
-                            } else if (this.payment == 2) {
-                                payPrice = new Number(0.00);
-                            } else if (this.payment == 3) {
-                                payPrice = this.floatDiv(this.allPrice, 5);
-                            } else {
-                                payPrice = new Number(0.00);;
-                            }
+                    };
+                    this.allPrice = allPrice.toFixed(2);
+                },
+                //计算支付金额
+                payPriceCount: function () {
+                    var payPrice = new Number(0.00);
+                    if (this.payment && this.allPrice) {
+                        if (this.payment == 1) {
+                            payPrice = this.floatAdd(0.00, this.allPrice);
+                        } else if (this.payment == 2) {
+                            payPrice = new Number(0.00);
+                        } else if (this.payment == 3) {
+                            payPrice = this.floatDiv(this.allPrice, 5);
                         } else {
                             payPrice = new Number(0.00);;
                         }
-                        this.payPrice = payPrice.toFixed(2);
-                    },
-                    //提交前验证
-                    checkBeforeSubmit: function () {
-                        var warnings = [];
-                        if (this.supplier == '') {
-                            var msg = '没有指定供应商。';
-                            var english_msg = 'There is no supplier : Please add a supplier.';
+                    } else {
+                        payPrice = new Number(0.00);;
+                    }
+                    this.payPrice = payPrice.toFixed(2);
+                },
+                //提交前验证
+                checkBeforeSubmit: function () {
+                    var warnings = [];
+                    if (this.supplier == '') {
+                        var msg = '没有指定供应商。';
+                        var english_msg = 'There is no supplier : Please add a supplier.';
+                        warnings.push(msg.orEnglish(english_msg));
+                    }
+                    for (var i = 0; i < this.materials.length; i++) {
+                        if (this.materials[i].name == '') {
+                            var seq = getSequence(i + 1);
+                            var msg = '第' + (i + 1) + '个原材料没有指定品种。';
+                            var english_msg = 'The ' + seq + ' material\'s name doesn\'t select .';
                             warnings.push(msg.orEnglish(english_msg));
                         }
-                        for (var i = 0; i < this.materials.length; i++) {
-                            if (this.materials[i].name == '') {
-                                var seq = getSequence(i + 1);
-                                var msg = '第' + (i + 1) + '个原材料没有指定品种。';
-                                var english_msg = 'The ' + seq + ' material\'s name doesn\'t select .';
+                        if (this.materials[i].number == '') {
+                            var seq = getSequence(i + 1);
+                            var msg = '第' + (i + 1) + '个原材料没有输入数量。';
+                            var english_msg = 'The ' + seq + ' material\'s number doesn\'t input .';
+                            warnings.push(msg.orEnglish(english_msg));
+                        }
+                    }
+                    for (var i = 0; i < this.materials.length; i++) {
+                        for (var j = 0; j < this.materials.length; j++) {
+                            if (i !== j && this.materials[i].name === this.materials[j].name) {
+                                var i_seq = getSequence(i + 1);
+                                var j_seq = getSequence(j + 1);
+                                var msg = '第' + (i + 1) + '和' + '第' + (j + 1) + '原材料重复。';
+                                var english_msg = 'The ' + i_seq + 'and' + j_seq + ' material repeat.';
                                 warnings.push(msg.orEnglish(english_msg));
                             }
-                            if (this.materials[i].number == '') {
-                                var seq = getSequence(i + 1);
-                                var msg = '第' + (i + 1) + '个原材料没有输入数量。';
-                                var english_msg = 'The ' + seq + ' material\'s number doesn\'t input .';
-                                warnings.push(msg.orEnglish(english_msg));
-                            }
                         }
-                        for (var i = 0; i < this.materials.length; i++) {
-                            for (var j = 0; j < this.materials.length; j++) {
-                                if (i !== j && this.materials[i].name === this.materials[j].name) {
-                                    var i_seq = getSequence(i + 1);
-                                    var j_seq = getSequence(j + 1);
-                                    var msg = '第' + (i + 1) + '和' + '第' + (j + 1) + '原材料重复。';
-                                    var english_msg = 'The ' + i_seq + 'and' + j_seq + ' material repeat.';
-                                    warnings.push(msg.orEnglish(english_msg));
-                                }
-                            }
-                        }
-                        if (this.payment == '') {
-                            var msg = '没有指定支付方式。';
-                            var english_msg = 'There is no payment : Please add a payment.';
-                            warnings.push(msg.orEnglish(english_msg));
-                        }
-                        if (this.orderDate == '') {
-                            var msg = '没有指定订单日期。';
-                            var english_msg = 'There is no orderDate : Please add a orderDate.';
-                            warnings.push(msg.orEnglish(english_msg));
-                        }
-                        if (this.payDate == '') {
-                            var msg = '没有指定付款日期。';
-                            var english_msg = 'There is no payDate : Please add a payDate.';
-                            warnings.push(msg.orEnglish(english_msg));
-                        }
-                        if (this.arrivalDate == '') {
-                            var msg = '没有指定到货日期。';
-                            var english_msg = 'There is no arrivalDate : Please add a arrivalDate.';
-                            warnings.push(msg.orEnglish(english_msg));
-                        }
-                        if (this.deliveryAddress == '') {
-                            var msg = '没有指定收获地址。';
-                            var english_msg = 'There is no deliveryAddress : Please input a deliveryAddress.';
-                            warnings.push(msg.orEnglish(english_msg));
-                        }
-                        if (warnings.length) {
-                            this.$notify({
-                                title: '警告'.orEnglish('Notice'),
-                                message: warnings[0],
-                                type: 'warning'
-                            });
-                            return false;
-                        } else {
-                            return true;
-                        }
-                    },
-                    //组装
-                    assemble: function () {
-                        var purchaseOrderDetails = [];
-                        var a;
-                        var b;
-                        var c;
-                        var d;
-                        for (var i = 0; i < this.materials.length; i++) {
-                            a = this.materials[i].name;
-                            b = this.materials[i].price;
-                            c = this.materials[i].unitId;
-                            d = this.materials[i].number;
-                            purchaseOrderDetails.push({ detailMaterialId: a, detailMaterialPrice: b, detailUnitId: c, detailMaterialNumber: d, });
-                        }
-                        return {
-                            orderSupplierId: this.supplier,
-                            orderPayBank: this.payAccount,
-                            orderTotalMoney: this.allPrice,
-                            orderPayType: this.payment,
-                            orderPayMoney: this.payPrice,
-                            orderInsertTime: this.orderDate,
-                            orderPayTime: this.payDate,
-                            orderDeliveryTime: this.arrivalDate,
-                            orderDeliveryAddress: this.deliveryAddress,
-                            orderRemark: this.remark,
-
-                            purchaseOrderDetails: purchaseOrderDetails,
-                        }
-                    },
-                    //提交
-                    onClickSubmit: function () {
-                        if (!this.checkBeforeSubmit()) {
-                            console.warn('Check does not pass!');
-                            return;
-                        }
-                        var formData = new FormData();
-                        formData.append('data', JSON.stringify(this.assemble()));
-                        var that = this;
-                        $.ajax({
-                            url: 'http://localhost:8091/api/purchase/apply',
-                            type: 'POST',
-                            cache: false,
-                            processData: false, // 告诉jQuery不要去处理发送的数据
-                            contentType: false, // 告诉jQuery不要去设置Content-Type请求头
-                            data: formData,
-                            dataType: "json",
-                            success: function (result) {
-                                var title;
-                                var content;
-                                var okBtnTxt;
-                                var type;
-                                if (result.status === 'success') {
-                                    title = '采购申请提交成功'.orEnglish('Submitted successfully');
-                                    content = '请耐心等待审核。'.orEnglish('Please wait for audit.');
-                                    okBtnTxt = '确定'.orEnglish('OK');
-                                    type = 'success';
-                                } else {
-                                    title = '采购申请提交失败'.orEnglish('Submitted failed');
-                                    content = '请联系'.orEnglish('Please contact ') + supportMail + '。'.orEnglish('.');
-                                    okBtnTxt = '确定'.orEnglish('OK');
-                                    type = 'error';
-                                }
-                                that.$alert(content, title, { confirmButtonText: okBtnTxt, type: type });
-                            },
+                    }
+                    if (this.payment == '') {
+                        var msg = '没有指定支付方式。';
+                        var english_msg = 'There is no payment : Please add a payment.';
+                        warnings.push(msg.orEnglish(english_msg));
+                    }
+                    if (this.orderDate == '') {
+                        var msg = '没有指定订单日期。';
+                        var english_msg = 'There is no orderDate : Please add a orderDate.';
+                        warnings.push(msg.orEnglish(english_msg));
+                    }
+                    if (this.payDate == '') {
+                        var msg = '没有指定付款日期。';
+                        var english_msg = 'There is no payDate : Please add a payDate.';
+                        warnings.push(msg.orEnglish(english_msg));
+                    }
+                    if (this.arrivalDate == '') {
+                        var msg = '没有指定到货日期。';
+                        var english_msg = 'There is no arrivalDate : Please add a arrivalDate.';
+                        warnings.push(msg.orEnglish(english_msg));
+                    }
+                    if (this.deliveryAddress == '') {
+                        var msg = '没有指定收获地址。';
+                        var english_msg = 'There is no deliveryAddress : Please input a deliveryAddress.';
+                        warnings.push(msg.orEnglish(english_msg));
+                    }
+                    if (warnings.length) {
+                        this.$notify({
+                            title: '警告'.orEnglish('Notice'),
+                            message: warnings[0],
+                            type: 'warning'
                         });
-                    },
-                }
-            });
-        </script>
+                        return false;
+                    } else {
+                        return true;
+                    }
+                },
+                //组装
+                assemble: function () {
+                    var purchaseOrderDetails = [];
+                    var a;
+                    var b;
+                    var c;
+                    var d;
+                    for (var i = 0; i < this.materials.length; i++) {
+                        a = this.materials[i].name;
+                        b = this.materials[i].price;
+                        c = this.materials[i].unitId;
+                        d = this.materials[i].number;
+                        purchaseOrderDetails.push({ detailMaterialId: a, detailMaterialPrice: b, detailUnitId: c, detailMaterialNumber: d, });
+                    }
+                    return {
+                        orderSupplierId: this.supplier,
+                        orderPayBank: this.payAccount,
+                        orderTotalMoney: this.allPrice,
+                        orderPayType: this.payment,
+                        orderPayMoney: this.payPrice,
+                        orderInsertTime: this.orderDate,
+                        orderPayTime: this.payDate,
+                        orderDeliveryTime: this.arrivalDate,
+                        orderDeliveryAddress: this.deliveryAddress,
+                        orderRemark: this.remark,
+
+                        purchaseOrderDetails: purchaseOrderDetails,
+                    }
+                },
+                //提交
+                onClickSubmit: function () {
+                    if (!this.checkBeforeSubmit()) {
+                        console.warn('Check does not pass!');
+                        return;
+                    }
+                    var formData = new FormData();
+                    formData.append('data', JSON.stringify(this.assemble()));
+                    var that = this;
+                    $.ajax({
+                        url: 'http://localhost:8091/api/purchase/apply',
+                        type: 'POST',
+                        cache: false,
+                        processData: false, // 告诉jQuery不要去处理发送的数据
+                        contentType: false, // 告诉jQuery不要去设置Content-Type请求头
+                        data: formData,
+                        dataType: "json",
+                        success: function (result) {
+                            var title;
+                            var content;
+                            var okBtnTxt;
+                            var type;
+                            if (result.status === 'success') {
+                                title = '采购申请提交成功'.orEnglish('Submitted successfully');
+                                content = '请耐心等待审核。'.orEnglish('Please wait for audit.');
+                                okBtnTxt = '确定'.orEnglish('OK');
+                                type = 'success';
+                            } else {
+                                title = '采购申请提交失败'.orEnglish('Submitted failed');
+                                content = '请联系'.orEnglish('Please contact ') + supportMail + '。'.orEnglish('.');
+                                okBtnTxt = '确定'.orEnglish('OK');
+                                type = 'error';
+                            }
+                            that.$alert(content, title, { confirmButtonText: okBtnTxt, type: type });
+                        },
+                    });
+                },
+            }
+        });
+    </script>
 
 </body>
 
